@@ -1,70 +1,57 @@
 import { useState } from 'react'
 import { Menu, ArrowLeft } from 'lucide-react'
+import { AuthProvider } from './context/AuthContext'
+import AuthGuard from './components/auth/AuthGuard'
+import SubscriptionGuard from './components/auth/SubscriptionGuard'
 import LeftSidebar from './components/LeftSidebar'
 import VideoDetailView from './components/VideoDetailView'
 import LibraryView from './components/LibraryView'
 import TagsView from './components/TagsView'
 import SearchView from './components/SearchView'
-import { videos, snips, tags, summaries } from './data/mockData'
 
-function App() {
-  const [selectedVideo, setSelectedVideo] = useState(null)
+function AppContent() {
+  const [selectedVideoId, setSelectedVideoId] = useState(null)
   const [activeNav, setActiveNav] = useState('home')
   const [leftSidebarOpen, setLeftSidebarOpen] = useState(false)
 
   const handleSelectVideo = (videoId) => {
-    const video = videos.find(v => v.id === videoId)
-    if (video) {
-      setSelectedVideo(video)
-    }
+    setSelectedVideoId(videoId)
   }
 
   const handleBackToLibrary = () => {
-    setSelectedVideo(null)
+    setSelectedVideoId(null)
   }
 
   const handleNavChange = (nav) => {
     setActiveNav(nav)
-    setSelectedVideo(null) // Clear selected video when navigating
+    setSelectedVideoId(null)
     setLeftSidebarOpen(false)
   }
 
-  const currentSnips = selectedVideo
-    ? snips.filter(s => s.videoId === selectedVideo.id)
-    : []
-
-  const currentSummary = selectedVideo
-    ? summaries.find(s => s.videoId === selectedVideo.id)
-    : null
-
   const renderMainContent = () => {
-    // If a video is selected, show the detail view
-    if (selectedVideo) {
+    if (selectedVideoId) {
       return (
         <VideoDetailView
-          video={selectedVideo}
-          snips={currentSnips}
-          summary={currentSummary}
+          videoId={selectedVideoId}
           onBack={handleBackToLibrary}
         />
       )
     }
 
-    // Otherwise show the appropriate view based on nav
     switch (activeNav) {
       case 'tags':
-        return <TagsView tags={tags} videos={videos} onSelectVideo={handleSelectVideo} />
+        return <TagsView onSelectVideo={handleSelectVideo} />
       case 'search':
-        return <SearchView videos={videos} snips={snips} onSelectVideo={handleSelectVideo} />
+        return <SearchView onSelectVideo={handleSelectVideo} />
       case 'home':
       default:
-        return <LibraryView videos={videos} onSelectVideo={handleSelectVideo} />
+        return <LibraryView onSelectVideo={handleSelectVideo} />
     }
   }
 
   const getMobileHeaderTitle = () => {
-    if (selectedVideo) {
-      return selectedVideo.title
+    if (selectedVideoId) {
+      return 'Video'
     }
     switch (activeNav) {
       case 'tags':
@@ -80,7 +67,7 @@ function App() {
     <div className="flex h-screen bg-bg-primary overflow-hidden relative">
       {/* Mobile Header */}
       <div className="fixed top-0 left-0 right-0 h-14 bg-bg-primary border-b border-border flex items-center justify-between px-4 lg:hidden z-40">
-        {selectedVideo ? (
+        {selectedVideoId ? (
           <button
             onClick={handleBackToLibrary}
             className="p-2 -ml-2 hover:bg-bg-secondary rounded-lg transition-colors flex items-center gap-2"
@@ -96,16 +83,10 @@ function App() {
             <Menu className="w-5 h-5 text-text-primary" />
           </button>
         )}
-        <span className={`text-lg font-semibold tracking-tight ${selectedVideo ? 'text-text-primary truncate max-w-[200px]' : 'text-accent-green'}`}>
+        <span className={`text-lg font-semibold tracking-tight ${selectedVideoId ? 'text-text-primary truncate max-w-[200px]' : 'text-accent-green'}`}>
           {getMobileHeaderTitle()}
         </span>
-        {selectedVideo ? (
-          <span className="text-xs font-medium text-text-secondary bg-bg-secondary px-2 py-1 rounded-md">
-            {currentSnips.length} Snips
-          </span>
-        ) : (
-          <div className="w-16" />
-        )}
+        <div className="w-16" />
       </div>
 
       {/* Left Sidebar Overlay (Mobile) */}
@@ -133,6 +114,18 @@ function App() {
         {renderMainContent()}
       </div>
     </div>
+  )
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AuthGuard>
+        <SubscriptionGuard>
+          <AppContent />
+        </SubscriptionGuard>
+      </AuthGuard>
+    </AuthProvider>
   )
 }
 

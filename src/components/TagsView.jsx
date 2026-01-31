@@ -1,13 +1,68 @@
-import { useState } from 'react'
-import { Plus, Tag as TagIcon, X, Play } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Plus, Tag as TagIcon, X, Play, Loader2, Trash2 } from 'lucide-react'
+import { useTags } from '../hooks/useTags'
 
-function TagsView({ tags, videos, onSelectVideo }) {
+function TagsView({ onSelectVideo }) {
   const [selectedTag, setSelectedTag] = useState(null)
   const [showCreateModal, setShowCreateModal] = useState(false)
+  const [taggedVideos, setTaggedVideos] = useState([])
+  const [loadingVideos, setLoadingVideos] = useState(false)
 
-  const taggedVideos = selectedTag
-    ? videos.filter(v => v.tags.includes(selectedTag.name))
-    : []
+  const { tags, loading, createTag, deleteTag, getVideosForTag } = useTags()
+
+  // Fetch videos when tag is selected
+  useEffect(() => {
+    if (!selectedTag) {
+      setTaggedVideos([])
+      return
+    }
+
+    const fetchVideos = async () => {
+      setLoadingVideos(true)
+      try {
+        const videos = await getVideosForTag(selectedTag.id)
+        setTaggedVideos(videos)
+      } catch (err) {
+        console.error('Failed to fetch tagged videos:', err)
+      } finally {
+        setLoadingVideos(false)
+      }
+    }
+
+    fetchVideos()
+  }, [selectedTag, getVideosForTag])
+
+  const handleCreateTag = async (name, color) => {
+    try {
+      await createTag(name, color)
+      setShowCreateModal(false)
+    } catch (err) {
+      console.error('Failed to create tag:', err)
+      alert(err.message || 'Failed to create tag')
+    }
+  }
+
+  const handleDeleteTag = async () => {
+    if (!selectedTag) return
+    if (!confirm(`Delete tag "${selectedTag.name}"?`)) return
+
+    try {
+      await deleteTag(selectedTag.id)
+      setSelectedTag(null)
+    } catch (err) {
+      console.error('Failed to delete tag:', err)
+    }
+  }
+
+  if (loading) {
+    return (
+      <main className="flex-1 h-screen overflow-y-auto bg-bg-primary">
+        <div className="flex items-center justify-center h-full">
+          <Loader2 className="w-8 h-8 animate-spin text-accent-green" />
+        </div>
+      </main>
+    )
+  }
 
   return (
     <main className="flex-1 h-screen overflow-y-auto bg-bg-primary">
@@ -70,12 +125,20 @@ function TagsView({ tags, videos, onSelectVideo }) {
                       {taggedVideos.length} video{taggedVideos.length !== 1 ? 's' : ''}
                     </span>
                   </div>
-                  <button className="text-sm text-text-secondary hover:text-accent-rose transition-colors">
+                  <button
+                    onClick={handleDeleteTag}
+                    className="text-sm text-text-secondary hover:text-accent-rose transition-colors flex items-center gap-1"
+                  >
+                    <Trash2 className="w-4 h-4" />
                     Delete tag
                   </button>
                 </div>
 
-                {taggedVideos.length > 0 ? (
+                {loadingVideos ? (
+                  <div className="flex justify-center py-16">
+                    <Loader2 className="w-6 h-6 animate-spin text-accent-green" />
+                  </div>
+                ) : taggedVideos.length > 0 ? (
                   <div className="space-y-3">
                     {taggedVideos.map((video) => (
                       <TaggedVideoItem key={video.id} video={video} onClick={() => onSelectVideo(video.id)} />
@@ -100,32 +163,37 @@ function TagsView({ tags, videos, onSelectVideo }) {
         </div>
 
         {/* Popular Tags Cloud */}
-        <div className="mt-12">
-          <h2 className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-4">
-            Quick Access
-          </h2>
-          <div className="flex flex-wrap gap-2">
-            {tags.map((tag) => (
-              <button
-                key={tag.id}
-                onClick={() => setSelectedTag(tag)}
-                className="inline-flex items-center gap-2 px-3 py-2 bg-bg-secondary hover:bg-border rounded-lg transition-colors"
-              >
-                <div
-                  className="w-2 h-2 rounded-full"
-                  style={{ backgroundColor: tag.color }}
-                />
-                <span className="text-sm font-medium text-text-primary">{tag.name}</span>
-                <span className="text-xs text-text-muted">{tag.count}</span>
-              </button>
-            ))}
+        {tags.length > 0 && (
+          <div className="mt-12">
+            <h2 className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-4">
+              Quick Access
+            </h2>
+            <div className="flex flex-wrap gap-2">
+              {tags.map((tag) => (
+                <button
+                  key={tag.id}
+                  onClick={() => setSelectedTag(tag)}
+                  className="inline-flex items-center gap-2 px-3 py-2 bg-bg-secondary hover:bg-border rounded-lg transition-colors"
+                >
+                  <div
+                    className="w-2 h-2 rounded-full"
+                    style={{ backgroundColor: tag.color }}
+                  />
+                  <span className="text-sm font-medium text-text-primary">{tag.name}</span>
+                  <span className="text-xs text-text-muted">{tag.count || 0}</span>
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Create Tag Modal */}
       {showCreateModal && (
-        <CreateTagModal onClose={() => setShowCreateModal(false)} />
+        <CreateTagModal
+          onClose={() => setShowCreateModal(false)}
+          onCreate={handleCreateTag}
+        />
       )}
     </main>
   )
@@ -151,18 +219,29 @@ function TagItem({ tag, isSelected, onClick }) {
         </span>
       </div>
       <span className="text-xs text-text-muted bg-bg-primary px-2 py-0.5 rounded-full">
-        {tag.count}
+        {tag.count || 0}
       </span>
     </div>
   )
 }
 
 function TaggedVideoItem({ video, onClick }) {
+  const progress = video.duration_seconds > 0
+    ? Math.round((video.progress_seconds / video.duration_seconds) * 100)
+    : 0
+
   return (
     <div onClick={onClick} className="group flex gap-4 p-4 bg-bg-secondary rounded-xl hover:bg-border transition-colors cursor-pointer">
       {/* Thumbnail */}
       <div className="w-32 flex-shrink-0 aspect-video bg-video-dark rounded-lg relative overflow-hidden">
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+        {video.thumbnail_url && (
+          <img
+            src={video.thumbnail_url}
+            alt={video.title}
+            className="w-full h-full object-cover"
+          />
+        )}
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20">
           <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
             <Play className="w-3 h-3 text-white fill-white ml-0.5" />
           </div>
@@ -171,7 +250,7 @@ function TaggedVideoItem({ video, onClick }) {
         <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/30">
           <div
             className="h-full bg-accent-rose"
-            style={{ width: `${video.progress}%` }}
+            style={{ width: `${progress}%` }}
           />
         </div>
       </div>
@@ -179,26 +258,39 @@ function TaggedVideoItem({ video, onClick }) {
       {/* Info */}
       <div className="flex-1 min-w-0">
         <h3 className="font-serif text-sm font-semibold text-text-primary tracking-tight leading-snug line-clamp-2 mb-1">
-          {video.title}
+          {video.title || 'Untitled Video'}
         </h3>
         <div className="flex items-center gap-2 text-xs text-text-secondary">
-          <span>{video.author}</span>
+          <span>{video.author || 'Unknown'}</span>
           <span className="text-text-muted">•</span>
-          <span>{video.snipsCount} snips</span>
+          <span>{video.snipsCount || 0} snips</span>
         </div>
       </div>
     </div>
   )
 }
 
-function CreateTagModal({ onClose }) {
+function CreateTagModal({ onClose, onCreate }) {
   const [name, setName] = useState('')
   const [color, setColor] = useState('#059669')
+  const [creating, setCreating] = useState(false)
 
   const colors = [
     '#059669', '#0891B2', '#7C3AED', '#EA580C',
     '#DB2777', '#4F46E5', '#DC2626', '#CA8A04'
   ]
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (!name.trim()) return
+
+    setCreating(true)
+    try {
+      await onCreate(name.trim(), color)
+    } finally {
+      setCreating(false)
+    }
+  }
 
   return (
     <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4">
@@ -215,69 +307,78 @@ function CreateTagModal({ onClose }) {
         </div>
 
         {/* Content */}
-        <div className="p-5 space-y-5">
-          {/* Name Input */}
-          <div>
-            <label className="block text-sm font-medium text-text-primary mb-2">
-              Tag Name
-            </label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="e.g., Design, Tutorial, Inspiration"
-              className="w-full px-4 py-3 bg-bg-secondary border border-border rounded-xl text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-accent-green/20 focus:border-accent-green transition-all"
-            />
-          </div>
-
-          {/* Color Picker */}
-          <div>
-            <label className="block text-sm font-medium text-text-primary mb-2">
-              Color
-            </label>
-            <div className="flex gap-2">
-              {colors.map((c) => (
-                <button
-                  key={c}
-                  onClick={() => setColor(c)}
-                  className={`w-8 h-8 rounded-full transition-transform ${
-                    color === c ? 'ring-2 ring-offset-2 ring-text-primary scale-110' : 'hover:scale-110'
-                  }`}
-                  style={{ backgroundColor: c }}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* Preview */}
-          <div>
-            <label className="block text-sm font-medium text-text-primary mb-2">
-              Preview
-            </label>
-            <div className="inline-flex items-center gap-2 px-3 py-2 bg-bg-secondary rounded-lg">
-              <div
-                className="w-2 h-2 rounded-full"
-                style={{ backgroundColor: color }}
+        <form onSubmit={handleSubmit}>
+          <div className="p-5 space-y-5">
+            {/* Name Input */}
+            <div>
+              <label className="block text-sm font-medium text-text-primary mb-2">
+                Tag Name
+              </label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="e.g., Design, Tutorial, Inspiration"
+                className="w-full px-4 py-3 bg-bg-secondary border border-border rounded-xl text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-accent-green/20 focus:border-accent-green transition-all"
               />
-              <span className="text-sm font-medium text-text-primary">
-                {name || 'Tag Name'}
-              </span>
+            </div>
+
+            {/* Color Picker */}
+            <div>
+              <label className="block text-sm font-medium text-text-primary mb-2">
+                Color
+              </label>
+              <div className="flex gap-2">
+                {colors.map((c) => (
+                  <button
+                    key={c}
+                    type="button"
+                    onClick={() => setColor(c)}
+                    className={`w-8 h-8 rounded-full transition-transform ${
+                      color === c ? 'ring-2 ring-offset-2 ring-text-primary scale-110' : 'hover:scale-110'
+                    }`}
+                    style={{ backgroundColor: c }}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Preview */}
+            <div>
+              <label className="block text-sm font-medium text-text-primary mb-2">
+                Preview
+              </label>
+              <div className="inline-flex items-center gap-2 px-3 py-2 bg-bg-secondary rounded-lg">
+                <div
+                  className="w-2 h-2 rounded-full"
+                  style={{ backgroundColor: color }}
+                />
+                <span className="text-sm font-medium text-text-primary">
+                  {name || 'Tag Name'}
+                </span>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Footer */}
-        <div className="flex justify-end gap-3 p-5 border-t border-border">
-          <button
-            onClick={onClose}
-            className="px-4 py-2.5 text-sm font-medium text-text-secondary hover:text-text-primary transition-colors"
-          >
-            Cancel
-          </button>
-          <button className="px-5 py-2.5 bg-accent-green text-white text-sm font-medium rounded-xl hover:bg-accent-green/90 transition-colors">
-            Create Tag
-          </button>
-        </div>
+          {/* Footer */}
+          <div className="flex justify-end gap-3 p-5 border-t border-border">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2.5 text-sm font-medium text-text-secondary hover:text-text-primary transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={!name.trim() || creating}
+              className="px-5 py-2.5 bg-accent-green text-white text-sm font-medium rounded-xl hover:bg-accent-green/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            >
+              {creating && <Loader2 className="w-4 h-4 animate-spin" />}
+              Create Tag
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   )
