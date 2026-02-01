@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { Scissors, Check, Loader2, CreditCard, Mail } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { createCheckoutSession } from '../../lib/stripe'
@@ -10,11 +10,52 @@ export default function SubscriptionGuard({ children }) {
   const [error, setError] = useState('')
   const [clientSecret, setClientSecret] = useState(null)
   const [showModal, setShowModal] = useState(false)
+  const [checkoutReturning, setCheckoutReturning] = useState(false)
 
   const isActive = hasActiveSubscription()
   const trialDays = getTrialDaysRemaining()
   const isNewUser = !profile?.stripe_customer_id
   const trialExpired = profile?.subscription_status === 'trialing' && trialDays <= 0
+
+  // Detect return from Stripe checkout (page reload with session_id in URL)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const sessionId = params.get('session_id')
+
+    if (sessionId) {
+      setCheckoutReturning(true)
+
+      // Clear session_id from URL
+      window.history.replaceState({}, '', window.location.pathname)
+
+      // Poll for profile update (webhook takes 1-5 seconds)
+      const pollForUpdate = async () => {
+        const maxAttempts = 10
+        const pollInterval = 1500
+
+        for (let i = 0; i < maxAttempts; i++) {
+          await new Promise(resolve => setTimeout(resolve, pollInterval))
+          await refreshProfile?.()
+        }
+        setCheckoutReturning(false)
+      }
+
+      pollForUpdate()
+    }
+  }, [refreshProfile])
+
+  // Show loading state while processing checkout return
+  if (checkoutReturning) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-secondary">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-accent-green mx-auto mb-4" />
+          <p className="text-text-primary font-medium">Processing your payment...</p>
+          <p className="text-text-secondary text-sm mt-1">This will only take a moment</p>
+        </div>
+      </div>
+    )
+  }
 
   // If subscription is active or trial is valid, render children
   if (isActive) {
@@ -40,11 +81,22 @@ export default function SubscriptionGuard({ children }) {
     setClientSecret(null)
   }
 
-  const handleCheckoutComplete = useCallback(() => {
+  const handleCheckoutComplete = useCallback(async () => {
     setShowModal(false)
     setClientSecret(null)
-    // Refresh the profile to get updated subscription status
-    refreshProfile?.()
+    setLoading(true) // Show loading state while waiting for webhook
+
+    // Poll for profile update (webhook takes 1-5 seconds)
+    const maxAttempts = 10
+    const pollInterval = 1500 // 1.5 seconds
+
+    for (let i = 0; i < maxAttempts; i++) {
+      await new Promise(resolve => setTimeout(resolve, pollInterval))
+      await refreshProfile?.()
+      // Component will re-render if hasActiveSubscription() returns true
+    }
+
+    setLoading(false)
   }, [refreshProfile])
 
   // New user - hasn't set up payment yet
