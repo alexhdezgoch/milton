@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Play, Clock, CheckCircle2, SortAsc, Grid3X3, List, MoreHorizontal, Plus, Loader2, Trash2 } from 'lucide-react'
+import { Play, Clock, CheckCircle2, SortAsc, Grid3X3, List, MoreHorizontal, Plus, Loader2, Trash2, Sparkles } from 'lucide-react'
 import { useVideos, useStats } from '../hooks/useVideos'
 
 function LibraryView({ onSelectVideo }) {
@@ -16,6 +16,7 @@ function LibraryView({ onSelectVideo }) {
 
   const filteredVideos = videos.filter(v => {
     if (filterStatus === 'all') return true
+    if (filterStatus === 'new') return !v.progress_seconds || v.progress_seconds === 0
     return v.status === filterStatus
   })
 
@@ -125,8 +126,9 @@ function LibraryView({ onSelectVideo }) {
         )}
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-8">
           <StatCard label="Total Videos" value={stats.totalVideos} />
+          <StatCard label="New" value={videos.filter(v => !v.progress_seconds || v.progress_seconds === 0).length} icon={Sparkles} iconColor="text-blue-500" />
           <StatCard label="In Progress" value={stats.inProgress} icon={Clock} iconColor="text-amber-500" />
           <StatCard label="Completed" value={stats.completed} icon={CheckCircle2} iconColor="text-accent-green" />
           <StatCard label="Total Snips" value={stats.totalSnips} />
@@ -138,6 +140,7 @@ function LibraryView({ onSelectVideo }) {
           <div className="flex bg-bg-secondary rounded-lg p-1">
             {[
               { id: 'all', label: 'All' },
+              { id: 'new', label: 'New' },
               { id: 'in_progress', label: 'In Progress' },
               { id: 'completed', label: 'Completed' },
             ].map((filter) => (

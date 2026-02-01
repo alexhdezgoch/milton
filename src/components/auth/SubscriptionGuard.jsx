@@ -5,7 +5,7 @@ import { createCheckoutSession } from '../../lib/stripe'
 import CheckoutModal from './CheckoutModal'
 
 export default function SubscriptionGuard({ children }) {
-  const { user, profile, hasActiveSubscription, getTrialDaysRemaining, refreshProfile } = useAuth()
+  const { user, profile, hasActiveSubscription, getTrialDaysRemaining, refreshProfile, signOut } = useAuth()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [clientSecret, setClientSecret] = useState(null)
@@ -199,6 +199,12 @@ export default function SubscriptionGuard({ children }) {
             <p className="text-center text-text-secondary text-sm mt-6">
               Signed in as {profile?.email || user?.email}
             </p>
+            <button
+              onClick={signOut}
+              className="block mx-auto text-text-muted text-sm mt-2 hover:text-text-secondary transition-colors"
+            >
+              Sign out
+            </button>
           </div>
         </div>
 
@@ -302,6 +308,12 @@ export default function SubscriptionGuard({ children }) {
           <p className="text-center text-text-secondary text-sm mt-6">
             Signed in as {profile?.email || user?.email}
           </p>
+          <button
+            onClick={signOut}
+            className="block mx-auto text-text-muted text-sm mt-2 hover:text-text-secondary transition-colors"
+          >
+            Sign out
+          </button>
         </div>
       </div>
 
