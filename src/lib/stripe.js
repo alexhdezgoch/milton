@@ -17,21 +17,13 @@ export async function createCheckoutSession(userId) {
     body: {
       action: 'create-checkout-session',
       userId,
-      successUrl: `${window.location.origin}?session_id={CHECKOUT_SESSION_ID}`,
-      cancelUrl: `${window.location.origin}/subscribe`
+      returnUrl: window.location.origin
     }
   })
 
   if (error) throw error
 
-  const stripe = await getStripe()
-  if (!stripe) throw new Error('Stripe not initialized')
-
-  const { error: stripeError } = await stripe.redirectToCheckout({
-    sessionId: data.sessionId
-  })
-
-  if (stripeError) throw stripeError
+  return data.clientSecret
 }
 
 export async function createPortalSession(customerId) {

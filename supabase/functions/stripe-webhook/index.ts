@@ -49,8 +49,8 @@ serve(async (req) => {
   }
 })
 
-async function createCheckoutSession(body: { userId: string; successUrl: string; cancelUrl: string }) {
-  const { userId, successUrl, cancelUrl } = body
+async function createCheckoutSession(body: { userId: string; returnUrl: string }) {
+  const { userId, returnUrl } = body
 
   const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
@@ -63,19 +63,13 @@ async function createCheckoutSession(body: { userId: string; successUrl: string;
 
   let customerId = profile?.stripe_customer_id
 
-  // Create Stripe customer if needed
+  // Create Stripe customer if needed (don't save to DB yet - webhook will save on checkout completion)
   if (!customerId) {
     const customer = await stripe.customers.create({
       email: profile?.email,
       metadata: { supabase_user_id: userId }
     })
     customerId = customer.id
-
-    // Save customer ID
-    await supabase
-      .from('profiles')
-      .update({ stripe_customer_id: customerId })
-      .eq('id', userId)
   }
 
   // Get price ID from environment
@@ -84,7 +78,7 @@ async function createCheckoutSession(body: { userId: string; successUrl: string;
     throw new Error('STRIPE_PRICE_ID not configured')
   }
 
-  // Create checkout session with 7-day trial
+  // Create checkout session with 7-day trial (embedded mode)
   const session = await stripe.checkout.sessions.create({
     customer: customerId,
     mode: 'subscription',
@@ -93,12 +87,12 @@ async function createCheckoutSession(body: { userId: string; successUrl: string;
       trial_period_days: 7,
     },
     payment_method_collection: 'always',
-    success_url: successUrl,
-    cancel_url: cancelUrl,
+    ui_mode: 'embedded',
+    return_url: `${returnUrl}?session_id={CHECKOUT_SESSION_ID}`,
     metadata: { supabase_user_id: userId }
   })
 
-  return new Response(JSON.stringify({ sessionId: session.id }), {
+  return new Response(JSON.stringify({ clientSecret: session.client_secret }), {
     headers: { ...corsHeaders, 'Content-Type': 'application/json' }
   })
 }
