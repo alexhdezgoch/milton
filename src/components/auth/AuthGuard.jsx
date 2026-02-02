@@ -1,10 +1,13 @@
+import { useState } from 'react'
 import { Loader2, AlertCircle } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { isConfigured } from '../../lib/supabase'
+import LandingPage from '../LandingPage'
 import LoginForm from './LoginForm'
 
 export default function AuthGuard({ children }) {
   const { user, loading, authError } = useAuth()
+  const [showLogin, setShowLogin] = useState(false)
 
   // Show setup message if Supabase isn't configured
   if (!isConfigured()) {
@@ -61,7 +64,10 @@ export default function AuthGuard({ children }) {
   }
 
   if (!user) {
-    return <LoginForm />
+    if (showLogin) {
+      return <LoginForm onBack={() => setShowLogin(false)} />
+    }
+    return <LandingPage onGetStarted={() => setShowLogin(true)} />
   }
 
   return children

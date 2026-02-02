@@ -17,6 +17,7 @@ function LibraryView({ onSelectVideo }) {
   const filteredVideos = videos.filter(v => {
     if (filterStatus === 'all') return true
     if (filterStatus === 'new') return !v.progress_seconds || v.progress_seconds === 0
+    if (filterStatus === 'in_progress') return v.status === 'in_progress' && v.progress_seconds > 0
     return v.status === filterStatus
   })
 
@@ -129,7 +130,7 @@ function LibraryView({ onSelectVideo }) {
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-8">
           <StatCard label="Total Videos" value={stats.totalVideos} />
           <StatCard label="New" value={videos.filter(v => !v.progress_seconds || v.progress_seconds === 0).length} icon={Sparkles} iconColor="text-blue-500" />
-          <StatCard label="In Progress" value={stats.inProgress} icon={Clock} iconColor="text-amber-500" />
+          <StatCard label="In Progress" value={videos.filter(v => v.status === 'in_progress' && v.progress_seconds > 0).length} icon={Clock} iconColor="text-amber-500" />
           <StatCard label="Completed" value={stats.completed} icon={CheckCircle2} iconColor="text-accent-green" />
           <StatCard label="Total Snips" value={stats.totalSnips} />
         </div>

@@ -116,12 +116,20 @@ export async function getSnips(userId, videoId = null) {
 export async function getSnipsForVideo(videoId) {
   const { data, error } = await supabase
     .from('snips')
-    .select('*')
+    .select(`
+      *,
+      tags:snip_tags(tag:tags(*))
+    `)
     .eq('video_id', videoId)
     .order('timestamp_seconds', { ascending: true })
 
   if (error) throw error
-  return data
+
+  // Transform to flatten tags
+  return data.map(snip => ({
+    ...snip,
+    tags: snip.tags?.map(st => st.tag) || []
+  }))
 }
 
 export async function createSnip(userId, snipData) {
@@ -209,7 +217,8 @@ export async function getTags(userId) {
     .from('tags')
     .select(`
       *,
-      videos:video_tags(count)
+      videos:video_tags(count),
+      snips:snip_tags(count)
     `)
     .eq('user_id', userId)
     .order('name')
@@ -218,7 +227,9 @@ export async function getTags(userId) {
 
   return data.map(tag => ({
     ...tag,
-    count: tag.videos?.[0]?.count || 0
+    videoCount: tag.videos?.[0]?.count || 0,
+    snipCount: tag.snips?.[0]?.count || 0,
+    count: (tag.videos?.[0]?.count || 0) + (tag.snips?.[0]?.count || 0)
   }))
 }
 
@@ -282,15 +293,71 @@ export async function removeTagFromVideo(videoId, tagId) {
 }
 
 export async function getVideosForTag(tagId) {
-  const { data, error } = await supabase
+  // First get video_ids from video_tags
+  const { data: videoTags, error: vtError } = await supabase
     .from('video_tags')
-    .select(`
-      video:videos(*)
-    `)
+    .select('video_id')
     .eq('tag_id', tagId)
 
+  if (vtError) throw vtError
+  if (!videoTags || videoTags.length === 0) return []
+
+  // Then fetch the actual videos
+  const videoIds = videoTags.map(vt => vt.video_id)
+  const { data: videos, error: vError } = await supabase
+    .from('videos')
+    .select('*')
+    .in('id', videoIds)
+
+  if (vError) throw vError
+  return videos || []
+}
+
+export async function addTagToSnip(snipId, tagId) {
+  const { error } = await supabase
+    .from('snip_tags')
+    .insert({
+      snip_id: snipId,
+      tag_id: tagId
+    })
+
   if (error) throw error
-  return data.map(vt => vt.video)
+}
+
+export async function removeTagFromSnip(snipId, tagId) {
+  const { error } = await supabase
+    .from('snip_tags')
+    .delete()
+    .match({
+      snip_id: snipId,
+      tag_id: tagId
+    })
+
+  if (error) throw error
+}
+
+export async function getSnipsForTag(tagId) {
+  // First get snip_ids from snip_tags
+  const { data: snipTags, error: stError } = await supabase
+    .from('snip_tags')
+    .select('snip_id')
+    .eq('tag_id', tagId)
+
+  if (stError) throw stError
+  if (!snipTags || snipTags.length === 0) return []
+
+  // Then fetch the actual snips with video info
+  const snipIds = snipTags.map(st => st.snip_id)
+  const { data: snips, error: sError } = await supabase
+    .from('snips')
+    .select(`
+      *,
+      video:videos(title, youtube_id, thumbnail_url)
+    `)
+    .in('id', snipIds)
+
+  if (sError) throw sError
+  return snips || []
 }
 
 // ============ Chat Messages ============

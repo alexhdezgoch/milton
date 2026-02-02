@@ -1,10 +1,12 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
-import { ArrowLeft, Plus, ChevronDown, ExternalLink, Star, ChevronUp, Sparkles, Loader2, Send, Trash2, RefreshCw, Quote, User, MoreVertical, Maximize2, Wand2, Search, AlertCircle, Play, Share2 } from 'lucide-react'
+import { ArrowLeft, Plus, ChevronDown, ExternalLink, Star, ChevronUp, Sparkles, Loader2, Send, Trash2, RefreshCw, Quote, User, MoreVertical, Maximize2, Wand2, Search, AlertCircle, Play, Share2, Tag as TagIcon, Check } from 'lucide-react'
 import YouTubePlayer from './shared/YouTubePlayer'
 import { ErrorToast, useErrorToast } from './shared/ErrorToast'
+import TagPicker from './shared/TagPicker'
 import { useVideo } from '../hooks/useVideos'
 import { useSnips } from '../hooks/useSnips'
 import { useChat } from '../hooks/useChat'
+import { useTags } from '../hooks/useTags'
 import { formatDuration } from '../services/youtube'
 import { getSummary } from '../services/api'
 
@@ -48,8 +50,39 @@ function VideoDetailView({ videoId, onBack }) {
     clearHistory,
     clearError: clearChatError
   } = useChat(videoId)
+  const {
+    tags: availableTags,
+    createTag,
+    addTagToVideo,
+    removeTagFromVideo,
+    addTagToSnip,
+    removeTagFromSnip
+  } = useTags()
 
   const { error: toastError, showError, clearError: clearToastError, ErrorToastComponent } = useErrorToast()
+
+  // Local state for video tags (to update UI immediately)
+  const [videoTags, setVideoTags] = useState([])
+
+  // Sync video tags when video loads
+  useEffect(() => {
+    if (video?.tags) {
+      setVideoTags(video.tags)
+    }
+  }, [video?.tags])
+
+  const handleAddTagToVideo = async (tagId) => {
+    const tag = availableTags.find(t => t.id === tagId)
+    if (tag) {
+      setVideoTags(prev => [...prev, tag])
+      await addTagToVideo(videoId, tagId)
+    }
+  }
+
+  const handleRemoveTagFromVideo = async (tagId) => {
+    setVideoTags(prev => prev.filter(t => t.id !== tagId))
+    await removeTagFromVideo(videoId, tagId)
+  }
 
   // Show snips errors in toast
   useEffect(() => {
@@ -451,6 +484,10 @@ function VideoDetailView({ videoId, onBack }) {
                   onDelete={deleteSnip}
                   onRewrite={rewriteSnip}
                   onExpand={expandSnip}
+                  availableTags={availableTags}
+                  onAddTagToSnip={addTagToSnip}
+                  onRemoveTagFromSnip={removeTagFromSnip}
+                  onCreateTag={createTag}
                 />
               </div>
             )}
@@ -522,12 +559,25 @@ function VideoDetailView({ videoId, onBack }) {
               onDelete={deleteSnip}
               onRewrite={rewriteSnip}
               onExpand={expandSnip}
+              availableTags={availableTags}
+              onAddTagToSnip={addTagToSnip}
+              onRemoveTagFromSnip={removeTagFromSnip}
+              onCreateTag={createTag}
             />
           )}
           {activeTab === 'summary' && (
             <SummaryTab summary={summary} loading={summaryLoading} error={summaryError} />
           )}
-          {activeTab === 'info' && <InfoTab video={video} />}
+          {activeTab === 'info' && (
+            <InfoTab
+              video={video}
+              videoTags={videoTags}
+              availableTags={availableTags}
+              onAddTag={handleAddTagToVideo}
+              onRemoveTag={handleRemoveTagFromVideo}
+              onCreateTag={createTag}
+            />
+          )}
           {activeTab === 'chat' && (
             <ChatTab
               video={video}
@@ -548,7 +598,7 @@ function VideoDetailView({ videoId, onBack }) {
   )
 }
 
-function SnipsContent({ snips, video, onSeek, onToggleStar, onDelete, onRewrite, onExpand }) {
+function SnipsContent({ snips, video, onSeek, onToggleStar, onDelete, onRewrite, onExpand, availableTags, onAddTagToSnip, onRemoveTagFromSnip, onCreateTag }) {
   return (
     <div className="space-y-4">
       {snips.map((snip, index) => (
@@ -562,6 +612,10 @@ function SnipsContent({ snips, video, onSeek, onToggleStar, onDelete, onRewrite,
           onDelete={onDelete}
           onRewrite={onRewrite}
           onExpand={onExpand}
+          availableTags={availableTags}
+          onAddTagToSnip={onAddTagToSnip}
+          onRemoveTagFromSnip={onRemoveTagFromSnip}
+          onCreateTag={onCreateTag}
         />
       ))}
       {snips.length === 0 && (
@@ -571,7 +625,7 @@ function SnipsContent({ snips, video, onSeek, onToggleStar, onDelete, onRewrite,
   )
 }
 
-function SnipsTab({ snips, video, loading, onSeek, onToggleStar, onDelete, onRewrite, onExpand }) {
+function SnipsTab({ snips, video, loading, onSeek, onToggleStar, onDelete, onRewrite, onExpand, availableTags, onAddTagToSnip, onRemoveTagFromSnip, onCreateTag }) {
   if (loading) {
     return (
       <div className="p-4 flex justify-center">
@@ -593,6 +647,10 @@ function SnipsTab({ snips, video, loading, onSeek, onToggleStar, onDelete, onRew
           onDelete={onDelete}
           onRewrite={onRewrite}
           onExpand={onExpand}
+          availableTags={availableTags}
+          onAddTagToSnip={onAddTagToSnip}
+          onRemoveTagFromSnip={onRemoveTagFromSnip}
+          onCreateTag={onCreateTag}
         />
       ))}
       {snips.length === 0 && (
@@ -714,10 +772,30 @@ function SummaryTab({ summary, loading, error }) {
   )
 }
 
-function SnipCard({ snip, video, isLast, onSeek, onToggleStar, onDelete, onRewrite, onExpand, playerRef }) {
+function SnipCard({ snip, video, isLast, onSeek, onToggleStar, onDelete, onRewrite, onExpand, playerRef, availableTags, onAddTagToSnip, onRemoveTagFromSnip, onCreateTag }) {
   const [expanded, setExpanded] = useState(false)
   const [showTranscript, setShowTranscript] = useState(false)
   const [enhancing, setEnhancing] = useState(false)
+  const [snipTags, setSnipTags] = useState(snip.tags || [])
+  const [showTagDropdown, setShowTagDropdown] = useState(false)
+
+  // Sync tags when snip updates
+  useEffect(() => {
+    setSnipTags(snip.tags || [])
+  }, [snip.tags])
+
+  const handleAddTagToSnip = async (tagId) => {
+    const tag = availableTags?.find(t => t.id === tagId)
+    if (tag) {
+      setSnipTags(prev => [...prev, tag])
+      await onAddTagToSnip?.(snip.id, tagId)
+    }
+  }
+
+  const handleRemoveTagFromSnip = async (tagId) => {
+    setSnipTags(prev => prev.filter(t => t.id !== tagId))
+    await onRemoveTagFromSnip?.(snip.id, tagId)
+  }
 
   // Calculate context window (30s before, 15s after)
   const startTime = Math.max(0, snip.timestamp_seconds - 30)
@@ -797,9 +875,85 @@ function SnipCard({ snip, video, isLast, onSeek, onToggleStar, onDelete, onRewri
                 </span>
               )}
             </div>
+            {snipTags.length > 0 && (
+              <div className="flex flex-wrap gap-1 mt-2">
+                {snipTags.map(tag => (
+                  <span
+                    key={tag.id}
+                    className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium text-white"
+                    style={{ backgroundColor: tag.color || '#6B7280' }}
+                  >
+                    {tag.name}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
           <div className="flex items-center gap-1">
             {enhancing && <Loader2 className="w-4 h-4 animate-spin text-accent-green" />}
+            <div className="relative">
+              <button
+                onClick={(e) => { e.stopPropagation(); setShowTagDropdown(!showTagDropdown); }}
+                className={`p-1.5 rounded-lg hover:bg-bg-secondary transition-colors ${snipTags.length > 0 ? 'text-accent-green' : 'text-text-muted'}`}
+              >
+                <TagIcon className="w-4 h-4" />
+              </button>
+              {showTagDropdown && (
+                <>
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={(e) => { e.stopPropagation(); setShowTagDropdown(false); }}
+                  />
+                  <div className="absolute right-0 top-full mt-1 z-50 w-56 bg-white rounded-lg shadow-lg border border-border overflow-hidden">
+                    <div className="p-2 border-b border-border">
+                      <p className="text-xs font-medium text-text-muted px-2">Add tags</p>
+                    </div>
+                    <div className="max-h-48 overflow-y-auto p-2">
+                      {availableTags?.map(tag => {
+                        const isSelected = snipTags.some(t => t.id === tag.id)
+                        return (
+                          <button
+                            key={tag.id}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              if (isSelected) {
+                                handleRemoveTagFromSnip(tag.id)
+                              } else {
+                                handleAddTagToSnip(tag.id)
+                              }
+                            }}
+                            className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-bg-secondary transition-colors text-left"
+                          >
+                            <span
+                              className="w-3 h-3 rounded-full flex-shrink-0"
+                              style={{ backgroundColor: tag.color || '#6B7280' }}
+                            />
+                            <span className="text-sm text-text-primary truncate flex-1">{tag.name}</span>
+                            {isSelected && <Check className="w-4 h-4 text-accent-green" />}
+                          </button>
+                        )
+                      })}
+                      {(!availableTags || availableTags.length === 0) && (
+                        <p className="text-sm text-text-muted text-center py-2">No tags yet</p>
+                      )}
+                    </div>
+                    <div className="border-t border-border p-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setShowTagDropdown(false)
+                          setExpanded(true)
+                        }}
+                        className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-bg-secondary transition-colors text-left"
+                      >
+                        <Plus className="w-4 h-4 text-accent-green" />
+                        <span className="text-sm text-accent-green font-medium">Create new tag</span>
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
             <button
               onClick={(e) => { e.stopPropagation(); handleToggleStar(e); }}
               className={`p-1.5 rounded-lg hover:bg-bg-secondary transition-colors ${snip.starred ? 'text-amber-400' : 'text-text-muted'}`}
@@ -905,6 +1059,18 @@ function SnipCard({ snip, video, isLast, onSeek, onToggleStar, onDelete, onRewri
           </div>
         )}
 
+        {/* Tags */}
+        <div className="mb-3">
+          <p className="text-xs font-medium text-text-muted mb-2">Tags</p>
+          <TagPicker
+            selectedTags={snipTags}
+            availableTags={availableTags || []}
+            onAddTag={handleAddTagToSnip}
+            onRemoveTag={handleRemoveTagFromSnip}
+            onCreateTag={onCreateTag}
+          />
+        </div>
+
         {/* Action Buttons Row */}
         <div className="flex flex-wrap gap-2 pt-2">
           <button
@@ -943,7 +1109,7 @@ function SnipCard({ snip, video, isLast, onSeek, onToggleStar, onDelete, onRewri
   )
 }
 
-function InfoTab({ video }) {
+function InfoTab({ video, videoTags, availableTags, onAddTag, onRemoveTag, onCreateTag }) {
   return (
     <div className="p-4">
       <div className="space-y-4">
@@ -965,18 +1131,16 @@ function InfoTab({ video }) {
             {video.created_at ? new Date(video.created_at).toLocaleDateString() : 'Unknown'}
           </p>
         </div>
-        {video.tags && video.tags.length > 0 && (
-          <div>
-            <h4 className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">Tags</h4>
-            <div className="flex flex-wrap gap-2">
-              {video.tags.map(tag => (
-                <span key={tag.id} className="px-2 py-1 bg-bg-secondary rounded-md text-xs font-medium text-text-secondary">
-                  {tag.name}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
+        <div>
+          <h4 className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">Tags</h4>
+          <TagPicker
+            selectedTags={videoTags}
+            availableTags={availableTags}
+            onAddTag={onAddTag}
+            onRemoveTag={onRemoveTag}
+            onCreateTag={onCreateTag}
+          />
+        </div>
         <div>
           <h4 className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">YouTube Link</h4>
           <a

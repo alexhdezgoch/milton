@@ -21,7 +21,7 @@ export function useTags() {
     } finally {
       setLoading(false)
     }
-  }, [user])
+  }, [user?.id])
 
   useEffect(() => {
     fetchTags()
@@ -64,6 +64,18 @@ export function useTags() {
     return api.getVideosForTag(tagId)
   }
 
+  const addTagToSnip = async (snipId, tagId) => {
+    await api.addTagToSnip(snipId, tagId)
+  }
+
+  const removeTagFromSnip = async (snipId, tagId) => {
+    await api.removeTagFromSnip(snipId, tagId)
+  }
+
+  const getSnipsForTag = async (tagId) => {
+    return api.getSnipsForTag(tagId)
+  }
+
   return {
     tags,
     loading,
@@ -74,6 +86,9 @@ export function useTags() {
     deleteTag,
     addTagToVideo,
     removeTagFromVideo,
-    getVideosForTag
+    getVideosForTag,
+    addTagToSnip,
+    removeTagFromSnip,
+    getSnipsForTag
   }
 }

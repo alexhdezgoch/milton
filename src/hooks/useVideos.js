@@ -26,7 +26,7 @@ export function useVideos() {
     } finally {
       setLoading(false)
     }
-  }, [user])
+  }, [user?.id])
 
   useEffect(() => {
     fetchVideos()
@@ -265,7 +265,7 @@ export function useStats() {
     }
 
     fetchStats()
-  }, [user])
+  }, [user?.id])
 
   return { stats, loading }
 }

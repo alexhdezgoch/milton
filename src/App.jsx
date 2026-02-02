@@ -38,15 +38,20 @@ function AppContent() {
       )
     }
 
-    switch (activeNav) {
-      case 'tags':
-        return <TagsView onSelectVideo={handleSelectVideo} />
-      case 'search':
-        return <SearchView onSelectVideo={handleSelectVideo} />
-      case 'home':
-      default:
-        return <LibraryView onSelectVideo={handleSelectVideo} />
-    }
+    // Keep all views mounted but hidden to preserve state across navigation
+    return (
+      <>
+        <div className={activeNav === 'home' ? 'contents' : 'hidden'}>
+          <LibraryView onSelectVideo={handleSelectVideo} />
+        </div>
+        <div className={activeNav === 'tags' ? 'contents' : 'hidden'}>
+          <TagsView onSelectVideo={handleSelectVideo} />
+        </div>
+        <div className={activeNav === 'search' ? 'contents' : 'hidden'}>
+          <SearchView onSelectVideo={handleSelectVideo} />
+        </div>
+      </>
+    )
   }
 
   const getMobileHeaderTitle = () => {

@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { Scissors, Mail, Lock, User, Loader2, Eye, EyeOff, Chrome } from 'lucide-react'
+import { Scissors, Mail, Lock, User, Loader2, Eye, EyeOff, ArrowLeft } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 
-export default function LoginForm() {
+export default function LoginForm({ onBack }) {
   const [isSignUp, setIsSignUp] = useState(false)
   const [showResetPassword, setShowResetPassword] = useState(false)
   const [email, setEmail] = useState('')
@@ -58,6 +58,17 @@ export default function LoginForm() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-secondary px-4">
       <div className="w-full max-w-md">
+        {/* Back button */}
+        {onBack && (
+          <button
+            onClick={onBack}
+            className="flex items-center gap-2 text-text-secondary hover:text-text-primary mb-6 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span className="text-sm">Back to home</span>
+          </button>
+        )}
+
         {/* Logo */}
         <div className="flex items-center justify-center gap-2 mb-8">
           <div className="w-10 h-10 bg-video-dark rounded-lg flex items-center justify-center">

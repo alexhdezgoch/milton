@@ -39,3 +39,6 @@ enable_confirmations = true
 
 [functions.transcript]
 verify_jwt = false
+
+[functions.stripe-webhook]
+verify_jwt = false
