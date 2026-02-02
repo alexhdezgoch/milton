@@ -83,8 +83,8 @@ function LeftSidebar({
             ))}
           </nav>
 
-          {/* Spacer - pushes bottom section down when content fits */}
-          <div className="flex-1" />
+          {/* Spacer - pushes bottom section down on desktop only */}
+          <div className="hidden lg:block lg:flex-1" />
 
           {/* Bottom section: Subscription + Settings + Sign Out */}
           <div className="px-3 pb-4 space-y-1 border-t border-border pt-3">
