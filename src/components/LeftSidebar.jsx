@@ -52,7 +52,7 @@ function LeftSidebar({
         className="h-full overflow-y-auto overscroll-contain"
         style={{ WebkitOverflowScrolling: 'touch' }}
       >
-        <div className="flex flex-col min-h-full">
+        <div className="flex flex-col lg:min-h-full">
           {/* Logo */}
           <div className="px-4 py-5 flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -87,7 +87,7 @@ function LeftSidebar({
           <div className="hidden lg:block lg:flex-1" />
 
           {/* Bottom section: Subscription + Settings + Sign Out */}
-          <div className="px-3 pb-4 space-y-1 border-t border-border pt-3">
+          <div className="px-3 pb-[max(1rem,env(safe-area-inset-bottom))] space-y-1 border-t border-border pt-3">
             {/* Subscription Status */}
             {isTrialing() && (
               <div className="mb-2">
