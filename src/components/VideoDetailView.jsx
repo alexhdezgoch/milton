@@ -264,7 +264,7 @@ function VideoDetailView({ videoId, onBack }) {
       {ErrorToastComponent}
 
       {/* Main Content Area */}
-      <main className="flex-1 h-screen overflow-y-auto bg-bg-primary">
+      <main className="flex-1 h-full overflow-y-auto bg-bg-primary">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
           {/* Back Button - Hidden on mobile (using header) */}
           <button

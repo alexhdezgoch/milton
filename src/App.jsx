@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Menu, ArrowLeft } from 'lucide-react'
 import { AuthProvider } from './context/AuthContext'
 import AuthGuard from './components/auth/AuthGuard'
@@ -13,6 +13,34 @@ function AppContent() {
   const [selectedVideoId, setSelectedVideoId] = useState(null)
   const [activeNav, setActiveNav] = useState('home')
   const [leftSidebarOpen, setLeftSidebarOpen] = useState(false)
+
+  // Lock body scroll when mobile sidebar is open (iOS Safari fix)
+  useEffect(() => {
+    if (leftSidebarOpen) {
+      // Save scroll position and lock body (iOS Safari fix)
+      const scrollY = window.scrollY
+      document.body.style.position = 'fixed'
+      document.body.style.top = `-${scrollY}px`
+      document.body.style.width = '100%'
+      document.body.style.overflow = 'hidden'
+    } else {
+      // Restore scroll position
+      const scrollY = document.body.style.top
+      document.body.style.position = ''
+      document.body.style.top = ''
+      document.body.style.width = ''
+      document.body.style.overflow = ''
+      if (scrollY) {
+        window.scrollTo(0, parseInt(scrollY || '0') * -1)
+      }
+    }
+    return () => {
+      document.body.style.position = ''
+      document.body.style.top = ''
+      document.body.style.width = ''
+      document.body.style.overflow = ''
+    }
+  }, [leftSidebarOpen])
 
   const handleSelectVideo = (videoId) => {
     setSelectedVideoId(videoId)
@@ -97,14 +125,14 @@ function AppContent() {
       {/* Left Sidebar Overlay (Mobile) */}
       {leftSidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/30 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/30 z-40 lg:hidden touch-none"
           onClick={() => setLeftSidebarOpen(false)}
         />
       )}
 
       {/* Left Sidebar */}
       <div className={`
-        fixed lg:relative inset-y-0 left-0 z-50 transform transition-transform duration-300 ease-in-out
+        fixed lg:relative top-0 bottom-0 left-0 z-50 transform transition-transform duration-300 ease-in-out h-[100dvh] lg:h-auto pointer-events-auto
         ${leftSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
         <LeftSidebar
@@ -115,7 +143,7 @@ function AppContent() {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 pt-14 lg:pt-0 overflow-hidden">
+      <div className="flex-1 pt-14 lg:pt-0 overflow-auto">
         {renderMainContent()}
       </div>
     </div>

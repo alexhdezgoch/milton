@@ -19,7 +19,11 @@ function LeftSidebar({
   ]
 
   const handleSignOut = async () => {
-    await signOut()
+    const { error } = await signOut()
+    if (error) {
+      console.error('Sign out failed:', error)
+      return
+    }
     onClose()
   }
 

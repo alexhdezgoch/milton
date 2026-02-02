@@ -47,7 +47,7 @@ function SearchView({ onSelectVideo }) {
   const recentSearches = ['tutorial', 'design', 'productivity']
 
   return (
-    <main className="flex-1 h-screen overflow-y-auto bg-bg-primary">
+    <main className="flex-1 h-full overflow-y-auto bg-bg-primary">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Header */}
         <div className="mb-6">

@@ -67,7 +67,7 @@ function TagsView({ onSelectVideo }) {
 
   if (loading) {
     return (
-      <main className="flex-1 h-screen overflow-y-auto bg-bg-primary">
+      <main className="flex-1 h-full overflow-y-auto bg-bg-primary">
         <div className="flex items-center justify-center h-full">
           <Loader2 className="w-8 h-8 animate-spin text-accent-green" />
         </div>
@@ -76,7 +76,7 @@ function TagsView({ onSelectVideo }) {
   }
 
   return (
-    <main className="flex-1 h-screen overflow-y-auto bg-bg-primary">
+    <main className="flex-1 h-full overflow-y-auto bg-bg-primary">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Header */}
         <div className="flex items-start justify-between mb-8">
