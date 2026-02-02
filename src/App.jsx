@@ -132,7 +132,7 @@ function AppContent() {
 
       {/* Left Sidebar */}
       <div className={`
-        fixed lg:relative top-0 bottom-0 left-0 z-50 transform transition-transform duration-300 ease-in-out h-[100dvh] lg:h-auto pointer-events-auto
+        fixed lg:relative top-0 bottom-0 left-0 z-50 transform transition-transform duration-300 ease-in-out lg:h-auto pointer-events-auto
         ${leftSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
         <LeftSidebar

@@ -47,11 +47,7 @@ function LeftSidebar({
   }
 
   return (
-    <aside className="w-[220px] h-full bg-bg-primary border-r border-border shadow-sidebar overflow-hidden">
-      <div
-        className="h-full overflow-y-auto overscroll-contain"
-        style={{ WebkitOverflowScrolling: 'touch' }}
-      >
+    <aside className="w-[220px] h-full bg-bg-primary border-r border-border shadow-sidebar overflow-y-auto overscroll-contain" style={{ WebkitOverflowScrolling: 'touch' }}>
         <div className="flex flex-col">
           {/* Logo */}
           <div className="px-4 py-5 flex items-center justify-between">
@@ -84,7 +80,7 @@ function LeftSidebar({
           </nav>
 
           {/* Bottom section: Subscription + Settings + Sign Out */}
-          <div className="px-3 mt-4 pb-[max(1rem,env(safe-area-inset-bottom))] space-y-1 border-t border-border pt-3">
+          <div className="px-3 mt-4 pb-8 space-y-1 border-t border-border pt-3">
             {/* Subscription Status */}
             {isTrialing() && (
               <div className="mb-2">
@@ -157,7 +153,6 @@ function LeftSidebar({
             </button>
           </div>
         </div>
-      </div>
     </aside>
   )
 }
