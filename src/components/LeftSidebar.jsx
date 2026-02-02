@@ -20,6 +20,7 @@ function LeftSidebar({
 
   const handleSignOut = async () => {
     await signOut()
+    onClose()
   }
 
   const handleManageSubscription = async () => {
@@ -42,9 +43,12 @@ function LeftSidebar({
   }
 
   return (
-    <aside className="w-[220px] h-screen bg-bg-primary border-r border-border flex flex-col shadow-sidebar">
+    <aside
+      className="w-[220px] h-full bg-bg-primary border-r border-border flex flex-col shadow-sidebar overflow-y-auto overscroll-contain"
+      style={{ WebkitOverflowScrolling: 'touch' }}
+    >
       {/* Logo */}
-      <div className="px-4 py-5 flex items-center justify-between">
+      <div className="px-4 py-5 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2">
           <div className="relative">
             <Scissors className="w-5 h-5 text-accent-rose transform -rotate-45" />
@@ -53,14 +57,14 @@ function LeftSidebar({
         </div>
         <button
           onClick={onClose}
-          className="lg:hidden p-2 -mr-2 hover:bg-bg-secondary rounded-lg transition-colors"
+          className="lg:hidden p-2 -mr-2 hover:bg-bg-secondary rounded-lg transition-colors active:bg-bg-tertiary"
         >
           <X className="w-5 h-5 text-text-secondary" />
         </button>
       </div>
 
       {/* Navigation */}
-      <nav className="px-3 space-y-1 flex-1">
+      <nav className="px-3 space-y-1 shrink-0">
         {navItems.map((item) => (
           <div
             key={item.id}
@@ -73,43 +77,42 @@ function LeftSidebar({
         ))}
       </nav>
 
-      {/* Subscription Status */}
-      {isTrialing() && (
-        <div className="px-3 mb-2">
-          {trialDaysRemaining() <= 2 ? (
-            <div className="px-3 py-2 bg-amber-500/10 rounded-lg">
-              <div className="flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 text-amber-600" />
-                <div>
-                  <p className="text-xs font-medium text-amber-600">
-                    Trial ending soon
-                  </p>
-                  <p className="text-xs text-amber-600/80">
-                    Ends {profile?.trial_ends_at ? new Date(profile.trial_ends_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : `in ${trialDaysRemaining()} days`}
-                  </p>
+      {/* Bottom section: Subscription + Settings + Sign Out - uses mt-auto to push down when space available */}
+      <div className="px-3 pb-4 space-y-1 border-t border-border pt-3 mt-auto shrink-0">
+        {/* Subscription Status */}
+        {isTrialing() && (
+          <div className="mb-2">
+            {trialDaysRemaining() <= 2 ? (
+              <div className="px-3 py-2 bg-amber-500/10 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 text-amber-600" />
+                  <div>
+                    <p className="text-xs font-medium text-amber-600">
+                      Trial ending soon
+                    </p>
+                    <p className="text-xs text-amber-600/80">
+                      Ends {profile?.trial_ends_at ? new Date(profile.trial_ends_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : `in ${trialDaysRemaining()} days`}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-          ) : (
-            <div className="px-3 py-2 bg-accent-green/10 rounded-lg">
-              <p className="text-xs font-medium text-accent-green">
-                Trial: {trialDaysRemaining()} days left
-              </p>
-              <p className="text-xs text-accent-green/80">
-                Ends {profile?.trial_ends_at ? new Date(profile.trial_ends_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}
-              </p>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Bottom Section */}
-      <div className="px-3 pb-4 space-y-1 border-t border-border pt-3">
+            ) : (
+              <div className="px-3 py-2 bg-accent-green/10 rounded-lg">
+                <p className="text-xs font-medium text-accent-green">
+                  Trial: {trialDaysRemaining()} days left
+                </p>
+                <p className="text-xs text-accent-green/80">
+                  Ends {profile?.trial_ends_at ? new Date(profile.trial_ends_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}
+                </p>
+              </div>
+            )}
+          </div>
+        )}
         {/* Manage Subscription - show for anyone with stripe_customer_id (includes trialing users) */}
         {profile?.stripe_customer_id && (
           <button
             onClick={handleManageSubscription}
-            className="sidebar-item w-full"
+            className="sidebar-item w-full active:bg-bg-tertiary"
           >
             <CreditCard className="w-[18px] h-[18px]" />
             <span className="text-sm font-medium">Manage Subscription</span>
@@ -120,7 +123,7 @@ function LeftSidebar({
         <button
           onClick={handleToggleDigest}
           disabled={updatingDigest}
-          className="sidebar-item w-full justify-between"
+          className="sidebar-item w-full justify-between active:bg-bg-tertiary"
         >
           <div className="flex items-center gap-2">
             <Mail className="w-[18px] h-[18px]" />
@@ -141,7 +144,7 @@ function LeftSidebar({
         {/* Sign Out */}
         <button
           onClick={handleSignOut}
-          className="sidebar-item w-full text-text-secondary hover:text-accent-rose"
+          className="sidebar-item w-full text-text-secondary hover:text-accent-rose active:text-accent-rose active:bg-accent-rose/10"
         >
           <LogOut className="w-[18px] h-[18px]" />
           <span className="text-sm font-medium">Sign Out</span>
