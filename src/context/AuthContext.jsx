@@ -64,10 +64,28 @@ export function AuthProvider({ children }) {
       }
     )
 
+    // Handle tab visibility changes - refresh session when returning to tab
+    // This prevents stale connections from causing infinite loading states
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && mounted) {
+        // Use refreshSession() to force a token refresh and reconnect
+        supabase.auth.refreshSession().then(({ data: { session } }) => {
+          if (mounted && session?.user) {
+            setUser(session.user)
+          }
+        }).catch(() => {
+          // Silently handle - user can retry their action
+        })
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
     return () => {
       mounted = false
       clearTimeout(timeout)
       subscription.unsubscribe()
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
     }
   }, [])
 

@@ -1,48 +1,72 @@
 import { supabase } from '../lib/supabase'
 
+// Helper to wrap Supabase calls with timeout and retry
+// Fixes stale connections after tab switch
+async function withRetry(operation, timeoutMs = 8000) {
+  const timeout = new Promise((_, reject) =>
+    setTimeout(() => reject(new Error('Request timeout')), timeoutMs)
+  )
+
+  try {
+    return await Promise.race([operation(), timeout])
+  } catch (error) {
+    // On timeout or connection error, refresh session and retry once
+    if (error.message === 'Request timeout' || error.message?.includes('fetch')) {
+      console.log('Connection stale, refreshing session and retrying...')
+      await supabase.auth.refreshSession()
+      return operation()
+    }
+    throw error
+  }
+}
+
 // ============ Videos ============
 
 export async function getVideos(userId) {
-  const { data, error } = await supabase
-    .from('videos')
-    .select(`
-      *,
-      snips:snips(count),
-      tags:video_tags(tag:tags(*))
-    `)
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false })
+  return withRetry(async () => {
+    const { data, error } = await supabase
+      .from('videos')
+      .select(`
+        *,
+        snips:snips(count),
+        tags:video_tags(tag:tags(*))
+      `)
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
 
-  if (error) throw error
+    if (error) throw error
 
-  // Transform the data to flatten snips count and tags
-  return data.map(video => ({
-    ...video,
-    snipsCount: video.snips?.[0]?.count || 0,
-    tags: video.tags?.map(vt => vt.tag) || []
-  }))
+    // Transform the data to flatten snips count and tags
+    return data.map(video => ({
+      ...video,
+      snipsCount: video.snips?.[0]?.count || 0,
+      tags: video.tags?.map(vt => vt.tag) || []
+    }))
+  })
 }
 
 export async function getVideo(videoId) {
-  const { data, error } = await supabase
-    .from('videos')
-    .select(`
-      *,
-      snips:snips(count),
-      tags:video_tags(tag:tags(*)),
-      summary:summaries(*)
-    `)
-    .eq('id', videoId)
-    .single()
+  return withRetry(async () => {
+    const { data, error } = await supabase
+      .from('videos')
+      .select(`
+        *,
+        snips:snips(count),
+        tags:video_tags(tag:tags(*)),
+        summary:summaries(*)
+      `)
+      .eq('id', videoId)
+      .single()
 
-  if (error) throw error
+    if (error) throw error
 
-  return {
-    ...data,
-    snipsCount: data.snips?.[0]?.count || 0,
-    tags: data.tags?.map(vt => vt.tag) || [],
-    summary: data.summary?.[0] || null
-  }
+    return {
+      ...data,
+      snipsCount: data.snips?.[0]?.count || 0,
+      tags: data.tags?.map(vt => vt.tag) || [],
+      summary: data.summary?.[0] || null
+    }
+  })
 }
 
 export async function createVideo(userId, videoData) {
@@ -114,22 +138,24 @@ export async function getSnips(userId, videoId = null) {
 }
 
 export async function getSnipsForVideo(videoId) {
-  const { data, error } = await supabase
-    .from('snips')
-    .select(`
-      *,
-      tags:snip_tags(tag:tags(*))
-    `)
-    .eq('video_id', videoId)
-    .order('timestamp_seconds', { ascending: true })
+  return withRetry(async () => {
+    const { data, error } = await supabase
+      .from('snips')
+      .select(`
+        *,
+        tags:snip_tags(tag:tags(*))
+      `)
+      .eq('video_id', videoId)
+      .order('timestamp_seconds', { ascending: true })
 
-  if (error) throw error
+    if (error) throw error
 
-  // Transform to flatten tags
-  return data.map(snip => ({
-    ...snip,
-    tags: snip.tags?.map(st => st.tag) || []
-  }))
+    // Transform to flatten tags
+    return data.map(snip => ({
+      ...snip,
+      tags: snip.tags?.map(st => st.tag) || []
+    }))
+  })
 }
 
 export async function createSnip(userId, snipData) {
