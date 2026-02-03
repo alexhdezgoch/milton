@@ -43,6 +43,7 @@ export default function LoginForm({ onBack }) {
       } else if (isSignUp) {
         const { error } = await signUp(email, password, displayName)
         if (error) throw error
+        if (typeof fbq === 'function') fbq('track', 'Lead')
         setMessage('Check your email to confirm your account')
       } else {
         const { error } = await signIn(email, password)

@@ -82,6 +82,7 @@ export default function SubscriptionGuard({ children }) {
   }
 
   const handleCheckoutComplete = useCallback(async () => {
+    if (typeof fbq === 'function') fbq('track', 'Purchase')
     setShowModal(false)
     setClientSecret(null)
     setLoading(true) // Show loading state while waiting for webhook
