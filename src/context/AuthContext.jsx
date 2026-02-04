@@ -51,50 +51,43 @@ export function AuthProvider({ children }) {
       }
     })
 
-    // Listen for auth changes
+    // Listen for auth changes — kept synchronous to avoid deadlock
+    // (supabase/auth-js#762: async callbacks block subsequent Supabase calls)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         if (!mounted) return
         setUser(session?.user ?? null)
         if (session?.user) {
-          await fetchProfile(session.user.id)
+          // Defer async work outside the callback to avoid deadlock
+          setTimeout(() => {
+            if (mounted) fetchProfile(session.user.id)
+          }, 0)
         } else {
           setProfile(null)
           setLoading(false)
         }
+
+        // Bump refreshKey when session is re-established (tab return) or token refreshed,
+        // so hooks re-fetch data with the fresh token. Guard with hasResolved to skip
+        // the initial SIGNED_IN fired during page load.
+        if (event === 'TOKEN_REFRESHED' || (event === 'SIGNED_IN' && hasResolved.current)) {
+          setRefreshKey(k => k + 1)
+        }
+
+        if (!hasResolved.current) {
+          hasResolved.current = true
+        }
       }
     )
 
-    // Handle tab visibility changes - recover session when returning to tab
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible' && mounted) {
-        supabase.auth.getSession().then(({ data: { session } }) => {
-          if (!mounted) return
-          if (session?.user) {
-            setUser(session.user)
-            fetchProfile(session.user.id)
-            setRefreshKey(k => k + 1)
-          } else {
-            // Session is gone — reset auth state so the UI shows login
-            setUser(null)
-            setProfile(null)
-          }
-        }).catch(() => {
-          if (mounted) {
-            setUser(null)
-            setProfile(null)
-          }
-        })
-      }
-    }
-
-    document.addEventListener('visibilitychange', handleVisibilityChange)
+    // No custom visibilitychange handler — Supabase handles token refresh
+    // internally when autoRefreshToken is true. SIGNED_IN fires on tab refocus,
+    // TOKEN_REFRESHED fires on token renewal, both handled above.
 
     return () => {
       mounted = false
       clearTimeout(timeout)
       subscription.unsubscribe()
-      document.removeEventListener('visibilitychange', handleVisibilityChange)
     }
   }, [])
 
@@ -118,7 +111,7 @@ export function AuthProvider({ children }) {
       setProfile(data)
       setAuthError(null)
     } catch (error) {
-      if (error.name === 'AbortError') return
+      if (error.name === 'AbortError' || error.message?.includes('AbortError')) return
       console.error('Error fetching profile:', error)
       setAuthError(error.message)
     } finally {
