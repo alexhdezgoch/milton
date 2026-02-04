@@ -10,9 +10,16 @@ async function withRetry(operation, timeoutMs = 8000) {
   try {
     return await Promise.race([operation(), timeout])
   } catch (error) {
-    // On timeout or connection error, refresh session and retry once
-    if (error.message === 'Request timeout' || error.message?.includes('fetch')) {
-      console.log('Connection stale, refreshing session and retrying...')
+    // On timeout, connection, or auth error, refresh session and retry once
+    const msg = error.message || ''
+    const isRetryable = msg === 'Request timeout'
+      || msg.includes('fetch')
+      || msg.includes('JWT')
+      || msg.includes('token')
+      || error.code === 'PGRST301'
+      || error.status === 401
+    if (isRetryable) {
+      console.log('Connection stale or auth error, refreshing session and retrying...')
       await supabase.auth.refreshSession()
       return operation()
     }

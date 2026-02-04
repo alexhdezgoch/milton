@@ -10,9 +10,7 @@ export const supabase = createClient(
     auth: {
       autoRefreshToken: true,
       persistSession: true,
-      detectSessionInUrl: true,
-      // Disable navigator.locks to prevent hanging in development
-      lock: (name, acquireTimeout, fn) => fn()
+      detectSessionInUrl: true
     }
   }
 )
