@@ -236,6 +236,16 @@ function VideoDetailView({ videoId, onBack }) {
     setCurrentTime(time)
   }, [])
 
+  // Mark completed immediately when video ends (YouTube state 0)
+  const handleStateChange = useCallback((state) => {
+    if (state === 0 && video && video.duration_seconds > 0) {
+      updateVideo({
+        progress_seconds: Math.floor(video.duration_seconds),
+        status: 'completed'
+      })
+    }
+  }, [video, updateVideo])
+
   const handlePlayerReady = useCallback((player) => {
     playerRef.current = player
     // Seek to saved progress if any
@@ -304,6 +314,19 @@ function VideoDetailView({ videoId, onBack }) {
     return segment.start <= currentTime && (!nextSegment || nextSegment.start > currentTime)
   }
 
+  // Retroactively mark as completed if already watched past 90%
+  useEffect(() => {
+    if (
+      video &&
+      video.status !== 'completed' &&
+      video.duration_seconds > 0 &&
+      video.progress_seconds > 0 &&
+      video.progress_seconds / video.duration_seconds >= 0.9
+    ) {
+      updateVideo({ status: 'completed' })
+    }
+  }, [video?.id]) // eslint-disable-line react-hooks/exhaustive-deps
+
   // Save progress periodically
   useEffect(() => {
     const interval = setInterval(() => {
@@ -371,6 +394,7 @@ function VideoDetailView({ videoId, onBack }) {
             videoId={video.youtube_id}
             onTimeUpdate={handleTimeUpdate}
             onReady={handlePlayerReady}
+            onStateChange={handleStateChange}
             initialTime={video.progress_seconds || 0}
             className="shadow-medium mb-4"
           />
