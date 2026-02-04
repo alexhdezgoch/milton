@@ -37,6 +37,9 @@ enable_signup = true
 double_confirm_changes = true
 enable_confirmations = true
 
+[functions.snip]
+verify_jwt = false
+
 [functions.transcript]
 verify_jwt = false
 
