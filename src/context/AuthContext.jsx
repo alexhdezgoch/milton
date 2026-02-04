@@ -118,6 +118,7 @@ export function AuthProvider({ children }) {
       setProfile(data)
       setAuthError(null)
     } catch (error) {
+      if (error.name === 'AbortError') return
       console.error('Error fetching profile:', error)
       setAuthError(error.message)
     } finally {
