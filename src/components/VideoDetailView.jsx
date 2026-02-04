@@ -26,6 +26,7 @@ function VideoDetailView({ videoId, onBack }) {
 
   const playerRef = useRef(null)
   const transcriptRef = useRef(null)
+  const currentTimeRef = useRef(0)
 
   const { video, loading: videoLoading, updateVideo, retryTranscript, retrySummary } = useVideo(videoId)
   const {
@@ -234,10 +235,18 @@ function VideoDetailView({ videoId, onBack }) {
 
   const handleTimeUpdate = useCallback((time) => {
     setCurrentTime(time)
+    currentTimeRef.current = time
   }, [])
 
-  // Mark completed immediately when video ends (YouTube state 0)
+  // Save progress on pause (state 2), mark completed on end (state 0)
   const handleStateChange = useCallback((state) => {
+    if (state === 2 && video && currentTimeRef.current > 0) {
+      const updates = { progress_seconds: Math.floor(currentTimeRef.current) }
+      if (video.duration_seconds > 0 && currentTimeRef.current / video.duration_seconds >= 0.9) {
+        updates.status = 'completed'
+      }
+      updateVideo(updates)
+    }
     if (state === 0 && video && video.duration_seconds > 0) {
       updateVideo({
         progress_seconds: Math.floor(video.duration_seconds),
@@ -327,20 +336,31 @@ function VideoDetailView({ videoId, onBack }) {
     }
   }, [video?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Save progress periodically
+  // Save progress periodically — use refs so the interval doesn't reset every second
+  const videoRef = useRef(video)
+  const updateVideoRef = useRef(updateVideo)
+  useEffect(() => { videoRef.current = video }, [video])
+  useEffect(() => { updateVideoRef.current = updateVideo }, [updateVideo])
+
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (video && currentTime > 0) {
-        const updates = { progress_seconds: Math.floor(currentTime) }
-        if (video.duration_seconds > 0 && currentTime / video.duration_seconds >= 0.9) {
+    const saveProgress = () => {
+      const v = videoRef.current
+      const time = currentTimeRef.current
+      if (v && time > 0) {
+        const updates = { progress_seconds: Math.floor(time) }
+        if (v.duration_seconds > 0 && time / v.duration_seconds >= 0.9) {
           updates.status = 'completed'
         }
-        updateVideo(updates)
+        updateVideoRef.current(updates)
       }
-    }, 30000) // Save every 30 seconds
+    }
 
-    return () => clearInterval(interval)
-  }, [video, currentTime, updateVideo])
+    const interval = setInterval(saveProgress, 30000)
+    return () => {
+      clearInterval(interval)
+      saveProgress() // Save on unmount (e.g. navigating away)
+    }
+  }, [video?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   if (videoLoading || !video) {
     return (
