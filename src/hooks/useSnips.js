@@ -65,6 +65,8 @@ export function useSnips(videoId = null) {
         timestamp_seconds: timestampSeconds,
         timestamp_formatted: formatDuration(timestampSeconds),
         bullets: result.bullets,
+        quote: result.quote || null,
+        speaker: result.speaker || null,
         ai_generated: true
       }
 
