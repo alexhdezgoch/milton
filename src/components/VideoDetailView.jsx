@@ -308,7 +308,11 @@ function VideoDetailView({ videoId, onBack }) {
   useEffect(() => {
     const interval = setInterval(() => {
       if (video && currentTime > 0) {
-        updateVideo({ progress_seconds: Math.floor(currentTime) })
+        const updates = { progress_seconds: Math.floor(currentTime) }
+        if (video.duration_seconds > 0 && currentTime / video.duration_seconds >= 0.9) {
+          updates.status = 'completed'
+        }
+        updateVideo(updates)
       }
     }, 30000) // Save every 30 seconds
 
