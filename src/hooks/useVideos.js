@@ -4,6 +4,21 @@ import * as api from '../services/api'
 import * as youtube from '../services/youtube'
 import { generateSummary } from '../services/claude'
 
+const generateSummaryInBackground = async (videoId, transcript, title) => {
+  try {
+    await api.updateSummary(videoId, { status: 'generating' })
+    const summary = await generateSummary(transcript, title)
+    await api.updateSummary(videoId, {
+      main_point: summary.overview || summary.mainPoint,
+      key_takeaways: summary.takeaways || summary.keyTakeaways,
+      status: 'completed'
+    })
+  } catch (err) {
+    console.error('Failed to generate summary:', err)
+    await api.updateSummary(videoId, { status: 'failed' })
+  }
+}
+
 export function useVideos() {
   const { user, refreshKey } = useAuth()
   const [videos, setVideos] = useState([])
@@ -117,21 +132,6 @@ export function useVideos() {
     return transcriptData
   }
 
-  const generateSummaryInBackground = async (videoId, transcript, title) => {
-    try {
-      await api.updateSummary(videoId, { status: 'generating' })
-      const summary = await generateSummary(transcript, title)
-      await api.updateSummary(videoId, {
-        main_point: summary.overview || summary.mainPoint,
-        key_takeaways: summary.takeaways || summary.keyTakeaways,
-        status: 'completed'
-      })
-    } catch (err) {
-      console.error('Failed to generate summary:', err)
-      await api.updateSummary(videoId, { status: 'failed' })
-    }
-  }
-
   const updateVideo = async (videoId, updates) => {
     const updated = await api.updateVideo(videoId, updates)
     setVideos(prev => prev.map(v => v.id === videoId ? { ...v, ...updated } : v))
@@ -228,13 +228,20 @@ export function useVideo(videoId) {
     return transcriptData
   }
 
+  const retrySummary = async () => {
+    if (!video) return
+    await api.updateSummary(video.id, { status: 'pending', main_point: null, key_takeaways: [] })
+    generateSummaryInBackground(video.id, video.transcript_raw, video.title)
+  }
+
   return {
     video,
     loading,
     error,
     updateVideo,
     refreshVideo,
-    retryTranscript
+    retryTranscript,
+    retrySummary
   }
 }
 

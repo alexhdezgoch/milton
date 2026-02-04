@@ -27,7 +27,7 @@ function VideoDetailView({ videoId, onBack }) {
   const playerRef = useRef(null)
   const transcriptRef = useRef(null)
 
-  const { video, loading: videoLoading, updateVideo, retryTranscript } = useVideo(videoId)
+  const { video, loading: videoLoading, updateVideo, retryTranscript, retrySummary } = useVideo(videoId)
   const {
     snips,
     loading: snipsLoading,
@@ -91,13 +91,28 @@ function VideoDetailView({ videoId, onBack }) {
     }
   }, [snipsError])
 
+  // Staleness threshold: 3 minutes
+  const STALE_THRESHOLD_MS = 3 * 60 * 1000
+
+  const isSummaryStale = (data) => {
+    if (!data?.created_at) return false
+    if (data.status !== 'pending' && data.status !== 'generating') return false
+    return Date.now() - new Date(data.created_at).getTime() > STALE_THRESHOLD_MS
+  }
+
   // Fetch summary with proper error handling
-  useEffect(() => {
+  const pollIntervalRef = useRef(null)
+
+  const startSummaryPolling = useCallback(() => {
+    // Clear any existing polling
+    if (pollIntervalRef.current) {
+      clearInterval(pollIntervalRef.current)
+      pollIntervalRef.current = null
+    }
+
     if (!videoId) return
 
     let isMounted = true
-    let pollCount = 0
-    const maxPolls = 60 // Stop polling after 5 minutes
 
     const fetchSummary = async () => {
       setSummaryLoading(true)
@@ -105,6 +120,12 @@ function VideoDetailView({ videoId, onBack }) {
       try {
         const data = await getSummary(videoId)
         if (isMounted) {
+          if (isSummaryStale(data)) {
+            setSummary(data)
+            setSummaryError('Summary generation timed out. Click retry to try again.')
+            setSummaryLoading(false)
+            return
+          }
           setSummary(data)
         }
       } catch (err) {
@@ -122,22 +143,22 @@ function VideoDetailView({ videoId, onBack }) {
     fetchSummary()
 
     // Poll for summary if it's generating
-    const interval = setInterval(async () => {
-      pollCount++
-      if (pollCount > maxPolls) {
-        clearInterval(interval)
-        if (isMounted && summary?.status !== 'completed') {
-          setSummaryError('Summary generation timed out')
-        }
-        return
-      }
-
+    pollIntervalRef.current = setInterval(async () => {
       try {
         const data = await getSummary(videoId)
         if (isMounted) {
+          if (isSummaryStale(data)) {
+            clearInterval(pollIntervalRef.current)
+            pollIntervalRef.current = null
+            setSummary(data)
+            setSummaryError('Summary generation timed out. Click retry to try again.')
+            return
+          }
+
           setSummary(data)
           if (data?.status === 'completed' || data?.status === 'failed') {
-            clearInterval(interval)
+            clearInterval(pollIntervalRef.current)
+            pollIntervalRef.current = null
             if (data?.status === 'failed') {
               setSummaryError('Failed to generate summary')
             }
@@ -150,9 +171,31 @@ function VideoDetailView({ videoId, onBack }) {
 
     return () => {
       isMounted = false
-      clearInterval(interval)
+      if (pollIntervalRef.current) {
+        clearInterval(pollIntervalRef.current)
+        pollIntervalRef.current = null
+      }
     }
   }, [videoId])
+
+  useEffect(() => {
+    const cleanup = startSummaryPolling()
+    return cleanup
+  }, [startSummaryPolling])
+
+  const handleRetrySummary = async () => {
+    setSummary(null)
+    setSummaryLoading(true)
+    setSummaryError(null)
+    try {
+      await retrySummary()
+      startSummaryPolling()
+    } catch (err) {
+      console.error('Failed to retry summary:', err)
+      setSummaryError(err.message || 'Failed to retry summary generation')
+      setSummaryLoading(false)
+    }
+  }
 
   // Auto-scroll transcript to current time
   useEffect(() => {
@@ -510,7 +553,7 @@ function VideoDetailView({ videoId, onBack }) {
             </button>
             {summaryPanelOpen && (
               <div className="mt-2 p-4 bg-bg-secondary rounded-xl border border-border">
-                <SummaryContent summary={summary} loading={summaryLoading} error={summaryError} />
+                <SummaryContent summary={summary} loading={summaryLoading} error={summaryError} onRetry={handleRetrySummary} />
               </div>
             )}
           </div>
@@ -566,7 +609,7 @@ function VideoDetailView({ videoId, onBack }) {
             />
           )}
           {activeTab === 'summary' && (
-            <SummaryTab summary={summary} loading={summaryLoading} error={summaryError} />
+            <SummaryTab summary={summary} loading={summaryLoading} error={summaryError} onRetry={handleRetrySummary} />
           )}
           {activeTab === 'info' && (
             <InfoTab
@@ -660,7 +703,7 @@ function SnipsTab({ snips, video, loading, onSeek, onToggleStar, onDelete, onRew
   )
 }
 
-function SummaryContent({ summary, loading, error }) {
+function SummaryContent({ summary, loading, error, onRetry }) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -673,8 +716,15 @@ function SummaryContent({ summary, loading, error }) {
     return (
       <div className="text-center py-8">
         <AlertCircle className="w-8 h-8 text-red-400 mx-auto mb-3" />
-        <p className="text-sm text-red-500 mb-2">Failed to generate summary</p>
-        <p className="text-xs text-text-muted">{error}</p>
+        <p className="text-sm text-red-500 mb-2">{error}</p>
+        {onRetry && (
+          <button
+            onClick={onRetry}
+            className="mt-3 text-xs text-accent-green hover:underline"
+          >
+            Try again
+          </button>
+        )}
       </div>
     )
   }
@@ -693,9 +743,14 @@ function SummaryContent({ summary, loading, error }) {
       <div className="text-center py-8">
         <AlertCircle className="w-8 h-8 text-red-400 mx-auto mb-3" />
         <p className="text-sm text-red-500">Failed to generate summary</p>
-        <button className="mt-3 text-xs text-accent-green hover:underline">
-          Try again
-        </button>
+        {onRetry && (
+          <button
+            onClick={onRetry}
+            className="mt-3 text-xs text-accent-green hover:underline"
+          >
+            Try again
+          </button>
+        )}
       </div>
     )
   }
@@ -732,7 +787,7 @@ function SummaryContent({ summary, loading, error }) {
   )
 }
 
-function SummaryTab({ summary, loading, error }) {
+function SummaryTab({ summary, loading, error, onRetry }) {
   if (loading) {
     return (
       <div className="p-4 flex justify-center">
@@ -767,7 +822,7 @@ function SummaryTab({ summary, loading, error }) {
         </div>
       </div>
 
-      <SummaryContent summary={summary} loading={loading} error={error} />
+      <SummaryContent summary={summary} loading={loading} error={error} onRetry={onRetry} />
     </div>
   )
 }
