@@ -900,6 +900,8 @@ function SnipCard({ snip, video, isLast, onSeek, onToggleStar, onDelete, onRewri
     setEnhancing(true)
     try {
       await onRewrite?.(snip.id, 'actionable', video)
+    } catch (err) {
+      console.error('[Snip] Rewrite failed:', err)
     } finally {
       setEnhancing(false)
     }
@@ -909,6 +911,8 @@ function SnipCard({ snip, video, isLast, onSeek, onToggleStar, onDelete, onRewri
     setEnhancing(true)
     try {
       await onExpand?.(snip.id, video)
+    } catch (err) {
+      console.error('[Snip] Expand failed:', err)
     } finally {
       setEnhancing(false)
     }

@@ -121,7 +121,11 @@ export function useSnips(videoId = null) {
   // Rewrite a snip with a different style
   const rewriteSnip = async (snipId, style, video) => {
     const snip = snips.find(s => s.id === snipId)
-    if (!snip || !video?.transcript) return
+    if (!snip) return
+    if (!video?.transcript) {
+      setError('No transcript available. Transcript is required to rewrite snips.')
+      return
+    }
 
     const context = getTranscriptContext(video.transcript, snip.timestamp_seconds, 45)
 
@@ -151,7 +155,11 @@ export function useSnips(videoId = null) {
   // Expand a snip into a longer summary
   const expandSnip = async (snipId, video) => {
     const snip = snips.find(s => s.id === snipId)
-    if (!snip || !video?.transcript) return
+    if (!snip) return
+    if (!video?.transcript) {
+      setError('No transcript available. Transcript is required to expand snips.')
+      return
+    }
 
     const context = getTranscriptContext(video.transcript, snip.timestamp_seconds, 60)
 
