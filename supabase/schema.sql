@@ -44,6 +44,9 @@ CREATE TABLE snips (
   timestamp_seconds INTEGER NOT NULL,
   timestamp_formatted TEXT NOT NULL,
   bullets JSONB DEFAULT '[]',
+  quote TEXT,
+  speaker TEXT,
+  expanded_summary TEXT,
   ai_generated BOOLEAN DEFAULT true,
   starred BOOLEAN DEFAULT false,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
