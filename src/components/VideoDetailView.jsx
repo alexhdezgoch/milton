@@ -1107,6 +1107,26 @@ function SnipCard({ snip, video, isLast, onSeek, onToggleStar, onDelete, onRewri
             ))}
           </ul>
         )}
+
+        {/* Quote Block - Always visible */}
+        {snip.quote && (
+          <div className="relative p-4 bg-rose-50 border-l-[3px] border-accent-rose rounded-r-lg mt-3">
+            <button className="absolute top-2 right-2 p-1.5 rounded-lg hover:bg-rose-100 transition-colors text-text-muted">
+              <Share2 className="w-3.5 h-3.5" />
+            </button>
+            <div className="flex items-start gap-2 pr-8">
+              <Quote className="w-4 h-4 text-accent-rose flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-[15px] text-text-primary italic leading-relaxed">
+                  "{snip.quote}"
+                </p>
+                {snip.speaker && (
+                  <p className="text-sm text-text-muted mt-2">— {snip.speaker}</p>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Expanded Content */}
@@ -1135,26 +1155,6 @@ function SnipCard({ snip, video, isLast, onSeek, onToggleStar, onDelete, onRewri
             Edit range
           </button>
         </div>
-
-        {/* Quote Block */}
-        {snip.quote && (
-          <div className="relative p-4 bg-rose-50 border-l-[3px] border-accent-rose rounded-r-lg mb-3">
-            <button className="absolute top-2 right-2 p-1.5 rounded-lg hover:bg-rose-100 transition-colors text-text-muted">
-              <Share2 className="w-3.5 h-3.5" />
-            </button>
-            <div className="flex items-start gap-2 pr-8">
-              <Quote className="w-4 h-4 text-accent-rose flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="text-[15px] text-text-primary italic leading-relaxed">
-                  "{snip.quote}"
-                </p>
-                {snip.speaker && (
-                  <p className="text-sm text-text-muted mt-2">— {snip.speaker}</p>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* View Transcript Section */}
         {transcriptContext && (
