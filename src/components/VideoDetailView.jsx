@@ -95,7 +95,9 @@ function VideoDetailView({ videoId, onBack }) {
   const STALE_THRESHOLD_MS = 3 * 60 * 1000
 
   const isSummaryStale = (data) => {
-    if (!data?.created_at) return false
+    // No summary row exists at all — treat as stale so we show retry
+    if (!data) return true
+    if (!data.created_at) return false
     if (data.status !== 'pending' && data.status !== 'generating') return false
     return Date.now() - new Date(data.created_at).getTime() > STALE_THRESHOLD_MS
   }
@@ -119,14 +121,31 @@ function VideoDetailView({ videoId, onBack }) {
       setSummaryError(null)
       try {
         const data = await getSummary(videoId)
+        console.log('[Summary] Fetched:', { status: data?.status, created_at: data?.created_at, age_ms: data?.created_at ? Date.now() - new Date(data.created_at).getTime() : null })
         if (isMounted) {
           if (isSummaryStale(data)) {
+            console.log('[Summary] Detected stale summary, showing retry', { data })
             setSummary(data)
-            setSummaryError('Summary generation timed out. Click retry to try again.')
+            setSummaryError(data ? 'Summary generation timed out. Click retry to try again.' : 'Summary was not generated. Click retry to try again.')
             setSummaryLoading(false)
+            // Stop polling since we already know it's stale
+            if (pollIntervalRef.current) {
+              clearInterval(pollIntervalRef.current)
+              pollIntervalRef.current = null
+            }
             return
           }
           setSummary(data)
+          // If already completed or failed, no need to poll
+          if (data?.status === 'completed' || data?.status === 'failed') {
+            if (pollIntervalRef.current) {
+              clearInterval(pollIntervalRef.current)
+              pollIntervalRef.current = null
+            }
+            if (data?.status === 'failed') {
+              setSummaryError('Failed to generate summary')
+            }
+          }
         }
       } catch (err) {
         console.error('Failed to fetch summary:', err)
@@ -146,12 +165,14 @@ function VideoDetailView({ videoId, onBack }) {
     pollIntervalRef.current = setInterval(async () => {
       try {
         const data = await getSummary(videoId)
+        console.log('[Summary] Poll:', { status: data?.status, created_at: data?.created_at, age_ms: data?.created_at ? Date.now() - new Date(data.created_at).getTime() : null })
         if (isMounted) {
           if (isSummaryStale(data)) {
+            console.log('[Summary] Detected stale summary, showing retry', { data })
             clearInterval(pollIntervalRef.current)
             pollIntervalRef.current = null
             setSummary(data)
-            setSummaryError('Summary generation timed out. Click retry to try again.')
+            setSummaryError(data ? 'Summary generation timed out. Click retry to try again.' : 'Summary was not generated. Click retry to try again.')
             return
           }
 
