@@ -5,7 +5,7 @@ import * as youtube from '../services/youtube'
 import { generateSummary } from '../services/claude'
 
 export function useVideos() {
-  const { user } = useAuth()
+  const { user, refreshKey } = useAuth()
   const [videos, setVideos] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -26,7 +26,7 @@ export function useVideos() {
     } finally {
       setLoading(false)
     }
-  }, [user?.id])
+  }, [user?.id, refreshKey])
 
   useEffect(() => {
     fetchVideos()
@@ -161,6 +161,7 @@ export function useVideos() {
 }
 
 export function useVideo(videoId) {
+  const { refreshKey } = useAuth()
   const [video, setVideo] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -186,7 +187,7 @@ export function useVideo(videoId) {
     }
 
     fetchVideo()
-  }, [videoId])
+  }, [videoId, refreshKey])
 
   const updateVideo = async (updates) => {
     if (!video) return
@@ -238,7 +239,7 @@ export function useVideo(videoId) {
 }
 
 export function useStats() {
-  const { user } = useAuth()
+  const { user, refreshKey } = useAuth()
   const [stats, setStats] = useState({
     totalVideos: 0,
     inProgress: 0,
@@ -265,7 +266,7 @@ export function useStats() {
     }
 
     fetchStats()
-  }, [user?.id])
+  }, [user?.id, refreshKey])
 
   return { stats, loading }
 }

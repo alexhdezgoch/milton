@@ -4,7 +4,7 @@ import * as api from '../services/api'
 import * as claude from '../services/claude'
 
 export function useChat(videoId) {
-  const { user } = useAuth()
+  const { user, refreshKey } = useAuth()
   const [messages, setMessages] = useState([])
   const [loading, setLoading] = useState(true)
   const [sending, setSending] = useState(false)
@@ -28,7 +28,7 @@ export function useChat(videoId) {
     } finally {
       setLoading(false)
     }
-  }, [user, videoId])
+  }, [user, videoId, refreshKey])
 
   useEffect(() => {
     fetchMessages()

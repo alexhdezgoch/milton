@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext'
 import * as api from '../services/api'
 
 export function useTags() {
-  const { user } = useAuth()
+  const { user, refreshKey } = useAuth()
   const [tags, setTags] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -21,7 +21,7 @@ export function useTags() {
     } finally {
       setLoading(false)
     }
-  }, [user?.id])
+  }, [user?.id, refreshKey])
 
   useEffect(() => {
     fetchTags()

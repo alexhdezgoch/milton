@@ -5,7 +5,7 @@ import * as claude from '../services/claude'
 import { getTranscriptContext, formatDuration } from '../services/youtube'
 
 export function useSnips(videoId = null) {
-  const { user } = useAuth()
+  const { user, refreshKey } = useAuth()
   const [snips, setSnips] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -26,7 +26,7 @@ export function useSnips(videoId = null) {
     } finally {
       setLoading(false)
     }
-  }, [user, videoId])
+  }, [user, videoId, refreshKey])
 
   useEffect(() => {
     fetchSnips()

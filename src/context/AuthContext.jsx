@@ -8,6 +8,7 @@ export function AuthProvider({ children }) {
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
   const [authError, setAuthError] = useState(null)
+  const [refreshKey, setRefreshKey] = useState(0)
   const hasResolved = useRef(false)
 
   useEffect(() => {
@@ -64,17 +65,25 @@ export function AuthProvider({ children }) {
       }
     )
 
-    // Handle tab visibility changes - refresh session when returning to tab
-    // This prevents stale connections from causing infinite loading states
+    // Handle tab visibility changes - recover session when returning to tab
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible' && mounted) {
-        // Use refreshSession() to force a token refresh and reconnect
-        supabase.auth.refreshSession().then(({ data: { session } }) => {
-          if (mounted && session?.user) {
+        supabase.auth.getSession().then(({ data: { session } }) => {
+          if (!mounted) return
+          if (session?.user) {
             setUser(session.user)
+            fetchProfile(session.user.id)
+            setRefreshKey(k => k + 1)
+          } else {
+            // Session is gone — reset auth state so the UI shows login
+            setUser(null)
+            setProfile(null)
           }
         }).catch(() => {
-          // Silently handle - user can retry their action
+          if (mounted) {
+            setUser(null)
+            setProfile(null)
+          }
         })
       }
     }
@@ -209,6 +218,7 @@ export function AuthProvider({ children }) {
     profile,
     loading,
     authError,
+    refreshKey,
     signUp,
     signIn,
     signInWithGoogle,
