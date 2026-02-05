@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Home, Tag, Search, Scissors, X, LogOut, CreditCard, Mail, AlertTriangle } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Home, Tag, Search, Scissors, X, LogOut, CreditCard, Mail, AlertTriangle, Chrome, Check } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useSubscription } from '../hooks/useSubscription'
 
@@ -8,9 +8,42 @@ function LeftSidebar({
   activeNav,
   onNavChange
 }) {
-  const { user, profile, signOut, updateProfile } = useAuth()
+  const { user, profile, signOut, updateProfile, extensionConnected, connectExtension } = useAuth()
   const { isTrialing, trialDaysRemaining, manageSubscription, isActive } = useSubscription()
   const [updatingDigest, setUpdatingDigest] = useState(false)
+  const [extensionInstalled, setExtensionInstalled] = useState(false)
+  const [connectingExtension, setConnectingExtension] = useState(false)
+
+  // Check if extension is installed
+  useEffect(() => {
+    const checkExtension = () => {
+      // Check window variable, data attribute, or already set
+      const id = window.MILTON_EXTENSION_ID ||
+                 document.documentElement.dataset.miltonExtensionId
+      if (id) {
+        window.MILTON_EXTENSION_ID = id
+        setExtensionInstalled(true)
+      }
+    }
+
+    // Listen for postMessage from extension content script
+    const handleMessage = (event) => {
+      if (event.data?.type === 'MILTON_EXTENSION_ID' && event.data.extensionId) {
+        window.MILTON_EXTENSION_ID = event.data.extensionId
+        setExtensionInstalled(true)
+      }
+    }
+
+    window.addEventListener('message', handleMessage)
+    checkExtension()
+    // Re-check after a short delay in case the content script hasn't run yet
+    const timeout = setTimeout(checkExtension, 500)
+
+    return () => {
+      window.removeEventListener('message', handleMessage)
+      clearTimeout(timeout)
+    }
+  }, [])
 
   const navItems = [
     { id: 'home', icon: Home, label: 'Home' },
@@ -43,6 +76,20 @@ function LeftSidebar({
       console.error('Failed to update digest setting:', err)
     } finally {
       setUpdatingDigest(false)
+    }
+  }
+
+  const handleConnectExtension = async () => {
+    setConnectingExtension(true)
+    try {
+      const result = await connectExtension()
+      if (!result.success) {
+        console.error('Failed to connect extension:', result.error)
+      }
+    } catch (err) {
+      console.error('Failed to connect extension:', err)
+    } finally {
+      setConnectingExtension(false)
     }
   }
 
@@ -134,6 +181,37 @@ function LeftSidebar({
                 <div className={`w-3 h-3 bg-white rounded-full shadow-subtle transition-transform mt-0.5 ${profile?.weekly_digest_enabled ? 'translate-x-4' : 'translate-x-0.5'}`} />
               </div>
             </button>
+
+            {/* Chrome Extension */}
+            {extensionInstalled ? (
+              extensionConnected ? (
+                <div className="sidebar-item w-full text-accent-green cursor-default">
+                  <Check className="w-[18px] h-[18px]" />
+                  <span className="text-sm font-medium">Extension Synced</span>
+                </div>
+              ) : (
+                <button
+                  onClick={handleConnectExtension}
+                  disabled={connectingExtension}
+                  className="sidebar-item w-full active:bg-bg-tertiary"
+                >
+                  <Chrome className="w-[18px] h-[18px]" />
+                  <span className="text-sm font-medium">
+                    {connectingExtension ? 'Connecting...' : 'Sync Extension'}
+                  </span>
+                </button>
+              )
+            ) : (
+              <a
+                href="https://chrome.google.com/webstore"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="sidebar-item w-full"
+              >
+                <Chrome className="w-[18px] h-[18px]" />
+                <span className="text-sm font-medium">Get Extension</span>
+              </a>
+            )}
 
             {/* User Info */}
             <div className="px-3 py-2">
