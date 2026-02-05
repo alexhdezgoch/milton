@@ -61,13 +61,18 @@ async function generateDigestForUser(supabase: any, user: { id: string }) {
   oneWeekAgo.setDate(oneWeekAgo.getDate() - 7)
 
   // Get videos added in last 7 days
-  const { data: newVideos } = await supabase
+  const { data: rawVideos } = await supabase
     .from('videos')
-    .select('id, title, thumbnail_url, author')
+    .select('id, title, thumbnail_url, author, status, summary:summaries(main_point, key_takeaways, status)')
     .eq('user_id', user.id)
     .gte('created_at', oneWeekAgo.toISOString())
     .order('created_at', { ascending: false })
-    .limit(5)
+
+  // Normalize summary from array to object (Supabase returns joined relations as arrays)
+  const newVideos = (rawVideos || []).map((v: any) => ({
+    ...v,
+    summary: v.summary?.[0] || null
+  }))
 
   // Get 3 recent snips from new videos
   const recentVideoIds = (newVideos || []).map((v: any) => v.id)
@@ -137,15 +142,35 @@ function generateEmailHtml(
   digest: { newVideos: any[]; recentSnips: any[]; archiveSnip: any }
 ) {
   const unsubscribeUrl = `${supabaseUrl}/functions/v1/unsubscribe?user_id=${user.id}`
-  const videosHtml = digest.newVideos.map(video => `
+  const videosHtml = digest.newVideos.map(video => {
+    const isCompleted = video.summary?.status === 'completed'
+    const badgeColor = isCompleted ? '#059669' : '#D97706'
+    const badgeBg = isCompleted ? '#ECFDF5' : '#FFFBEB'
+    const badgeLabel = isCompleted ? 'Completed' : 'In Progress'
+
+    const summaryHtml = isCompleted ? `
+      ${video.summary.main_point ? `<p style="margin: 8px 0 0; font-size: 14px; color: #374151;">${video.summary.main_point}</p>` : ''}
+      ${(video.summary.key_takeaways?.length > 0) ? `
+        <ul style="margin: 8px 0 0; padding-left: 20px; color: #374151; font-size: 14px;">
+          ${video.summary.key_takeaways.map((t: string) => `<li style="margin-bottom: 4px;">${t}</li>`).join('')}
+        </ul>
+      ` : ''}
+    ` : ''
+
+    return `
     <div style="margin-bottom: 16px; display: flex; gap: 12px;">
-      <img src="${video.thumbnail_url}" alt="" style="width: 120px; height: 68px; object-fit: cover; border-radius: 8px;" />
-      <div>
-        <p style="margin: 0; font-weight: 600; color: #111827;">${video.title}</p>
+      <img src="${video.thumbnail_url}" alt="" style="width: 120px; height: 68px; object-fit: cover; border-radius: 8px; flex-shrink: 0;" />
+      <div style="min-width: 0;">
+        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+          <p style="margin: 0; font-weight: 600; color: #111827;">${video.title}</p>
+          <span style="display: inline-block; padding: 2px 8px; font-size: 12px; font-weight: 500; color: ${badgeColor}; background: ${badgeBg}; border-radius: 9999px; white-space: nowrap;">${badgeLabel}</span>
+        </div>
         <p style="margin: 4px 0 0; font-size: 14px; color: #6B7280;">${video.author}</p>
+        ${summaryHtml}
       </div>
     </div>
-  `).join('')
+  `
+  }).join('')
 
   const snipsHtml = digest.recentSnips.map(snip => `
     <div style="margin-bottom: 16px; padding: 12px; background: #F9FAFB; border-radius: 8px;">

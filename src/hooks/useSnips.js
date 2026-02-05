@@ -70,7 +70,12 @@ export function useSnips(videoId = null) {
         ai_generated: true
       }
 
+      // DEBUG: trace quote through the pipeline
+      console.log('[snip-debug] edge function result:', JSON.stringify({ quote: result.quote, speaker: result.speaker }))
+      console.log('[snip-debug] snipData quote:', snipData.quote)
+
       const newSnip = await api.createSnip(user.id, snipData)
+      console.log('[snip-debug] saved snip quote:', newSnip?.quote)
       setSnips(prev => [...prev, newSnip].sort((a, b) => a.timestamp_seconds - b.timestamp_seconds))
 
       return newSnip

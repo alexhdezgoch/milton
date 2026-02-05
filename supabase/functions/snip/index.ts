@@ -29,10 +29,11 @@ Your task is to create a "snip" - a brief note capturing the key insight or conc
 A snip consists of:
 1. A short, descriptive title (max 6 words) that captures the main idea
 2. 2-3 bullet points (max 15 words each) that expand on the key points
-3. A memorable quote - the exact words from the transcript that best represent this insight
+3. A memorable quote - the exact words from the transcript that best represent this insight. You MUST always include a quote. Pick the most impactful sentence or phrase spoken in the transcript excerpt.
 4. The speaker's name if identifiable from the transcript
 
-Be specific and actionable. Avoid vague summaries. Focus on what makes this moment valuable to revisit.`
+Be specific and actionable. Avoid vague summaries. Focus on what makes this moment valuable to revisit.
+The quote field is required — never omit it. Always select a direct quote from the transcript.`
 
     const userPrompt = `Video: "${videoTitle}"
 Timestamp: ${formatTimestamp(timestamp)}
@@ -84,11 +85,21 @@ Create a snip for this moment. Return your response as JSON with this exact form
 
     const snip = JSON.parse(jsonMatch[0])
 
+    // Fallback: extract a quote from the context if AI didn't provide one
+    let quote = snip.quote || null
+    if (!quote && context) {
+      // Pick the longest sentence from the transcript as a fallback quote
+      const sentences = context.split(/[.!?]+/).map((s: string) => s.trim()).filter((s: string) => s.length > 20)
+      if (sentences.length > 0) {
+        quote = sentences.reduce((a: string, b: string) => a.length > b.length ? a : b)
+      }
+    }
+
     // Ensure all fields are present
     const result = {
       title: snip.title || 'Untitled snip',
       bullets: snip.bullets || [],
-      quote: snip.quote || null,
+      quote,
       speaker: snip.speaker || null
     }
 
