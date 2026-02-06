@@ -54,6 +54,7 @@ export function AuthProvider({ children }) {
   const [authError, setAuthError] = useState(null)
   const [refreshKey, setRefreshKey] = useState(0)
   const [extensionConnected, setExtensionConnected] = useState(false)
+  const [extensionId, setExtensionId] = useState(null)
   const hasResolved = useRef(false)
   const extensionConnectionAttempted = useRef(false)
 
@@ -136,6 +137,57 @@ export function AuthProvider({ children }) {
       subscription.unsubscribe()
     }
   }, [])
+
+  // Listen for extension ID (runs once on mount)
+  useEffect(() => {
+    // Check if already available
+    const existingId = window.MILTON_EXTENSION_ID ||
+                       document.documentElement.dataset.miltonExtensionId
+    if (existingId) {
+      window.MILTON_EXTENSION_ID = existingId
+      setExtensionId(existingId)
+    }
+
+    // Listen for postMessage from extension content script
+    const handleMessage = (event) => {
+      if (event.data?.type === 'MILTON_EXTENSION_ID' && event.data.extensionId) {
+        window.MILTON_EXTENSION_ID = event.data.extensionId
+        setExtensionId(event.data.extensionId)
+      }
+    }
+
+    window.addEventListener('message', handleMessage)
+
+    // Re-check after delay in case content script hasn't run yet
+    const timeout = setTimeout(() => {
+      const id = document.documentElement.dataset.miltonExtensionId
+      if (id) {
+        window.MILTON_EXTENSION_ID = id
+        setExtensionId(id)
+      }
+    }, 500)
+
+    return () => {
+      window.removeEventListener('message', handleMessage)
+      clearTimeout(timeout)
+    }
+  }, [])
+
+  // Auto-sync session to extension when both user and extension are available
+  useEffect(() => {
+    if (!user || !extensionId || extensionConnected) return
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        sendSessionToExtension(session).then((result) => {
+          if (result.success) {
+            setExtensionConnected(true)
+            console.log('[Milton] Session auto-synced to extension')
+          }
+        })
+      }
+    })
+  }, [user, extensionId, extensionConnected])
 
   // Handle extension connection when ?connect_extension=true is in URL
   // Store the flag in sessionStorage so it persists through login flow
