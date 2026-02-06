@@ -243,6 +243,22 @@ export async function updateSummary(videoId, updates) {
   return data
 }
 
+export async function upsertSummary(videoId, summaryData) {
+  const { data, error } = await supabase
+    .from('summaries')
+    .upsert({
+      video_id: videoId,
+      ...summaryData
+    }, {
+      onConflict: 'video_id'
+    })
+    .select()
+    .single()
+
+  if (error) throw error
+  return data
+}
+
 // ============ Tags ============
 
 export async function getTags(userId) {

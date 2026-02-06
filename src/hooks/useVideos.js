@@ -6,16 +6,16 @@ import { generateSummary } from '../services/claude'
 
 const generateSummaryInBackground = async (videoId, transcript, title) => {
   try {
-    await api.updateSummary(videoId, { status: 'generating' })
+    await api.upsertSummary(videoId, { status: 'generating' })
     const summary = await generateSummary(transcript, title)
-    await api.updateSummary(videoId, {
+    await api.upsertSummary(videoId, {
       main_point: summary.overview || summary.mainPoint,
       key_takeaways: summary.takeaways || summary.keyTakeaways,
       status: 'completed'
     })
   } catch (err) {
     console.error('Failed to generate summary:', err)
-    await api.updateSummary(videoId, { status: 'failed' })
+    await api.upsertSummary(videoId, { status: 'failed' })
   }
 }
 
@@ -230,7 +230,7 @@ export function useVideo(videoId) {
 
   const retrySummary = async () => {
     if (!video) return
-    await api.updateSummary(video.id, { status: 'pending', main_point: null, key_takeaways: [] })
+    await api.upsertSummary(video.id, { status: 'pending', main_point: null, key_takeaways: [] })
     generateSummaryInBackground(video.id, video.transcript_raw, video.title)
   }
 
