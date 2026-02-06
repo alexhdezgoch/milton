@@ -1,0 +1,112 @@
+/* Milton Snip Button Styles - Engagement Button Area */
+
+/* Container matches YouTube's button renderer */
+#milton-snip-button {
+  display: inline-flex !important;
+  visibility: visible !important;
+  align-items: center;
+  margin-left: 8px;
+  z-index: 100;
+}
+
+/* Button styling matching YouTube's engagement buttons */
+.milton-snip-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  padding: 0 16px;
+  border: none;
+  border-radius: 18px;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #f1f1f1;
+  font-family: "Roboto", "Arial", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.1s ease, color 0.1s ease;
+}
+
+.milton-snip-btn:hover {
+  background-color: rgba(74, 222, 128, 0.2);
+  color: #4ade80;
+}
+
+.milton-snip-btn:hover svg {
+  fill: #4ade80;
+}
+
+.milton-snip-btn:active {
+  background-color: rgba(74, 222, 128, 0.3);
+}
+
+/* Icon styling */
+.milton-snip-btn .yt-spec-button-shape-next__icon {
+  display: flex;
+  align-items: center;
+}
+
+.milton-snip-btn svg {
+  width: 24px;
+  height: 24px;
+  fill: #f1f1f1;
+  transition: fill 0.1s ease, transform 0.15s ease;
+}
+
+/* Text content */
+.milton-snip-btn .yt-spec-button-shape-next__button-text-content {
+  display: flex;
+  align-items: center;
+}
+
+.milton-snip-btn .yt-core-attributed-string {
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+/* Visual feedback animation when snip is captured */
+.milton-snip-btn.milton-snip-active {
+  background-color: rgba(74, 222, 128, 0.3);
+  color: #4ade80;
+}
+
+.milton-snip-btn.milton-snip-active svg {
+  fill: #4ade80;
+  animation: milton-snip-pulse 0.3s ease-out;
+}
+
+@keyframes milton-snip-pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Error feedback when snip fails to save */
+.milton-snip-btn.milton-snip-error {
+  background-color: rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+}
+
+.milton-snip-btn.milton-snip-error svg {
+  fill: #ef4444;
+  animation: milton-snip-shake 0.3s ease-out;
+}
+
+@keyframes milton-snip-shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-3px);
+  }
+  75% {
+    transform: translateX(3px);
+  }
+}
