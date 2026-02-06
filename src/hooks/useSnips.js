@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '../context/AuthContext'
+import { supabase } from '../lib/supabase'
 import * as api from '../services/api'
 import * as claude from '../services/claude'
 import { getTranscriptContext, formatDuration } from '../services/youtube'
@@ -31,6 +32,58 @@ export function useSnips(videoId = null) {
   useEffect(() => {
     fetchSnips()
   }, [fetchSnips])
+
+  // Subscribe to real-time changes on snips table
+  useEffect(() => {
+    if (!user) return
+
+    const channel = supabase
+      .channel('snips-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'snips',
+          filter: `user_id=eq.${user.id}`
+        },
+        (payload) => {
+          setSnips(prev => {
+            if (prev.some(s => s.id === payload.new.id)) return prev
+            return [...prev, payload.new].sort((a, b) => a.timestamp_seconds - b.timestamp_seconds)
+          })
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'snips',
+          filter: `user_id=eq.${user.id}`
+        },
+        (payload) => {
+          setSnips(prev => prev.map(s => s.id === payload.new.id ? payload.new : s))
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'DELETE',
+          schema: 'public',
+          table: 'snips',
+          filter: `user_id=eq.${user.id}`
+        },
+        (payload) => {
+          setSnips(prev => prev.filter(s => s.id !== payload.old.id))
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [user])
 
   const createSnip = async (video, timestampSeconds) => {
     if (!user) throw new Error('Not authenticated')
