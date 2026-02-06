@@ -368,9 +368,8 @@ function LandingPage({ onGetStarted }) {
             </div>
 
             <div className="flex items-center gap-6 text-sm">
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">Privacy Policy</a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">Terms of Service</a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">Contact</a>
+              <a href="/privacy" className="text-gray-400 hover:text-white transition-colors">Privacy Policy</a>
+              <a href="mailto:hello@miltonapp.co" className="text-gray-400 hover:text-white transition-colors">Contact</a>
             </div>
           </div>
         </div>

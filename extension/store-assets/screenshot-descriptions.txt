@@ -1,0 +1,55 @@
+SCREENSHOTS NEEDED (1280x800 or 640x400)
+=========================================
+
+Screenshot 1: Snip Button on YouTube
+------------------------------------
+Show a YouTube video page with the Milton "Snip" button visible in the engagement bar (next to Like, Share, etc).
+Highlight the button with an arrow or annotation saying "One tap to capture"
+Good video to use: An educational/tutorial video
+
+Screenshot 2: Popup with Saved Snips
+------------------------------------
+Show the extension popup open with 2-3 saved snips visible.
+Each snip should show:
+- Video thumbnail
+- Snip title
+- Timestamp
+Show the "Synced with Milton" status at top
+
+Screenshot 3: AI-Generated Notes (Web App)
+------------------------------------------
+Show the Milton web app with a snip expanded, displaying:
+- AI-generated title
+- Bullet points
+- Quote with speaker attribution
+- Timestamp
+
+Screenshot 4: Video Summary (Web App)
+-------------------------------------
+Show the Summary tab in the Milton web app with:
+- Main point section
+- Key takeaways list
+- "AI-generated" badge
+
+Screenshot 5: Chat Feature (Web App)
+------------------------------------
+Show the Chat tab with a conversation:
+User: "What did they say about the release date?"
+Milton: [response with timestamp reference]
+
+
+PROMOTIONAL TILE (440x280)
+==========================
+Design elements:
+- Milton logo
+- Tagline: "Never forget another YouTube insight"
+- YouTube play button icon + scissors/snip icon
+- Clean, minimal design with green accent color (#10B981)
+
+
+HOW TO CAPTURE SCREENSHOTS:
+1. Use a fresh Chrome profile for clean UI
+2. Zoom browser to 100%
+3. Use a screen capture tool that allows exact dimensions
+4. Consider using a tool like Awesome Screenshot or CleanShot
+5. Ensure no personal data is visible in the screenshots

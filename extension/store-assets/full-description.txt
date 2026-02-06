@@ -1,0 +1,43 @@
+Milton is your AI-powered companion for learning from YouTube videos. Stop watching and forgetting - start capturing insights that stick.
+
+🎯 ONE-TAP SNIPS
+Click the "Snip" button while watching any YouTube video to instantly capture that moment. Milton's AI automatically generates:
+• A clear summary of what was said
+• Key bullet points
+• The exact quote with timestamp
+
+📝 SMART SUMMARIES
+Every video you save gets an AI-generated overview with main topics and key takeaways. Know what's in a video in 10 seconds.
+
+💬 CHAT WITH YOUR VIDEOS
+Ask questions about any video you've saved. "What did they say about pricing?" - Milton finds it instantly, with timestamps so you can jump right there.
+
+🔍 SEARCHABLE TRANSCRIPTS
+Full searchable transcripts with click-to-seek. Find that one thing they said without scrubbing through hours of content.
+
+📚 YOUR VIDEO KNOWLEDGE BASE
+• Organize with tags and folders
+• Track your watch progress
+• Star your favorite snips
+• Weekly digest emails of your best insights
+
+🔒 PRIVACY FIRST
+• We only access videos you explicitly save
+• No tracking of your browsing or watch history
+• No access to your YouTube account
+• Your data stays yours
+
+PERFECT FOR:
+• Students turning lectures into study notes
+• Professionals building expertise from tutorials
+• Researchers collecting quotes and insights
+• Lifelong learners who want to actually remember what they watch
+
+REQUIRES:
+• Free Milton account (7-day trial, then $10/month)
+• Videos must have captions/subtitles enabled
+
+Get started in seconds - install the extension, create your free account, and start snipping!
+
+Questions or feedback? Contact us at hello@miltonapp.co
+Privacy Policy: https://miltonapp.co/privacy
