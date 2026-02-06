@@ -87,6 +87,7 @@ async function getOrCreateVideo(session, snip) {
     body: JSON.stringify({
       user_id: session.user.id,
       youtube_id: snip.videoId,
+      youtube_url: `https://www.youtube.com/watch?v=${snip.videoId}`,
       title: snip.videoTitle,
       author: snip.videoAuthor,
       thumbnail_url: snip.thumbnailUrl,
@@ -95,6 +96,117 @@ async function getOrCreateVideo(session, snip) {
   });
 
   return newVideo[0].id;
+}
+
+/**
+ * Invoke a Supabase edge function
+ */
+async function invokeEdgeFunction(functionName, body) {
+  const session = await getAuthSession();
+  const url = `${SUPABASE_URL}/functions/v1/${functionName}`;
+
+  console.log(`[Milton SW] Calling edge function: ${functionName}`);
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${session?.access_token || SUPABASE_ANON_KEY}`,
+      'apikey': SUPABASE_ANON_KEY
+    },
+    body: JSON.stringify(body)
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    console.error(`[Milton SW] Edge function ${functionName} failed:`, response.status, error);
+    throw new Error(`Edge function error: ${response.status} - ${error}`);
+  }
+
+  const data = await response.json();
+  console.log(`[Milton SW] Edge function ${functionName} response:`, data);
+  return data;
+}
+
+/**
+ * Get transcript context around a timestamp
+ */
+function getTranscriptContext(segments, timestampSeconds, beforeWindow = 30, afterWindow = 15) {
+  if (!segments || segments.length === 0) return { context: '', startSeconds: 0, endSeconds: 0 };
+
+  const startTime = Math.max(0, timestampSeconds - beforeWindow);
+  const endTime = timestampSeconds + afterWindow;
+
+  const relevantSegments = segments.filter(
+    segment => segment.start >= startTime && segment.start <= endTime
+  );
+
+  return {
+    context: relevantSegments.map(s => s.text).join(' '),
+    startSeconds: startTime,
+    endSeconds: endTime
+  };
+}
+
+/**
+ * Generate AI notes for a snip using Claude
+ */
+async function generateAINotes(snip, snipId) {
+  try {
+    // Fetch transcript
+    console.log('[Milton SW] Fetching transcript for AI generation...');
+    const transcriptData = await invokeEdgeFunction('transcript', { videoId: snip.videoId });
+
+    if (transcriptData.error || transcriptData.noCaptions || !transcriptData.segments?.length) {
+      console.log('[Milton SW] No transcript available, skipping AI generation');
+      return null;
+    }
+
+    // Get context around the timestamp
+    const { context, startSeconds, endSeconds } = getTranscriptContext(
+      transcriptData.segments,
+      snip.timestampSeconds
+    );
+
+    if (!context) {
+      console.log('[Milton SW] No context found around timestamp');
+      return null;
+    }
+
+    // Generate snip content with Claude
+    console.log('[Milton SW] Generating AI notes...');
+    const aiSnip = await invokeEdgeFunction('snip', {
+      context,
+      timestamp: snip.timestampSeconds,
+      videoTitle: snip.videoTitle,
+      startSeconds,
+      endSeconds
+    });
+
+    if (aiSnip.error) {
+      console.error('[Milton SW] AI generation error:', aiSnip.error);
+      return null;
+    }
+
+    // Update snip in Supabase with AI-generated content
+    await supabaseRequest(`/snips?id=eq.${snipId}`, {
+      method: 'PATCH',
+      headers: { 'Prefer': 'return=representation' },
+      body: JSON.stringify({
+        title: aiSnip.title,
+        bullets: aiSnip.bullets || [],
+        quote: aiSnip.quote,
+        speaker: aiSnip.speaker,
+        ai_generated: true
+      })
+    });
+
+    console.log('[Milton SW] Snip updated with AI notes:', aiSnip.title);
+    return aiSnip;
+  } catch (error) {
+    console.error('[Milton SW] Failed to generate AI notes:', error);
+    return null;
+  }
 }
 
 /**
@@ -123,7 +235,7 @@ async function syncSnipToSupabase(snip) {
         user_id: session.user.id,
         video_id: videoId,
         title: snip.title,
-        timestamp_seconds: snip.timestampSeconds,
+        timestamp_seconds: Math.floor(snip.timestampSeconds),
         timestamp_formatted: snip.timestampFormatted,
         bullets: [],
         ai_generated: false
@@ -131,6 +243,21 @@ async function syncSnipToSupabase(snip) {
     });
 
     console.log('[Milton SW] Snip synced to Supabase:', newSnip[0]?.id);
+
+    // Generate AI notes in the background (don't block the snip save)
+    const supabaseSnipId = newSnip[0]?.id;
+    if (supabaseSnipId) {
+      generateAINotes(snip, supabaseSnipId).then(result => {
+        if (result) {
+          console.log('[Milton SW] AI notes generated successfully');
+        }
+      }).catch(err => {
+        console.error('[Milton SW] Background AI generation failed:', err);
+      });
+    } else {
+      console.error('[Milton SW] No snip ID returned from Supabase');
+    }
+
     return newSnip[0];
   } catch (error) {
     console.error('[Milton SW] Failed to sync snip to Supabase:', error);
