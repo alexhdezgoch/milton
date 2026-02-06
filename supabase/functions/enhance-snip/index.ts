@@ -1,5 +1,31 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 
+// Extract JSON from AI response - handles markdown code blocks and extra text
+function extractJSON(content: string): object {
+  let jsonStr = content
+
+  // Remove markdown code fences if present
+  const codeBlockMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/)
+  if (codeBlockMatch) {
+    jsonStr = codeBlockMatch[1].trim()
+  }
+
+  // Try to parse directly first (cleanest case)
+  try {
+    return JSON.parse(jsonStr)
+  } catch {
+    // Fall back to regex extraction
+  }
+
+  // Find JSON object with non-greedy match for trailing content
+  const jsonMatch = jsonStr.match(/\{[\s\S]*?\}(?=\s*$)/) || jsonStr.match(/\{[\s\S]*\}/)
+  if (!jsonMatch) {
+    throw new Error('Failed to parse AI response - no JSON found')
+  }
+
+  return JSON.parse(jsonMatch[0])
+}
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -122,12 +148,7 @@ Rewrite this snip in the ${style || 'actionable'} style. Return as JSON:
     const content = data.content[0].text
 
     // Parse JSON from response
-    const jsonMatch = content.match(/\{[\s\S]*\}/)
-    if (!jsonMatch) {
-      throw new Error('Failed to parse AI response')
-    }
-
-    const enhanced = JSON.parse(jsonMatch[0])
+    const enhanced = extractJSON(content)
 
     return new Response(JSON.stringify(enhanced), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
