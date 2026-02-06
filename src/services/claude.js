@@ -26,7 +26,11 @@ export async function generateSummary(transcriptRaw, videoTitle) {
     }
   })
 
-  if (error) throw error
+  // Surface the actual error message from the edge function
+  if (error) {
+    const message = data?.error || error.message || 'Failed to generate summary'
+    throw new Error(message)
+  }
   if (data?.error) throw new Error(data.error)
   return data
 }

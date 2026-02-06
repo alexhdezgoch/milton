@@ -231,8 +231,13 @@ export function useVideo(videoId) {
   const retrySummary = async () => {
     if (!video) return
 
-    // Check for transcript first
-    if (!video.transcript_raw) {
+    // Get transcript - prefer transcript_raw, fallback to reconstructing from segments
+    let transcript = video.transcript_raw
+    if (!transcript && video.transcript?.length > 0) {
+      transcript = video.transcript.map(s => s.text).join(' ')
+    }
+
+    if (!transcript) {
       throw new Error('No transcript available for this video')
     }
 
@@ -241,7 +246,7 @@ export function useVideo(videoId) {
 
     // Generate summary (await it!)
     try {
-      const summary = await generateSummary(video.transcript_raw, video.title)
+      const summary = await generateSummary(transcript, video.title)
       await api.upsertSummary(video.id, {
         main_point: summary.overview || summary.mainPoint,
         key_takeaways: summary.takeaways || summary.keyTakeaways,
