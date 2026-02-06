@@ -67,7 +67,53 @@ async function supabaseRequest(endpoint, options = {}) {
 }
 
 /**
+ * Generate video summary in the background
+ */
+async function generateVideoSummary(videoId, transcript, title) {
+  try {
+    console.log('[Milton SW] Generating video summary for video:', videoId);
+    const summaryData = await invokeEdgeFunction('summary', {
+      transcript,
+      videoTitle: title
+    });
+
+    console.log('[Milton SW] Summary edge function returned:', summaryData);
+
+    // Update summary row with results
+    const updated = await supabaseRequest(`/summaries?video_id=eq.${videoId}`, {
+      method: 'PATCH',
+      headers: { 'Prefer': 'return=representation' },
+      body: JSON.stringify({
+        main_point: summaryData.overview || summaryData.mainPoint || '',
+        key_takeaways: summaryData.takeaways || summaryData.keyTakeaways || [],
+        status: 'completed'
+      })
+    });
+
+    if (!updated || updated.length === 0) {
+      console.error('[Milton SW] Summary row not found for video:', videoId);
+    } else {
+      console.log('[Milton SW] Video summary updated successfully:', updated[0]);
+    }
+  } catch (error) {
+    console.error('[Milton SW] Summary generation failed:', error);
+    // Mark as failed
+    try {
+      await supabaseRequest(`/summaries?video_id=eq.${videoId}`, {
+        method: 'PATCH',
+        headers: { 'Prefer': 'return=representation' },
+        body: JSON.stringify({ status: 'failed' })
+      });
+      console.log('[Milton SW] Marked summary as failed');
+    } catch (patchError) {
+      console.error('[Milton SW] Failed to mark summary as failed:', patchError);
+    }
+  }
+}
+
+/**
  * Get or create video in Supabase
+ * Returns { videoId, transcriptData } - transcriptData is only populated for new videos
  */
 async function getOrCreateVideo(session, snip) {
   // First, check if video exists
@@ -77,10 +123,22 @@ async function getOrCreateVideo(session, snip) {
   );
 
   if (videos && videos.length > 0) {
-    return videos[0].id;
+    return { videoId: videos[0].id, transcriptData: null };
   }
 
-  // Create new video
+  // Fetch transcript for new video
+  console.log('[Milton SW] Fetching transcript for new video...');
+  let transcriptData = null;
+  let hasTranscript = false;
+
+  try {
+    transcriptData = await invokeEdgeFunction('transcript', { videoId: snip.videoId });
+    hasTranscript = !transcriptData.error && !transcriptData.noCaptions && transcriptData.segments?.length > 0;
+  } catch (error) {
+    console.error('[Milton SW] Failed to fetch transcript:', error);
+  }
+
+  // Create new video with transcript data if available
   const newVideo = await supabaseRequest('/videos', {
     method: 'POST',
     headers: { 'Prefer': 'return=representation' },
@@ -91,11 +149,33 @@ async function getOrCreateVideo(session, snip) {
       title: snip.videoTitle,
       author: snip.videoAuthor,
       thumbnail_url: snip.thumbnailUrl,
-      status: 'in_progress'
+      status: 'in_progress',
+      transcript: hasTranscript ? transcriptData.segments : null,
+      transcript_raw: hasTranscript ? transcriptData.rawText : null
     })
   });
 
-  return newVideo[0].id;
+  const dbVideoId = newVideo[0].id;
+
+  // Create pending summary and generate in background
+  if (hasTranscript) {
+    try {
+      const summaryRow = await supabaseRequest('/summaries', {
+        method: 'POST',
+        headers: { 'Prefer': 'return=representation' },
+        body: JSON.stringify({ video_id: dbVideoId, status: 'pending' })
+      });
+      console.log('[Milton SW] Created pending summary row:', summaryRow);
+
+      // Generate summary in background (non-blocking)
+      generateVideoSummary(dbVideoId, transcriptData.rawText, snip.videoTitle)
+        .catch(err => console.error('[Milton SW] Background summary generation failed:', err));
+    } catch (error) {
+      console.error('[Milton SW] Failed to create summary row:', error);
+    }
+  }
+
+  return { videoId: dbVideoId, transcriptData: hasTranscript ? transcriptData : null };
 }
 
 /**
@@ -150,12 +230,20 @@ function getTranscriptContext(segments, timestampSeconds, beforeWindow = 30, aft
 
 /**
  * Generate AI notes for a snip using Claude
+ * @param {Object} snip - The snip data
+ * @param {string} snipId - The Supabase snip ID
+ * @param {Object|null} existingTranscriptData - Optional pre-fetched transcript data
  */
-async function generateAINotes(snip, snipId) {
+async function generateAINotes(snip, snipId, existingTranscriptData = null) {
   try {
-    // Fetch transcript
-    console.log('[Milton SW] Fetching transcript for AI generation...');
-    const transcriptData = await invokeEdgeFunction('transcript', { videoId: snip.videoId });
+    // Use existing transcript data or fetch it
+    let transcriptData = existingTranscriptData;
+    if (!transcriptData) {
+      console.log('[Milton SW] Fetching transcript for AI generation...');
+      transcriptData = await invokeEdgeFunction('transcript', { videoId: snip.videoId });
+    } else {
+      console.log('[Milton SW] Using pre-fetched transcript for AI generation');
+    }
 
     if (transcriptData.error || transcriptData.noCaptions || !transcriptData.segments?.length) {
       console.log('[Milton SW] No transcript available, skipping AI generation');
@@ -224,8 +312,8 @@ async function syncSnipToSupabase(snip) {
   }
 
   try {
-    // Get or create the video first
-    const videoId = await getOrCreateVideo(session, snip);
+    // Get or create the video first (also fetches transcript for new videos)
+    const { videoId, transcriptData } = await getOrCreateVideo(session, snip);
 
     // Create snip in Supabase
     const newSnip = await supabaseRequest('/snips', {
@@ -245,9 +333,10 @@ async function syncSnipToSupabase(snip) {
     console.log('[Milton SW] Snip synced to Supabase:', newSnip[0]?.id);
 
     // Generate AI notes in the background (don't block the snip save)
+    // Reuse transcript data if available from video creation
     const supabaseSnipId = newSnip[0]?.id;
     if (supabaseSnipId) {
-      generateAINotes(snip, supabaseSnipId).then(result => {
+      generateAINotes(snip, supabaseSnipId, transcriptData).then(result => {
         if (result) {
           console.log('[Milton SW] AI notes generated successfully');
         }
@@ -421,4 +510,4 @@ chrome.runtime.onMessageExternal.addListener((message, sender, sendResponse) => 
   }
 });
 
-console.log('[Milton SW] Service worker initialized');
+console.log('[Milton SW] Service worker initialized (v2 - with summary generation)');
