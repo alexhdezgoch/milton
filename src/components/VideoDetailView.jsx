@@ -211,10 +211,13 @@ function VideoDetailView({ videoId, onBack }) {
     setSummaryError(null)
     try {
       await retrySummary()
-      startSummaryPolling()
+      // Refresh summary after completion
+      const updatedSummary = await getSummary(videoId)
+      setSummary(updatedSummary)
     } catch (err) {
       console.error('Failed to retry summary:', err)
-      setSummaryError(err.message || 'Failed to retry summary generation')
+      setSummaryError(err.message || 'Failed to generate summary')
+    } finally {
       setSummaryLoading(false)
     }
   }

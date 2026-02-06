@@ -230,8 +230,28 @@ export function useVideo(videoId) {
 
   const retrySummary = async () => {
     if (!video) return
-    await api.upsertSummary(video.id, { status: 'pending', main_point: null, key_takeaways: [] })
-    generateSummaryInBackground(video.id, video.transcript_raw, video.title)
+
+    // Check for transcript first
+    if (!video.transcript_raw) {
+      throw new Error('No transcript available for this video')
+    }
+
+    // Set initial status
+    await api.upsertSummary(video.id, { status: 'generating', main_point: null, key_takeaways: [] })
+
+    // Generate summary (await it!)
+    try {
+      const summary = await generateSummary(video.transcript_raw, video.title)
+      await api.upsertSummary(video.id, {
+        main_point: summary.overview || summary.mainPoint,
+        key_takeaways: summary.takeaways || summary.keyTakeaways,
+        status: 'completed'
+      })
+    } catch (err) {
+      console.error('Failed to generate summary:', err)
+      await api.upsertSummary(video.id, { status: 'failed' })
+      throw err  // Re-throw so UI can show error
+    }
   }
 
   return {

@@ -253,10 +253,9 @@ export async function upsertSummary(videoId, summaryData) {
       onConflict: 'video_id'
     })
     .select()
-    .single()
 
   if (error) throw error
-  return data
+  return data?.[0] || null
 }
 
 // ============ Tags ============
