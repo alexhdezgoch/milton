@@ -1,18 +1,21 @@
 import { useState, useEffect } from 'react'
-import { Home, Tag, Search, Scissors, X, LogOut, CreditCard, Mail, AlertTriangle, Chrome, Check } from 'lucide-react'
+import { Home, Tag, Search, Scissors, X, LogOut, CreditCard, Mail, AlertTriangle, Chrome, Check, Cloud, CloudOff, RefreshCw } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useSubscription } from '../hooks/useSubscription'
+import { supabase } from '../lib/supabase'
 
 function LeftSidebar({
   onClose,
   activeNav,
   onNavChange
 }) {
-  const { user, profile, signOut, updateProfile, extensionConnected, connectExtension } = useAuth()
+  const { user, profile, signOut, updateProfile, refreshProfile, extensionConnected, connectExtension } = useAuth()
   const { isTrialing, trialDaysRemaining, manageSubscription, isActive } = useSubscription()
   const [updatingDigest, setUpdatingDigest] = useState(false)
   const [extensionInstalled, setExtensionInstalled] = useState(false)
   const [connectingExtension, setConnectingExtension] = useState(false)
+  const [syncingNotion, setSyncingNotion] = useState(false)
+  const [disconnectingNotion, setDisconnectingNotion] = useState(false)
 
   // Check if extension is installed
   useEffect(() => {
@@ -91,6 +94,79 @@ function LeftSidebar({
     } finally {
       setConnectingExtension(false)
     }
+  }
+
+  const handleConnectNotion = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) return
+
+      const response = await supabase.functions.invoke('notion-auth', {
+        body: { returnUrl: window.location.origin }
+      })
+
+      if (response.error) {
+        console.error('Failed to start Notion OAuth:', response.error)
+        return
+      }
+
+      // Redirect to Notion OAuth
+      window.location.href = response.data.url
+    } catch (err) {
+      console.error('Failed to connect Notion:', err)
+    }
+  }
+
+  const handleSyncNotion = async () => {
+    setSyncingNotion(true)
+    try {
+      const response = await supabase.functions.invoke('notion-sync')
+      if (response.error) {
+        console.error('Failed to sync Notion:', response.error)
+      } else {
+        await refreshProfile()
+      }
+    } catch (err) {
+      console.error('Failed to sync Notion:', err)
+    } finally {
+      setSyncingNotion(false)
+    }
+  }
+
+  const handleDisconnectNotion = async () => {
+    if (!confirm('Disconnect Notion? Your synced pages will remain in Notion.')) {
+      return
+    }
+
+    setDisconnectingNotion(true)
+    try {
+      const response = await supabase.functions.invoke('notion-disconnect')
+      if (response.error) {
+        console.error('Failed to disconnect Notion:', response.error)
+      } else {
+        await refreshProfile()
+      }
+    } catch (err) {
+      console.error('Failed to disconnect Notion:', err)
+    } finally {
+      setDisconnectingNotion(false)
+    }
+  }
+
+  const formatLastSynced = (date) => {
+    if (!date) return 'Never'
+    const d = new Date(date)
+    const now = new Date()
+    const diffMs = now - d
+    const diffMins = Math.floor(diffMs / 60000)
+    const diffHours = Math.floor(diffMs / 3600000)
+    const diffDays = Math.floor(diffMs / 86400000)
+
+    if (diffMins < 1) return 'Just now'
+    if (diffMins < 60) return `${diffMins}m ago`
+    if (diffHours < 24) return `${diffHours}h ago`
+    if (diffDays < 7) return `${diffDays}d ago`
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
   }
 
   return (
@@ -181,6 +257,43 @@ function LeftSidebar({
                 <div className={`w-3 h-3 bg-white rounded-full shadow-subtle transition-transform mt-0.5 ${profile?.weekly_digest_enabled ? 'translate-x-4' : 'translate-x-0.5'}`} />
               </div>
             </button>
+
+            {/* Notion Sync */}
+            {profile?.notion_sync_enabled ? (
+              <>
+                <div className="sidebar-item w-full text-accent-green cursor-default">
+                  <Cloud className="w-[18px] h-[18px]" />
+                  <span className="text-sm font-medium">Notion Connected</span>
+                </div>
+                <button
+                  onClick={handleSyncNotion}
+                  disabled={syncingNotion}
+                  className="sidebar-item w-full ml-4 text-xs active:bg-bg-tertiary"
+                >
+                  <RefreshCw className={`w-[14px] h-[14px] ${syncingNotion ? 'animate-spin' : ''}`} />
+                  <span>{syncingNotion ? 'Syncing...' : 'Sync Now'}</span>
+                </button>
+                <button
+                  onClick={handleDisconnectNotion}
+                  disabled={disconnectingNotion}
+                  className="sidebar-item w-full ml-4 text-xs text-text-muted hover:text-text-secondary active:bg-bg-tertiary"
+                >
+                  <CloudOff className="w-[14px] h-[14px]" />
+                  <span>{disconnectingNotion ? 'Disconnecting...' : 'Disconnect'}</span>
+                </button>
+                <p className="text-xs text-text-muted px-3">
+                  Last sync: {formatLastSynced(profile?.notion_last_synced_at)}
+                </p>
+              </>
+            ) : (
+              <button
+                onClick={handleConnectNotion}
+                className="sidebar-item w-full active:bg-bg-tertiary"
+              >
+                <Cloud className="w-[18px] h-[18px]" />
+                <span className="text-sm font-medium">Connect Notion</span>
+              </button>
+            )}
 
             {/* Chrome Extension */}
             {extensionInstalled ? (

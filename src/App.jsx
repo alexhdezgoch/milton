@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Menu, ArrowLeft } from 'lucide-react'
-import { AuthProvider } from './context/AuthContext'
+import { AuthProvider, useAuth } from './context/AuthContext'
 import AuthGuard from './components/auth/AuthGuard'
 import SubscriptionGuard from './components/auth/SubscriptionGuard'
 import LeftSidebar from './components/LeftSidebar'
@@ -8,11 +8,41 @@ import VideoDetailView from './components/VideoDetailView'
 import LibraryView from './components/LibraryView'
 import TagsView from './components/TagsView'
 import SearchView from './components/SearchView'
+import Toast from './components/shared/Toast'
 
 function AppContent() {
+  const { refreshProfile } = useAuth()
   const [selectedVideoId, setSelectedVideoId] = useState(null)
   const [activeNav, setActiveNav] = useState('home')
   const [leftSidebarOpen, setLeftSidebarOpen] = useState(false)
+  const [toast, setToast] = useState(null)
+
+  // Handle OAuth callback params (Notion integration)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+
+    if (params.has('notion_connected')) {
+      setToast({ message: 'Notion connected successfully!', type: 'success' })
+      refreshProfile()
+      // Clean URL
+      params.delete('notion_connected')
+      const newUrl = params.toString()
+        ? `${window.location.pathname}?${params.toString()}`
+        : window.location.pathname
+      window.history.replaceState(null, '', newUrl)
+    }
+
+    if (params.has('notion_error')) {
+      const error = params.get('notion_error')
+      setToast({ message: `Notion connection failed: ${error}`, type: 'error' })
+      // Clean URL
+      params.delete('notion_error')
+      const newUrl = params.toString()
+        ? `${window.location.pathname}?${params.toString()}`
+        : window.location.pathname
+      window.history.replaceState(null, '', newUrl)
+    }
+  }, [])
 
   // Lock body scroll when mobile sidebar is open (iOS Safari fix)
   useEffect(() => {
@@ -146,6 +176,15 @@ function AppContent() {
       <div className="flex-1 pt-14 lg:pt-0 overflow-auto">
         {renderMainContent()}
       </div>
+
+      {/* Toast notifications */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onDismiss={() => setToast(null)}
+        />
+      )}
     </div>
   )
 }
