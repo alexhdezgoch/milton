@@ -54,3 +54,6 @@ verify_jwt = false
 
 [functions.enhance-snip]
 verify_jwt = false
+
+[functions.notion-callback]
+verify_jwt = false

@@ -102,7 +102,8 @@ function LeftSidebar({
       if (!session) return
 
       const response = await supabase.functions.invoke('notion-auth', {
-        body: { returnUrl: window.location.origin }
+        body: { returnUrl: window.location.origin },
+        headers: { Authorization: `Bearer ${session.access_token}` }
       })
 
       if (response.error) {
@@ -120,7 +121,12 @@ function LeftSidebar({
   const handleSyncNotion = async () => {
     setSyncingNotion(true)
     try {
-      const response = await supabase.functions.invoke('notion-sync')
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) return
+
+      const response = await supabase.functions.invoke('notion-sync', {
+        headers: { Authorization: `Bearer ${session.access_token}` }
+      })
       if (response.error) {
         console.error('Failed to sync Notion:', response.error)
       } else {
@@ -140,7 +146,12 @@ function LeftSidebar({
 
     setDisconnectingNotion(true)
     try {
-      const response = await supabase.functions.invoke('notion-disconnect')
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) return
+
+      const response = await supabase.functions.invoke('notion-disconnect', {
+        headers: { Authorization: `Bearer ${session.access_token}` }
+      })
       if (response.error) {
         console.error('Failed to disconnect Notion:', response.error)
       } else {
