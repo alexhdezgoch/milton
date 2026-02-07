@@ -55,5 +55,17 @@ verify_jwt = false
 [functions.enhance-snip]
 verify_jwt = false
 
+[functions.notion-auth]
+verify_jwt = false
+
 [functions.notion-callback]
+verify_jwt = false
+
+[functions.notion-sync]
+verify_jwt = false
+
+[functions.notion-disconnect]
+verify_jwt = false
+
+[functions.notion-sync-batch]
 verify_jwt = false
