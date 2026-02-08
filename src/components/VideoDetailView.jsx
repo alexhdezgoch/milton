@@ -7,7 +7,7 @@ import { useVideo } from '../hooks/useVideos'
 import { useSnips } from '../hooks/useSnips'
 import { useChat } from '../hooks/useChat'
 import { useTags } from '../hooks/useTags'
-import { formatDuration } from '../services/youtube'
+import { formatDuration, getSegmentTime } from '../services/youtube'
 import { getSummary } from '../services/api'
 
 function VideoDetailView({ videoId, onBack }) {
@@ -323,7 +323,9 @@ function VideoDetailView({ videoId, onBack }) {
   const isCurrentSegment = (segment, index) => {
     if (!video?.transcript) return false
     const nextSegment = video.transcript[index + 1]
-    return segment.start <= currentTime && (!nextSegment || nextSegment.start > currentTime)
+    const segTime = getSegmentTime(segment)
+    const nextTime = nextSegment ? getSegmentTime(nextSegment) : null
+    return segTime <= currentTime && (!nextTime || nextTime > currentTime)
   }
 
   // Retroactively mark as completed if already watched past 90%
@@ -488,14 +490,15 @@ function VideoDetailView({ videoId, onBack }) {
               <p className="text-xs text-text-secondary mb-2">Snip context preview:</p>
               <div className="text-sm text-text-primary max-h-32 overflow-y-auto">
                 {video.transcript
-                  .filter(segment =>
-                    segment.start >= currentTime - 30 &&
-                    segment.start <= currentTime + 30
-                  )
+                  .filter(segment => {
+                    const timeInSeconds = getSegmentTime(segment)
+                    return timeInSeconds >= currentTime - 30 && timeInSeconds <= currentTime + 30
+                  })
                   .map((segment, i) => {
-                    const isCurrent = segment.start <= currentTime &&
-                      (video.transcript.find(s => s.start > segment.start)?.start > currentTime ||
-                       segment === video.transcript[video.transcript.length - 1])
+                    const segTime = getSegmentTime(segment)
+                    const isCurrent = segTime <= currentTime &&
+                      (video.transcript.find(s => getSegmentTime(s) > segTime) == null ||
+                       getSegmentTime(video.transcript.find(s => getSegmentTime(s) > segTime)) > currentTime)
                     return (
                       <span
                         key={i}
@@ -505,10 +508,10 @@ function VideoDetailView({ videoId, onBack }) {
                       </span>
                     )
                   })}
-                {video.transcript.filter(segment =>
-                  segment.start >= currentTime - 30 &&
-                  segment.start <= currentTime + 30
-                ).length === 0 && (
+                {video.transcript.filter(segment => {
+                  const timeInSeconds = getSegmentTime(segment)
+                  return timeInSeconds >= currentTime - 30 && timeInSeconds <= currentTime + 30
+                }).length === 0 && (
                   <span className="text-text-muted italic">No transcript in this time range</span>
                 )}
               </div>
@@ -559,10 +562,10 @@ function VideoDetailView({ videoId, onBack }) {
                             }`}
                           >
                             <button
-                              onClick={() => handleSeekToTimestamp(segment.start)}
+                              onClick={() => handleSeekToTimestamp(getSegmentTime(segment))}
                               className="text-accent-rose font-medium mr-2 hover:underline"
                             >
-                              {formatDuration(segment.start)}
+                              {formatDuration(getSegmentTime(segment))}
                             </button>
                             {segment.text}
                           </p>
@@ -970,15 +973,18 @@ function SnipCard({ snip, video, isLast, onSeek, onToggleStar, onDelete, onRewri
   }
 
   // Get transcript context for this snip
-  const getTranscriptContext = () => {
+  const getTranscriptContextForSnip = () => {
     if (!video?.transcript) return null
     return video.transcript
-      .filter(segment => segment.start >= startTime && segment.start <= endTime)
+      .filter(segment => {
+        const timeInSeconds = getSegmentTime(segment)
+        return timeInSeconds >= startTime && timeInSeconds <= endTime
+      })
       .map(segment => segment.text)
       .join(' ')
   }
 
-  const transcriptContext = getTranscriptContext()
+  const transcriptContext = getTranscriptContextForSnip()
 
   return (
     <div className={`pb-4 ${!isLast ? 'mb-4 border-b border-border' : ''}`}>

@@ -148,6 +148,12 @@ export async function fetchVideoMetadata(videoId) {
   }
 }
 
+// Helper to normalize segment time (handles both 'start' and 'offset', ms vs seconds)
+export function getSegmentTime(segment) {
+  const t = segment?.start ?? segment?.offset ?? 0
+  return t > 10000 ? t / 1000 : t
+}
+
 // Get transcript context around a timestamp (for snip generation)
 export function getTranscriptContext(segments, timestampSeconds, windowSeconds = 30) {
   if (!segments || segments.length === 0) return ''
@@ -155,9 +161,10 @@ export function getTranscriptContext(segments, timestampSeconds, windowSeconds =
   const startTime = Math.max(0, timestampSeconds - windowSeconds)
   const endTime = timestampSeconds + windowSeconds
 
-  const relevantSegments = segments.filter(
-    segment => segment.start >= startTime && segment.start <= endTime
-  )
+  const relevantSegments = segments.filter(segment => {
+    const segTime = getSegmentTime(segment)
+    return segTime >= startTime && segTime <= endTime
+  })
 
   return relevantSegments.map(s => s.text).join(' ')
 }
