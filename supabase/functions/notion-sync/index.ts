@@ -121,7 +121,7 @@ serve(async (req) => {
       })
     }
 
-    // Get videos with unsynced summaries (summaries that have never been synced or were updated after sync)
+    // Get videos with summaries that need syncing
     const { data: videosWithSummaries, error: summariesError } = await supabase
       .from('videos')
       .select(`
@@ -136,7 +136,6 @@ serve(async (req) => {
         summaries!inner(id, main_point, key_takeaways, notion_synced_at, updated_at)
       `)
       .eq('user_id', userId)
-      .or('notion_synced_at.is.null,updated_at.gt.notion_synced_at', { referencedTable: 'summaries' })
 
     if (summariesError) {
       console.error('Failed to fetch videos with summaries:', summariesError)
@@ -146,12 +145,24 @@ serve(async (req) => {
       })
     }
 
+    // Filter to only include videos where summary needs sync
+    const filteredVideosWithSummaries = (videosWithSummaries || []).filter(v => {
+      const summary = v.summaries?.[0]
+      if (!summary) return false
+      const needsSync = !summary.notion_synced_at ||
+        (summary.updated_at && summary.updated_at > summary.notion_synced_at)
+      return needsSync
+    })
+
+    // Debug: sample first summary to see actual values
+    const sampleSummary = videosWithSummaries?.[0]?.summaries?.[0]
+
     // Merge videos from both queries, deduplicating by id
     const videoMap = new Map<string, any>()
     for (const v of videosWithSnips || []) {
       videoMap.set(v.id, v)
     }
-    for (const v of videosWithSummaries || []) {
+    for (const v of filteredVideosWithSummaries) {
       if (!videoMap.has(v.id)) {
         videoMap.set(v.id, v)
       } else {
@@ -170,8 +181,23 @@ serve(async (req) => {
       pagesUpdated: 0,
       snipsSynced: 0,
       summariesSynced: 0,
-      errors: [] as string[]
+      errors: [] as string[],
+      debug: {
+        videosWithSnipsCount: videosWithSnips?.length || 0,
+        videosWithSummariesCount: videosWithSummaries?.length || 0,
+        filteredSummariesCount: filteredVideosWithSummaries.length,
+        mergedVideosCount: videos.length,
+        sampleSummary: sampleSummary ? {
+          id: sampleSummary.id,
+          notion_synced_at: sampleSummary.notion_synced_at,
+          updated_at: sampleSummary.updated_at,
+          hasMainPoint: !!sampleSummary.main_point
+        } : null
+      }
     }
+
+    // Ensure Summary property exists in database schema
+    await ensureSummaryPropertyExists(profile.notion_access_token, profile.notion_database_id)
 
     for (const rawVideo of videos || []) {
       // Normalize summaries array to single object
@@ -471,6 +497,32 @@ function formatSnipBlocks(snip: Snip, youtubeId: string): any[] {
   })
 
   return blocks
+}
+
+async function ensureSummaryPropertyExists(
+  accessToken: string,
+  databaseId: string
+): Promise<void> {
+  // Add Summary property to database schema if it doesn't exist
+  const response = await fetch(`https://api.notion.com/v1/databases/${databaseId}`, {
+    method: 'PATCH',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Notion-Version': '2022-06-28',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      properties: {
+        'Summary': { rich_text: {} }
+      }
+    })
+  })
+
+  if (!response.ok) {
+    const errorText = await response.text()
+    console.error('Failed to ensure Summary property exists:', errorText)
+    // Don't throw - this might fail if property already exists with different type
+  }
 }
 
 async function updateSummaryOnPage(
