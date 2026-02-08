@@ -17,6 +17,15 @@ interface Snip {
   bullets: string[] | null
   quote: string | null
   created_at: string
+  notion_synced_at: string | null
+}
+
+interface Summary {
+  id: string
+  main_point: string
+  key_takeaways: string[]
+  notion_synced_at: string | null
+  updated_at: string | null
 }
 
 interface Video {
@@ -28,7 +37,7 @@ interface Video {
   thumbnail_url: string
   notion_page_id: string | null
   snips: Snip[]
-  summary: { main_point: string; key_takeaways: string[] } | null
+  summary: Summary | null
 }
 
 serve(async (req) => {
@@ -88,7 +97,7 @@ serve(async (req) => {
     }
 
     // Get videos with unsynced snips
-    const { data: videos, error: videosError } = await supabase
+    const { data: videosWithSnips, error: snipsError } = await supabase
       .from('videos')
       .select(`
         id,
@@ -99,23 +108,68 @@ serve(async (req) => {
         thumbnail_url,
         notion_page_id,
         snips!inner(id, title, timestamp_seconds, timestamp_formatted, bullets, quote, created_at, notion_synced_at),
-        summaries(main_point, key_takeaways)
+        summaries(id, main_point, key_takeaways, notion_synced_at, updated_at)
       `)
       .eq('user_id', userId)
       .is('snips.notion_synced_at', null)
 
-    if (videosError) {
-      console.error('Failed to fetch videos:', videosError)
+    if (snipsError) {
+      console.error('Failed to fetch videos with snips:', snipsError)
       return new Response(JSON.stringify({ error: 'Failed to fetch videos' }), {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       })
     }
 
+    // Get videos with unsynced summaries (summaries that have never been synced or were updated after sync)
+    const { data: videosWithSummaries, error: summariesError } = await supabase
+      .from('videos')
+      .select(`
+        id,
+        youtube_id,
+        youtube_url,
+        title,
+        author,
+        thumbnail_url,
+        notion_page_id,
+        snips(id, title, timestamp_seconds, timestamp_formatted, bullets, quote, created_at, notion_synced_at),
+        summaries!inner(id, main_point, key_takeaways, notion_synced_at, updated_at)
+      `)
+      .eq('user_id', userId)
+      .or('notion_synced_at.is.null,updated_at.gt.notion_synced_at', { referencedTable: 'summaries' })
+
+    if (summariesError) {
+      console.error('Failed to fetch videos with summaries:', summariesError)
+      return new Response(JSON.stringify({ error: 'Failed to fetch videos' }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      })
+    }
+
+    // Merge videos from both queries, deduplicating by id
+    const videoMap = new Map<string, any>()
+    for (const v of videosWithSnips || []) {
+      videoMap.set(v.id, v)
+    }
+    for (const v of videosWithSummaries || []) {
+      if (!videoMap.has(v.id)) {
+        videoMap.set(v.id, v)
+      } else {
+        // Merge: keep the one with snips if it has unsynced snips
+        const existing = videoMap.get(v.id)
+        // Make sure we have the full snips list
+        if (!existing.snips?.length && v.snips?.length) {
+          existing.snips = v.snips
+        }
+      }
+    }
+    const videos = Array.from(videoMap.values())
+
     const results = {
       pagesCreated: 0,
       pagesUpdated: 0,
       snipsSynced: 0,
+      summariesSynced: 0,
       errors: [] as string[]
     }
 
@@ -127,18 +181,39 @@ serve(async (req) => {
         summary: rawVideo.summaries?.[0] || null
       }
 
+      // Determine what needs syncing
+      const unsyncedSnips = video.snips.filter(s => !s.notion_synced_at)
+      const summaryNeedsSync = video.summary && (
+        !video.summary.notion_synced_at ||
+        (video.summary.updated_at && video.summary.updated_at > video.summary.notion_synced_at)
+      )
+
       try {
         if (video.notion_page_id) {
-          // Append new snips to existing page
-          await appendSnipsToPage(
-            profile.notion_access_token,
-            video.notion_page_id,
-            video.snips,
-            video.youtube_id
-          )
-          results.pagesUpdated++
+          // Existing page: append new snips and/or update summary
+          if (unsyncedSnips.length > 0) {
+            await appendSnipsToPage(
+              profile.notion_access_token,
+              video.notion_page_id,
+              unsyncedSnips,
+              video.youtube_id
+            )
+          }
+
+          // Update summary property on existing page if summary changed
+          if (summaryNeedsSync && video.summary) {
+            await updateSummaryOnPage(
+              profile.notion_access_token,
+              video.notion_page_id,
+              video.summary
+            )
+          }
+
+          if (unsyncedSnips.length > 0 || summaryNeedsSync) {
+            results.pagesUpdated++
+          }
         } else {
-          // Create new page with video info + snips
+          // Create new page with video info + snips + summary
           const pageId = await createVideoPage(
             profile.notion_access_token,
             profile.notion_database_id,
@@ -156,13 +231,22 @@ serve(async (req) => {
         }
 
         // Mark snips as synced
-        const snipIds = video.snips.map(s => s.id)
+        const snipIds = unsyncedSnips.map(s => s.id)
         if (snipIds.length > 0) {
           await supabase
             .from('snips')
             .update({ notion_synced_at: new Date().toISOString() })
             .in('id', snipIds)
           results.snipsSynced += snipIds.length
+        }
+
+        // Mark summary as synced
+        if (summaryNeedsSync && video.summary) {
+          await supabase
+            .from('summaries')
+            .update({ notion_synced_at: new Date().toISOString() })
+            .eq('id', video.summary.id)
+          results.summariesSynced++
         }
 
       } catch (err) {
@@ -263,6 +347,11 @@ async function createVideoPage(
         'YouTube URL': { url: video.youtube_url },
         'Channel': {
           rich_text: [{ type: 'text', text: { content: video.author || '' } }]
+        },
+        'Summary': {
+          rich_text: video.summary?.main_point
+            ? [{ type: 'text', text: { content: truncateText(video.summary.main_point, 2000) } }]
+            : []
         },
         'Snips Count': { number: video.snips.length },
         'Milton Link': { url: `${appUrl}/video/${video.id}` },
@@ -382,4 +471,40 @@ function formatSnipBlocks(snip: Snip, youtubeId: string): any[] {
   })
 
   return blocks
+}
+
+async function updateSummaryOnPage(
+  accessToken: string,
+  pageId: string,
+  summary: Summary
+): Promise<void> {
+  const response = await fetch(`https://api.notion.com/v1/pages/${pageId}`, {
+    method: 'PATCH',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Notion-Version': '2022-06-28',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      properties: {
+        'Summary': {
+          rich_text: summary.main_point
+            ? [{ type: 'text', text: { content: truncateText(summary.main_point, 2000) } }]
+            : []
+        },
+        'Last Synced': { date: { start: new Date().toISOString() } }
+      }
+    })
+  })
+
+  if (!response.ok) {
+    const errorText = await response.text()
+    console.error('Failed to update summary on Notion page:', errorText)
+    throw new Error(`Notion API error: ${response.status}`)
+  }
+}
+
+function truncateText(text: string, maxLength: number): string {
+  if (text.length <= maxLength) return text
+  return text.slice(0, maxLength - 3) + '...'
 }
