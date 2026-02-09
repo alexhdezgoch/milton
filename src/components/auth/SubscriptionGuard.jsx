@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import { Scissors, Check, Loader2, CreditCard, Mail } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
-import { createCheckoutSession } from '../../lib/stripe'
+import { createCheckoutSession, verifyCheckoutSession } from '../../lib/stripe'
 import CheckoutModal from './CheckoutModal'
 
 export default function SubscriptionGuard({ children }) {
@@ -22,27 +22,32 @@ export default function SubscriptionGuard({ children }) {
     const params = new URLSearchParams(window.location.search)
     const sessionId = params.get('session_id')
 
-    if (sessionId) {
+    if (sessionId && user) {
       setCheckoutReturning(true)
 
       // Clear session_id from URL
       window.history.replaceState({}, '', window.location.pathname)
 
-      // Poll for profile update (webhook takes 1-5 seconds)
-      const pollForUpdate = async () => {
-        const maxAttempts = 10
-        const pollInterval = 1500
-
-        for (let i = 0; i < maxAttempts; i++) {
-          await new Promise(resolve => setTimeout(resolve, pollInterval))
+      // Verify the checkout session directly with Stripe and update profile
+      const verifyAndUpdate = async () => {
+        try {
+          // This directly updates the profile via Stripe API, bypassing webhook
+          await verifyCheckoutSession(sessionId, user.id)
           await refreshProfile?.()
+        } catch (err) {
+          console.error('Failed to verify checkout session:', err)
+          // Fall back to polling in case of error
+          for (let i = 0; i < 5; i++) {
+            await new Promise(resolve => setTimeout(resolve, 1500))
+            await refreshProfile?.()
+          }
         }
         setCheckoutReturning(false)
       }
 
-      pollForUpdate()
+      verifyAndUpdate()
     }
-  }, [refreshProfile])
+  }, [user, refreshProfile])
 
   // Show loading state while processing checkout return
   if (checkoutReturning) {

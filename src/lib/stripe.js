@@ -39,3 +39,17 @@ export async function createPortalSession(customerId) {
 
   window.location.href = data.url
 }
+
+export async function verifyCheckoutSession(sessionId, userId) {
+  const { data, error } = await supabase.functions.invoke('stripe-webhook', {
+    body: {
+      action: 'verify-checkout-session',
+      sessionId,
+      userId
+    }
+  })
+
+  if (error) throw error
+
+  return data
+}

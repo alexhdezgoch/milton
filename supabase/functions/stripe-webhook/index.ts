@@ -44,6 +44,8 @@ Deno.serve(async (req) => {
         return createCheckoutSession(body)
       case 'create-portal-session':
         return createPortalSession(body)
+      case 'verify-checkout-session':
+        return verifyCheckoutSession(body)
       default:
         throw new Error(`Unknown action: ${action}`)
     }
@@ -127,6 +129,91 @@ async function createPortalSession(body: { customerId: string; returnUrl: string
   })
 
   return new Response(JSON.stringify({ url: session.url }), {
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+  })
+}
+
+async function verifyCheckoutSession(body: { sessionId: string; userId: string }) {
+  const { sessionId, userId } = body
+  console.log('[verify] Verifying checkout session:', sessionId, 'for user:', userId)
+
+  const supabase = createClient(supabaseUrl, supabaseServiceKey)
+
+  // Retrieve the checkout session from Stripe
+  const session = await stripe.checkout.sessions.retrieve(sessionId)
+  console.log('[verify] Session status:', session.status, 'payment_status:', session.payment_status)
+
+  if (session.status !== 'complete') {
+    return new Response(JSON.stringify({
+      success: false,
+      error: 'Checkout session not complete'
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    })
+  }
+
+  // Verify this session belongs to the requesting user
+  if (session.metadata?.supabase_user_id !== userId) {
+    console.error('[verify] User mismatch:', session.metadata?.supabase_user_id, '!==', userId)
+    return new Response(JSON.stringify({
+      success: false,
+      error: 'Session does not belong to this user'
+    }), {
+      status: 403,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    })
+  }
+
+  // Get subscription details
+  const subscriptionId = session.subscription as string
+  if (!subscriptionId) {
+    return new Response(JSON.stringify({
+      success: false,
+      error: 'No subscription found in session'
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    })
+  }
+
+  const subscription = await stripe.subscriptions.retrieve(subscriptionId)
+  const status = subscription.status === 'trialing' ? 'trialing' : 'active'
+  const trialEnd = subscription.trial_end
+    ? new Date(subscription.trial_end * 1000).toISOString()
+    : null
+
+  console.log('[verify] Updating profile with:', {
+    status,
+    customerId: session.customer,
+    trialEnd
+  })
+
+  // Update the profile
+  const { data, error } = await supabase
+    .from('profiles')
+    .update({
+      subscription_status: status,
+      stripe_customer_id: session.customer as string,
+      trial_ends_at: trialEnd
+    })
+    .eq('id', userId)
+    .select()
+
+  if (error) {
+    console.error('[verify] Database update failed:', error)
+    return new Response(JSON.stringify({
+      success: false,
+      error: 'Failed to update profile'
+    }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    })
+  }
+
+  console.log('[verify] Profile updated successfully:', data)
+  return new Response(JSON.stringify({
+    success: true,
+    profile: data?.[0]
+  }), {
     headers: { ...corsHeaders, 'Content-Type': 'application/json' }
   })
 }
