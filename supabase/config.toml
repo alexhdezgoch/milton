@@ -69,3 +69,6 @@ verify_jwt = false
 
 [functions.notion-sync-batch]
 verify_jwt = false
+
+[functions.sync-subscriptions]
+verify_jwt = false

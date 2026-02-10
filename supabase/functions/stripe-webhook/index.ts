@@ -1,4 +1,4 @@
-import Stripe from 'npm:stripe@14.21.0'
+import Stripe from 'https://esm.sh/stripe@14?target=denonext'
 import { createClient } from 'npm:@supabase/supabase-js@2.39.3'
 
 const corsHeaders = {
@@ -9,8 +9,11 @@ const corsHeaders = {
 const stripeSecretKey = Deno.env.get('STRIPE_SECRET_KEY')
 console.log('Stripe key present:', !!stripeSecretKey, 'starts with:', stripeSecretKey?.substring(0, 10))
 
+const cryptoProvider = Stripe.createSubtleCryptoProvider()
+
 const stripe = new Stripe(stripeSecretKey || '', {
   apiVersion: '2023-10-16',
+  httpClient: Stripe.createFetchHttpClient(),
 })
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!
@@ -41,15 +44,15 @@ Deno.serve(async (req) => {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         })
       case 'create-checkout-session':
-        return createCheckoutSession(body)
+        return await createCheckoutSession(body)
       case 'create-portal-session':
-        return createPortalSession(body)
+        return await createPortalSession(body)
       case 'verify-checkout-session':
-        return verifyCheckoutSession(body)
+        return await verifyCheckoutSession(body)
       case 'verify-subscription':
-        return verifySubscription(body)
+        return await verifySubscription(body)
       case 'create-customer':
-        return createStripeCustomer(body)
+        return await createStripeCustomer(body)
       default:
         throw new Error(`Unknown action: ${action}`)
     }
@@ -349,7 +352,7 @@ async function handleWebhook(req: Request) {
 
   try {
     console.log('🔐 [WEBHOOK] Attempting signature verification...')
-    event = await stripe.webhooks.constructEventAsync(body, signature, webhookSecret)
+    event = await stripe.webhooks.constructEventAsync(body, signature, webhookSecret, undefined, cryptoProvider)
     console.log('✅ [WEBHOOK] Signature verified successfully')
   } catch (err) {
     console.error('❌ [WEBHOOK] Signature verification failed:', err.message)

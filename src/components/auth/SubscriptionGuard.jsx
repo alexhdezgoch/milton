@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import { Scissors, Check, Loader2, CreditCard, Mail } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
-import { createCheckoutSession, verifyCheckoutSession } from '../../lib/stripe'
+import { createCheckoutSession, verifyCheckoutSession, verifySubscriptionStatus } from '../../lib/stripe'
 import CheckoutModal from './CheckoutModal'
 
 export default function SubscriptionGuard({ children }) {
@@ -11,6 +11,7 @@ export default function SubscriptionGuard({ children }) {
   const [clientSecret, setClientSecret] = useState(null)
   const [showModal, setShowModal] = useState(false)
   const [checkoutReturning, setCheckoutReturning] = useState(false)
+  const [verifyingWithStripe, setVerifyingWithStripe] = useState(false)
 
   const isActive = hasActiveSubscription()
   const trialDays = getTrialDaysRemaining()
@@ -48,6 +49,43 @@ export default function SubscriptionGuard({ children }) {
       verifyAndUpdate()
     }
   }, [user, refreshProfile])
+
+  // Verify with Stripe when DB says inactive but user has a Stripe customer ID
+  useEffect(() => {
+    if (isActive || !profile?.stripe_customer_id || checkoutReturning) return
+
+    let cancelled = false
+    setVerifyingWithStripe(true)
+
+    verifySubscriptionStatus(user.id, profile.stripe_customer_id)
+      .then((result) => {
+        if (cancelled) return
+        if (result?.status === 'active' || result?.status === 'trialing') {
+          refreshProfile?.()
+        }
+      })
+      .catch((err) => {
+        console.error('Stripe verification failed:', err)
+      })
+      .finally(() => {
+        if (!cancelled) setVerifyingWithStripe(false)
+      })
+
+    return () => { cancelled = true }
+  }, [isActive, profile?.stripe_customer_id, checkoutReturning, user?.id, refreshProfile])
+
+  // Show loading state while verifying with Stripe
+  if (verifyingWithStripe) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-secondary">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-accent-green mx-auto mb-4" />
+          <p className="text-text-primary font-medium">Checking your subscription...</p>
+          <p className="text-text-secondary text-sm mt-1">This will only take a moment</p>
+        </div>
+      </div>
+    )
+  }
 
   // Show loading state while processing checkout return
   if (checkoutReturning) {
