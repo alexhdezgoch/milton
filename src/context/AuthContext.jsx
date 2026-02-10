@@ -252,6 +252,7 @@ export function AuthProvider({ children }) {
         }
         throw error
       }
+
       setProfile(data)
       setAuthError(null)
     } catch (error) {

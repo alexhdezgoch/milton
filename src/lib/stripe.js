@@ -53,3 +53,17 @@ export async function verifyCheckoutSession(sessionId, userId) {
 
   return data
 }
+
+export async function verifySubscriptionStatus(userId, stripeCustomerId) {
+  const { data, error } = await supabase.functions.invoke('stripe-webhook', {
+    body: {
+      action: 'verify-subscription',
+      userId,
+      stripeCustomerId
+    }
+  })
+
+  if (error) throw error
+
+  return data
+}

@@ -46,6 +46,10 @@ Deno.serve(async (req) => {
         return createPortalSession(body)
       case 'verify-checkout-session':
         return verifyCheckoutSession(body)
+      case 'verify-subscription':
+        return verifySubscription(body)
+      case 'create-customer':
+        return createStripeCustomer(body)
       default:
         throw new Error(`Unknown action: ${action}`)
     }
@@ -81,7 +85,7 @@ async function createCheckoutSession(body: { userId: string; returnUrl: string }
 
   let customerId = profile?.stripe_customer_id
 
-  // Create Stripe customer if needed (don't save to DB yet - webhook will save on checkout completion)
+  // Create Stripe customer if needed — save to DB immediately so profile is consistent
   if (!customerId) {
     console.log('[checkout] Creating new Stripe customer with email:', profile?.email)
     const customer = await stripe.customers.create({
@@ -90,6 +94,7 @@ async function createCheckoutSession(body: { userId: string; returnUrl: string }
     })
     customerId = customer.id
     console.log('[checkout] Created Stripe customer:', customerId)
+    await supabase.from('profiles').update({ stripe_customer_id: customerId }).eq('id', userId)
   }
 
   // Get price ID from environment
@@ -116,6 +121,43 @@ async function createCheckoutSession(body: { userId: string; returnUrl: string }
   console.log('[checkout] Checkout session created:', session.id)
 
   return new Response(JSON.stringify({ clientSecret: session.client_secret }), {
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+  })
+}
+
+async function createStripeCustomer(body: { userId: string }) {
+  const { userId } = body
+  console.log('[create-customer] Creating Stripe customer for user:', userId)
+
+  const supabase = createClient(supabaseUrl, supabaseServiceKey)
+
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('email, stripe_customer_id')
+    .eq('id', userId)
+    .single()
+
+  if (profileError) {
+    throw new Error(`Profile lookup failed: ${profileError.message}`)
+  }
+
+  // Idempotent: return existing customer if already set
+  if (profile?.stripe_customer_id) {
+    console.log('[create-customer] Already has customer:', profile.stripe_customer_id)
+    return new Response(JSON.stringify({ customerId: profile.stripe_customer_id }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    })
+  }
+
+  const customer = await stripe.customers.create({
+    email: profile?.email,
+    metadata: { supabase_user_id: userId }
+  })
+  console.log('[create-customer] Created Stripe customer:', customer.id)
+
+  await supabase.from('profiles').update({ stripe_customer_id: customer.id }).eq('id', userId)
+
+  return new Response(JSON.stringify({ customerId: customer.id }), {
     headers: { ...corsHeaders, 'Content-Type': 'application/json' }
   })
 }
@@ -212,6 +254,66 @@ async function verifyCheckoutSession(body: { sessionId: string; userId: string }
   console.log('[verify] Profile updated successfully:', data)
   return new Response(JSON.stringify({
     success: true,
+    profile: data?.[0]
+  }), {
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+  })
+}
+
+async function verifySubscription(body: { userId: string; stripeCustomerId: string }) {
+  const { userId, stripeCustomerId } = body
+  console.log('[verify-sub] Verifying subscription for customer:', stripeCustomerId, 'user:', userId)
+
+  const supabase = createClient(supabaseUrl, supabaseServiceKey)
+
+  // Get the customer's subscriptions from Stripe
+  const subscriptions = await stripe.subscriptions.list({
+    customer: stripeCustomerId,
+    limit: 1,
+  })
+
+  let status = 'canceled'
+  let trialEnd: string | null = null
+
+  if (subscriptions.data.length > 0) {
+    const sub = subscriptions.data[0]
+    if (sub.status === 'trialing') {
+      status = 'trialing'
+    } else if (sub.status === 'active') {
+      status = 'active'
+    } else if (sub.status === 'past_due') {
+      status = 'past_due'
+    } else {
+      status = 'canceled'
+    }
+    trialEnd = sub.trial_end
+      ? new Date(sub.trial_end * 1000).toISOString()
+      : null
+  }
+
+  console.log('[verify-sub] Stripe says status:', status)
+
+  // Update the profile to match Stripe
+  const { data, error } = await supabase
+    .from('profiles')
+    .update({
+      subscription_status: status,
+      trial_ends_at: trialEnd
+    })
+    .eq('id', userId)
+    .select()
+
+  if (error) {
+    console.error('[verify-sub] Database update failed:', error)
+    return new Response(JSON.stringify({ error: 'Failed to update profile' }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    })
+  }
+
+  console.log('[verify-sub] Profile updated:', data)
+  return new Response(JSON.stringify({
+    status,
     profile: data?.[0]
   }), {
     headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -353,6 +455,60 @@ async function handleWebhook(req: Request) {
       const { data, error } = await supabase
         .from('profiles')
         .update({ subscription_status: 'canceled' })
+        .eq('stripe_customer_id', customerId)
+        .select()
+
+      if (error) {
+        console.error('❌ [WEBHOOK] Database update failed:', error)
+      } else {
+        console.log('✅ [WEBHOOK] Database updated successfully:', data)
+      }
+      break
+    }
+
+    case 'invoice.paid': {
+      const invoice = event.data.object as Stripe.Invoice
+      const subscriptionId = invoice.subscription as string
+      const customerId = invoice.customer as string
+
+      console.log('💰 [WEBHOOK] invoice.paid:', { customerId, subscriptionId })
+
+      if (subscriptionId) {
+        const subscription = await stripe.subscriptions.retrieve(subscriptionId)
+        const status = subscription.status === 'trialing' ? 'trialing' : 'active'
+        const trialEnd = subscription.trial_end
+          ? new Date(subscription.trial_end * 1000).toISOString()
+          : null
+
+        console.log('📊 [WEBHOOK] Syncing subscription status:', { status, trialEnd })
+
+        const { data, error } = await supabase
+          .from('profiles')
+          .update({
+            subscription_status: status,
+            trial_ends_at: trialEnd
+          })
+          .eq('stripe_customer_id', customerId)
+          .select()
+
+        if (error) {
+          console.error('❌ [WEBHOOK] Database update failed:', error)
+        } else {
+          console.log('✅ [WEBHOOK] Database updated successfully:', data)
+        }
+      }
+      break
+    }
+
+    case 'invoice.payment_failed': {
+      const invoice = event.data.object as Stripe.Invoice
+      const customerId = invoice.customer as string
+
+      console.log('❗ [WEBHOOK] invoice.payment_failed:', { customerId })
+
+      const { data, error } = await supabase
+        .from('profiles')
+        .update({ subscription_status: 'past_due' })
         .eq('stripe_customer_id', customerId)
         .select()
 
