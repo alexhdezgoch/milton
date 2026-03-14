@@ -1,0 +1,1672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouTube Note-Taking App | Milton — Save, Remember, Learn</title>
+  <meta name="description" content="Milton is the YouTube note-taking app that captures key moments, generates AI summaries, and resurfaces your notes weekly. No extension. $10/month. Free trial.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://miltonapp.co/youtube-note-taking-app">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="YouTube Note-Taking App | Milton — Save, Remember, Learn">
+  <meta property="og:description" content="Milton is the YouTube note-taking app that captures key moments, generates AI summaries, and resurfaces your notes weekly. No extension. $10/month. Free trial.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://miltonapp.co/youtube-note-taking-app">
+  <meta property="og:site_name" content="Milton">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="YouTube Note-Taking App | Milton — Save, Remember, Learn">
+  <meta name="twitter:description" content="Milton is the YouTube note-taking app that captures key moments, generates AI summaries, and resurfaces your notes weekly. No extension. $10/month.">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Product JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Milton",
+    "applicationCategory": "EducationalApplication",
+    "operatingSystem": "Web",
+    "url": "https://miltonapp.co",
+    "description": "Milton is the YouTube note-taking app that captures key moments, generates AI summaries, and resurfaces your notes weekly. No extension required.",
+    "offers": {
+      "@type": "Offer",
+      "price": "10.00",
+      "priceCurrency": "USD",
+      "priceValidUntil": "2027-12-31",
+      "availability": "https://schema.org/InStock",
+      "url": "https://miltonapp.co",
+      "description": "$10/month flat. Everything included. 7-day free trial. No credit card required."
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.8",
+      "reviewCount": "120",
+      "bestRating": "5",
+      "worstRating": "1"
+    }
+  }
+  </script>
+
+  <!-- FAQ JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How does Milton work as a YouTube note-taking app?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Paste any YouTube URL into Milton. Watch the video inside the app. Whenever you hear something worth remembering, hit Snip — Milton captures the timestamp, an AI-generated summary, key points, and the exact quote. All your snips are saved to your personal library and resurface in a weekly digest email."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Do I need a browser extension to use Milton?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. Milton is a web app — no extension, no download, no setup. Paste a YouTube URL and you're in. Works on any browser, any device."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is the weekly digest and why does it matter?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Every week, Milton emails you a curated digest of your recent snips and notes. This is spaced repetition for video learners — it resurfaces what you captured before it fades from memory. No other YouTube note-taking tool does this."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How much does Milton cost?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Milton is $10/month flat. No tiers, no limits, no upsells. Everything is included. You get a 7-day free trial with no credit card required. Cancel anytime."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How is Milton different from Glasp, Recall, or NoteGPT?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Most YouTube note-taking tools auto-summarize everything passively and require a browser extension. Milton is different: you actively choose what to capture (active snipping), it resurfaces your notes weekly (no competitor does this), and it works without any browser extension. It's built for learners who want to retain, not just consume."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I use Milton for online courses, lectures, and tutorials?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Absolutely. Milton is built for anyone who learns from YouTube — students watching lectures, professionals following tutorials, researchers reviewing talks, self-learners exploring new topics. If it's on YouTube and you want to remember it, Milton is your tool."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <style>
+    /* ========== RESET & BASE ========== */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: auto; /* Lenis handles smooth scroll */
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      color: #111827;
+      background: #FFFFFF;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    img { max-width: 100%; display: block; }
+    a { color: inherit; text-decoration: none; }
+    ul, ol { list-style: none; }
+
+    /* ========== PRELOADER ========== */
+    .preloader {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
+
+    .preloader.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .preloader-logo {
+      font-family: 'Inter', sans-serif;
+      font-size: 2rem;
+      font-weight: 800;
+      color: #10B981;
+      letter-spacing: -0.02em;
+      animation: preloaderPulse 1s ease-in-out infinite;
+    }
+
+    @keyframes preloaderPulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(0.96); }
+    }
+
+    /* ========== UTILITIES ========== */
+    .container {
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .section-pad {
+      padding: 100px 0;
+    }
+
+    .bg-white { background: #FFFFFF; }
+    .bg-gray { background: #F9FAFB; }
+    .bg-dark-green { background: #064E3B; }
+
+    .text-center { text-align: center; }
+
+    .reveal-section {
+      opacity: 0;
+      transform: translateY(40px);
+    }
+
+    /* ========== TYPOGRAPHY ========== */
+    h1, h2, h3, h4, h5, h6 {
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      font-weight: 700;
+    }
+
+    h1 { font-size: clamp(2.25rem, 5vw, 3.5rem); font-weight: 800; }
+    h2 { font-size: clamp(1.75rem, 3.5vw, 2.5rem); }
+    h3 { font-size: clamp(1.25rem, 2.5vw, 1.5rem); }
+
+    .subhead {
+      font-size: clamp(1.05rem, 2vw, 1.25rem);
+      color: #4B5563;
+      line-height: 1.7;
+      max-width: 640px;
+    }
+
+    .section-label {
+      display: inline-block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #10B981;
+      margin-bottom: 12px;
+    }
+
+    /* ========== BUTTONS ========== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px 32px;
+      border-radius: 8px;
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+      position: relative;
+    }
+
+    .btn-primary {
+      background: #10B981;
+      color: #FFFFFF;
+      box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-primary:hover {
+      background: #059669;
+      box-shadow: 0 4px 16px rgba(16, 185, 129, 0.4);
+      transform: translateY(-1px);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: #10B981;
+      border: 2px solid #10B981;
+    }
+
+    .btn-outline:hover {
+      background: #10B981;
+      color: #FFFFFF;
+    }
+
+    .btn-white {
+      background: #FFFFFF;
+      color: #064E3B;
+      font-weight: 700;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-white:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-large {
+      padding: 18px 40px;
+      font-size: 1.1rem;
+      border-radius: 10px;
+    }
+
+    .magnetic-btn {
+      will-change: transform;
+    }
+
+    /* ========== NAV ========== */
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+      transition: transform 0.3s ease;
+    }
+
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 72px;
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .nav-logo {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #10B981;
+      letter-spacing: -0.03em;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+
+    .nav-links a {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: #374151;
+      transition: color 0.2s ease;
+    }
+
+    .nav-links a:hover {
+      color: #10B981;
+    }
+
+    .nav-cta {
+      margin-left: 8px;
+    }
+
+    .nav-cta .btn {
+      padding: 10px 24px;
+      font-size: 0.9rem;
+    }
+
+    /* Hamburger */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 4px;
+      z-index: 1001;
+    }
+
+    .hamburger span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: #111827;
+      border-radius: 2px;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    .hamburger.active span:nth-child(1) {
+      transform: translateY(7px) rotate(45deg);
+    }
+
+    .hamburger.active span:nth-child(2) {
+      opacity: 0;
+    }
+
+    .hamburger.active span:nth-child(3) {
+      transform: translateY(-7px) rotate(-45deg);
+    }
+
+    /* Mobile nav */
+    .mobile-menu {
+      display: none;
+      position: fixed;
+      top: 72px;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #FFFFFF;
+      z-index: 999;
+      padding: 40px 24px;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .mobile-menu.open {
+      display: flex;
+    }
+
+    .mobile-menu a {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #111827;
+      padding: 12px 0;
+      border-bottom: 1px solid #F3F4F6;
+    }
+
+    .mobile-menu .btn {
+      margin-top: 16px;
+      text-align: center;
+    }
+
+    @media (max-width: 768px) {
+      .hamburger { display: flex; }
+      .nav-links { display: none; }
+      .nav-cta { display: none; }
+    }
+
+    /* ========== HERO ========== */
+    .hero {
+      padding: 160px 0 100px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero h1 {
+      margin-bottom: 24px;
+      max-width: 720px;
+    }
+
+    .hero .subhead {
+      margin-bottom: 40px;
+    }
+
+    .hero-ctas {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .hero-proof {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      color: #6B7280;
+      font-size: 0.9rem;
+    }
+
+    .hero-proof span {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .hero-proof svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
+
+    .hero-gradient {
+      position: absolute;
+      top: -200px;
+      right: -200px;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, transparent 70%);
+      border-radius: 50%;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* ========== PROBLEM SECTION ========== */
+    .problem { position: relative; }
+
+    .problem-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+
+    .problem-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-top: 40px;
+    }
+
+    .stat-card {
+      background: #FFFFFF;
+      border: 1px solid #E5E7EB;
+      border-radius: 12px;
+      padding: 24px;
+    }
+
+    .stat-card .number {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #10B981;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .stat-card .label {
+      font-size: 0.85rem;
+      color: #6B7280;
+    }
+
+    .problem-text p {
+      font-size: 1.1rem;
+      color: #4B5563;
+      margin-bottom: 20px;
+      line-height: 1.75;
+    }
+
+    .problem-text p:first-of-type {
+      font-size: 1.25rem;
+      color: #111827;
+      font-weight: 500;
+    }
+
+    @media (max-width: 768px) {
+      .problem-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+    }
+
+    /* ========== HOW IT WORKS ========== */
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 48px;
+      margin-top: 60px;
+    }
+
+    .step {
+      position: relative;
+    }
+
+    .step-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: #ECFDF5;
+      color: #10B981;
+      font-size: 1.25rem;
+      font-weight: 800;
+      margin-bottom: 20px;
+    }
+
+    .step h3 {
+      margin-bottom: 12px;
+    }
+
+    .step p {
+      color: #6B7280;
+      font-size: 0.95rem;
+      line-height: 1.7;
+    }
+
+    .step-connector {
+      display: none;
+    }
+
+    @media (min-width: 769px) {
+      .step-connector {
+        display: block;
+        position: absolute;
+        top: 24px;
+        right: -28px;
+        color: #D1D5DB;
+        font-size: 1.25rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .steps {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+    }
+
+    /* ========== FEATURES ========== */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+      margin-top: 60px;
+    }
+
+    .feature-card {
+      background: #FFFFFF;
+      border: 1px solid #E5E7EB;
+      border-radius: 16px;
+      padding: 36px 28px;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+    }
+
+    .feature-card:hover {
+      border-color: #10B981;
+      box-shadow: 0 4px 20px rgba(16, 185, 129, 0.08);
+      transform: translateY(-4px);
+    }
+
+    .feature-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      font-size: 1.5rem;
+    }
+
+    .feature-icon.green   { background: #ECFDF5; }
+    .feature-icon.yellow  { background: #FEF9C3; }
+    .feature-icon.purple  { background: #F3E8FF; }
+    .feature-icon.blue    { background: #DBEAFE; }
+    .feature-icon.rose    { background: #FFE4E6; }
+    .feature-icon.amber   { background: #FEF3C7; }
+
+    .feature-card h3 {
+      margin-bottom: 10px;
+      font-size: 1.15rem;
+    }
+
+    .feature-card p {
+      color: #6B7280;
+      font-size: 0.925rem;
+      line-height: 1.65;
+    }
+
+    @media (max-width: 900px) {
+      .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 600px) {
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ========== COMPARISON TABLE ========== */
+    .comparison {
+      overflow-x: auto;
+    }
+
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 60px;
+      min-width: 700px;
+      font-size: 0.925rem;
+    }
+
+    .comparison-table thead th {
+      padding: 16px 20px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: #6B7280;
+      border-bottom: 2px solid #E5E7EB;
+      white-space: nowrap;
+    }
+
+    .comparison-table thead th:first-child {
+      color: #111827;
+      font-size: 0.95rem;
+    }
+
+    .comparison-table thead th.highlight {
+      color: #10B981;
+      position: relative;
+    }
+
+    .comparison-table tbody td {
+      padding: 16px 20px;
+      border-bottom: 1px solid #F3F4F6;
+      vertical-align: middle;
+    }
+
+    .comparison-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .comparison-table tbody td:first-child {
+      font-weight: 500;
+      color: #111827;
+    }
+
+    .comparison-table .col-highlight {
+      background: #F0FDF4;
+    }
+
+    .check {
+      color: #10B981;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .cross {
+      color: #D1D5DB;
+      font-size: 1.1rem;
+    }
+
+    .partial {
+      color: #F59E0B;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+
+    .comparison-note {
+      margin-top: 24px;
+      font-size: 0.85rem;
+      color: #9CA3AF;
+      text-align: center;
+    }
+
+    .comparison-links {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 32px;
+    }
+
+    .comparison-links a {
+      display: inline-block;
+      padding: 8px 16px;
+      border: 1px solid #E5E7EB;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #374151;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .comparison-links a:hover {
+      border-color: #10B981;
+      color: #10B981;
+    }
+
+    /* ========== PRICING ========== */
+    .pricing-card {
+      max-width: 480px;
+      margin: 60px auto 0;
+      background: #FFFFFF;
+      border: 2px solid #10B981;
+      border-radius: 20px;
+      padding: 48px 40px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .pricing-badge {
+      position: absolute;
+      top: 20px;
+      right: -36px;
+      background: #10B981;
+      color: #FFFFFF;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 6px 40px;
+      transform: rotate(45deg);
+      letter-spacing: 0.04em;
+    }
+
+    .pricing-amount {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 4px;
+      margin: 24px 0 8px;
+    }
+
+    .pricing-amount .dollar {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #111827;
+    }
+
+    .pricing-amount .number {
+      font-size: 4rem;
+      font-weight: 800;
+      color: #111827;
+      line-height: 1;
+    }
+
+    .pricing-amount .period {
+      font-size: 1.1rem;
+      color: #6B7280;
+      font-weight: 500;
+    }
+
+    .pricing-subtitle {
+      color: #6B7280;
+      font-size: 1rem;
+      margin-bottom: 32px;
+    }
+
+    .pricing-features {
+      text-align: left;
+      margin-bottom: 36px;
+    }
+
+    .pricing-features li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 10px 0;
+      font-size: 0.95rem;
+      color: #374151;
+    }
+
+    .pricing-features li svg {
+      flex-shrink: 0;
+      margin-top: 3px;
+    }
+
+    .pricing-trial {
+      font-size: 0.85rem;
+      color: #6B7280;
+      margin-top: 16px;
+    }
+
+    /* ========== FAQ ========== */
+    .faq-list {
+      max-width: 720px;
+      margin: 60px auto 0;
+    }
+
+    .faq-item {
+      border-bottom: 1px solid #E5E7EB;
+    }
+
+    .faq-question {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24px 0;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #111827;
+      text-align: left;
+      gap: 16px;
+    }
+
+    .faq-question:hover {
+      color: #10B981;
+    }
+
+    .faq-icon {
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.3s ease;
+    }
+
+    .faq-item.open .faq-icon {
+      transform: rotate(45deg);
+    }
+
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease, padding 0.3s ease;
+    }
+
+    .faq-item.open .faq-answer {
+      max-height: 400px;
+    }
+
+    .faq-answer p {
+      padding: 0 0 24px;
+      color: #6B7280;
+      font-size: 0.95rem;
+      line-height: 1.75;
+    }
+
+    .faq-answer a {
+      color: #10B981;
+      font-weight: 500;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    /* ========== FINAL CTA ========== */
+    .final-cta {
+      text-align: center;
+      padding: 100px 0;
+    }
+
+    .final-cta h2 {
+      color: #FFFFFF;
+      margin-bottom: 16px;
+    }
+
+    .final-cta p {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 1.1rem;
+      margin-bottom: 40px;
+      max-width: 520px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.7;
+    }
+
+    .final-cta .btn-white {
+      font-size: 1.1rem;
+      padding: 18px 40px;
+    }
+
+    /* ========== FOOTER ========== */
+    .footer {
+      background: #064E3B;
+      padding: 48px 0;
+    }
+
+    .footer-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 24px;
+    }
+
+    .footer-logo {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #FFFFFF;
+      letter-spacing: -0.02em;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.875rem;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover {
+      color: #FFFFFF;
+    }
+
+    .footer-copy {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 0.8rem;
+    }
+
+    @media (max-width: 600px) {
+      .footer-inner {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+
+    /* ========== RESPONSIVE TWEAKS ========== */
+    @media (max-width: 768px) {
+      .section-pad { padding: 72px 0; }
+      .hero { padding: 120px 0 72px; }
+      .pricing-card { padding: 36px 24px; }
+      .pricing-amount .number { font-size: 3rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- PRELOADER -->
+  <div class="preloader" aria-hidden="true">
+    <div class="preloader-logo">milton</div>
+  </div>
+
+  <!-- NAVIGATION -->
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <div class="nav-inner">
+      <a href="https://miltonapp.co" class="nav-logo" aria-label="Milton home">milton</a>
+      <div class="nav-links">
+        <a href="https://miltonapp.co/#features">Features</a>
+        <a href="https://miltonapp.co/#pricing">Pricing</a>
+        <a href="https://miltonapp.co/login">Log in</a>
+      </div>
+      <div class="nav-cta">
+        <a href="https://miltonapp.co" class="btn btn-primary magnetic-btn">Try for free</a>
+      </div>
+      <button class="hamburger" aria-label="Toggle menu" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- MOBILE MENU -->
+  <div class="mobile-menu" role="navigation" aria-label="Mobile navigation">
+    <a href="https://miltonapp.co/#features">Features</a>
+    <a href="https://miltonapp.co/#pricing">Pricing</a>
+    <a href="https://miltonapp.co/login">Log in</a>
+    <a href="https://miltonapp.co" class="btn btn-primary">Try for free</a>
+  </div>
+
+  <!-- ==================== HERO ==================== -->
+  <section class="hero bg-white" id="hero">
+    <div class="container hero-content">
+      <span class="section-label">YouTube Note-Taking App</span>
+      <h1>The YouTube Note-Taking App Built for Learners</h1>
+      <p class="subhead">Save key moments. AI summaries. Weekly digest that resurfaces what matters. No extension. $10/month flat.</p>
+      <div class="hero-ctas">
+        <a href="https://miltonapp.co" class="btn btn-primary btn-large magnetic-btn">
+          Try free for 7 days
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+        <a href="#how-it-works" class="btn btn-outline">See how it works</a>
+      </div>
+      <div class="hero-proof">
+        <span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          No credit card required
+        </span>
+        <span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          No browser extension
+        </span>
+        <span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Cancel anytime
+        </span>
+      </div>
+    </div>
+    <div class="hero-gradient" aria-hidden="true"></div>
+  </section>
+
+  <!-- ==================== PROBLEM ==================== -->
+  <section class="problem bg-gray section-pad reveal-section">
+    <div class="container">
+      <div class="problem-grid">
+        <div class="problem-text">
+          <span class="section-label">The Problem</span>
+          <h2>You watch hours of YouTube. You remember almost none of it.</h2>
+          <p>You watch the tutorial. You nod along. You think "I'll remember this." You don't.</p>
+          <p>Lectures, interviews, conference talks, deep dives -- hundreds of hours of content you genuinely wanted to learn from. Gone. Because YouTube is a stream, and streams don't wait for you to take notes.</p>
+          <p>The insights you need six months from now? They're buried in a 47-minute video you can't find anymore. And you definitely can't remember the timestamp.</p>
+        </div>
+        <div>
+          <div class="problem-stats">
+            <div class="stat-card">
+              <div class="number">90%</div>
+              <div class="label">of what you watch is forgotten within a week</div>
+            </div>
+            <div class="stat-card">
+              <div class="number">0</div>
+              <div class="label">notes taken by the average YouTube viewer</div>
+            </div>
+            <div class="stat-card">
+              <div class="number">500+</div>
+              <div class="label">hours of educational content watched yearly</div>
+            </div>
+            <div class="stat-card">
+              <div class="number">1</div>
+              <div class="label">app that actually fixes this</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== HOW IT WORKS ==================== -->
+  <section class="bg-white section-pad reveal-section" id="how-it-works">
+    <div class="container text-center">
+      <span class="section-label">How It Works</span>
+      <h2>From watching to knowing in 3 steps</h2>
+      <p class="subhead" style="margin: 16px auto 0;">No setup. No extension. No learning curve. Just paste, snip, remember.</p>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-number">1</div>
+          <span class="step-connector" aria-hidden="true">&rarr;</span>
+          <h3>Paste a YouTube URL</h3>
+          <p>Drop any YouTube link into Milton. The video loads inside the app with a full transcript ready. No extension, no download, no setup. Any browser, any device. You're in.</p>
+        </div>
+        <div class="step">
+          <div class="step-number">2</div>
+          <span class="step-connector" aria-hidden="true">&rarr;</span>
+          <h3>Hit Snip when it matters</h3>
+          <p>Hear something worth remembering? Hit Snip. Milton captures the timestamp, an AI summary of the key point, and the exact quote. You keep watching -- Milton keeps notes.</p>
+        </div>
+        <div class="step">
+          <div class="step-number">3</div>
+          <h3>Remember what you learned</h3>
+          <p>Every week, Milton sends you a digest of your recent snips. Spaced repetition for video learners. Your notes come back to you before they fade. Your future self will thank you.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== FEATURES ==================== -->
+  <section class="bg-gray section-pad reveal-section" id="features">
+    <div class="container text-center">
+      <span class="section-label">Features</span>
+      <h2>Everything you need. Nothing you don't.</h2>
+      <p class="subhead" style="margin: 16px auto 0;">Milton is focused on one job: helping you actually learn from YouTube. Here's what's included.</p>
+
+      <div class="features-grid">
+        <!-- Feature 1 -->
+        <div class="feature-card">
+          <div class="feature-icon green" aria-hidden="true">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m10 9 5 3-5 3z"/></svg>
+          </div>
+          <h3>Active Snipping</h3>
+          <p>You choose the moment. Hit Snip and Milton captures the timestamp, key points, AI summary, and exact quote. One tap. No pausing, no switching apps, no manual notes.</p>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="feature-card">
+          <div class="feature-icon purple" aria-hidden="true">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          </div>
+          <h3>AI Summaries</h3>
+          <p>Every video gets an AI-generated summary before you even press play. Decide if it's worth your time in 10 seconds. Then dive in knowing exactly what to expect.</p>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="feature-card">
+          <div class="feature-icon yellow" aria-hidden="true">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </div>
+          <h3>Weekly Digest</h3>
+          <p>Every week, Milton emails your recent snips back to you. Spaced repetition for video learners. No other YouTube note-taking app does this. Zero competitors. Just Milton.</p>
+        </div>
+
+        <!-- Feature 4 -->
+        <div class="feature-card">
+          <div class="feature-icon blue" aria-hidden="true">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </div>
+          <h3>Search Your Library</h3>
+          <p>Every snip is saved to your personal library. Search across all your videos and notes. Find that one thing they said -- without scrubbing through the whole video again.</p>
+        </div>
+
+        <!-- Feature 5 -->
+        <div class="feature-card">
+          <div class="feature-icon rose" aria-hidden="true">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#E11D48" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </div>
+          <h3>Chat with Milton</h3>
+          <p>Ask Milton anything about the video. He'll find it instantly. "What did they say about pricing strategy?" Milton pulls up the exact moment with a timestamp link.</p>
+        </div>
+
+        <!-- Feature 6 -->
+        <div class="feature-card">
+          <div class="feature-icon amber" aria-hidden="true">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <h3>No Extension Required</h3>
+          <p>Milton is a web app. No Chrome extension, no download, no setup friction. Paste a YouTube URL and you're in. Works on any browser, any device, anywhere.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== COMPARISON ==================== -->
+  <section class="bg-white section-pad reveal-section" id="comparison">
+    <div class="container text-center">
+      <span class="section-label">Comparison</span>
+      <h2>How Milton compares to every alternative</h2>
+      <p class="subhead" style="margin: 16px auto 0;">Most YouTube note-taking tools auto-summarize passively and require extensions. Milton is different by design.</p>
+
+      <div class="comparison" role="region" aria-label="Feature comparison table" tabindex="0">
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th scope="col">Feature</th>
+              <th scope="col" class="highlight col-highlight">Milton</th>
+              <th scope="col">Glasp</th>
+              <th scope="col">Recall</th>
+              <th scope="col">NoteGPT</th>
+              <th scope="col">LunaNotes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Active snipping (you choose what to capture)</td>
+              <td class="col-highlight"><span class="check" aria-label="Yes">&#10003;</span></td>
+              <td><span class="cross" aria-label="No">&#10005;</span></td>
+              <td><span class="cross" aria-label="No">&#10005;</span></td>
+              <td><span class="cross" aria-label="No">&#10005;</span></td>
+              <td><span class="partial">Manual only</span></td>
+            </tr>
+            <tr>
+              <td>AI-generated summaries</td>
+              <td class="col-highlight"><span class="check" aria-label="Yes">&#10003;</span></td>
+              <td><span class="check" aria-label="Yes">&#10003;</span></td>
+              <td><span class="check" aria-label="Yes">&#10003;</span></td>
+              <td><span class="check" aria-label="Yes">&#10003;</span></td>
+              <td><span class="check" aria-label="Yes">&#10003;</span></td>
+            </tr>
+            <tr>
+              <td>Weekly digest email (retention loop)</td>
+              <td class="col-highlight"><span class="check" aria-label="Yes">&#10003;</span></td>
+              <td><span class="cross" aria-label="No">&#10005;</span></td>
+              <td><span class="cross" aria-label="No">&#10005;</span></td>
+              <td><span class="cross" aria-label="No">&#10005;</span></td>
+              <td><span class="cross" aria-label="No">&#10005;</span></td>
+            </tr>
+            <tr>
+              <td>No browser extension required</td>
+              <td class="col-highlight"><span class="check" aria-label="Yes">&#10003;</span></td>
+              <td><span class="cross" aria-label="No">&#10005;</span></td>
+              <td><span class="cross" aria-label="No">&#10005;</span></td>
+              <td><span class="cross" aria-label="No">&#10005;</span></td>
+              <td><span class="cross" aria-label="No">&#10005;</span></td>
+            </tr>
+            <tr>
+              <td>Timestamped snips with quotes</td>
+              <td class="col-highlight"><span class="check" aria-label="Yes">&#10003;</span></td>
+              <td><span class="cross" aria-label="No">&#10005;</span></td>
+              <td><span class="partial">Partial</span></td>
+              <td><span class="partial">Partial</span></td>
+              <td><span class="check" aria-label="Yes">&#10003;</span></td>
+            </tr>
+            <tr>
+              <td>Chat with video (AI Q&amp;A)</td>
+              <td class="col-highlight"><span class="check" aria-label="Yes">&#10003;</span></td>
+              <td><span class="cross" aria-label="No">&#10005;</span></td>
+              <td><span class="check" aria-label="Yes">&#10003;</span></td>
+              <td><span class="check" aria-label="Yes">&#10003;</span></td>
+              <td><span class="cross" aria-label="No">&#10005;</span></td>
+            </tr>
+            <tr>
+              <td>Full transcript access</td>
+              <td class="col-highlight"><span class="check" aria-label="Yes">&#10003;</span></td>
+              <td><span class="check" aria-label="Yes">&#10003;</span></td>
+              <td><span class="check" aria-label="Yes">&#10003;</span></td>
+              <td><span class="check" aria-label="Yes">&#10003;</span></td>
+              <td><span class="cross" aria-label="No">&#10005;</span></td>
+            </tr>
+            <tr>
+              <td>Flat pricing (no tiers, no limits)</td>
+              <td class="col-highlight"><span class="check" aria-label="Yes">&#10003;</span></td>
+              <td><span class="partial">Freemium</span></td>
+              <td><span class="partial">Freemium</span></td>
+              <td><span class="partial">Freemium</span></td>
+              <td><span class="partial">Credits</span></td>
+            </tr>
+            <tr>
+              <td>Works on any browser / device</td>
+              <td class="col-highlight"><span class="check" aria-label="Yes">&#10003;</span></td>
+              <td><span class="partial">Chrome only</span></td>
+              <td><span class="partial">Chrome only</span></td>
+              <td><span class="partial">Chrome only</span></td>
+              <td><span class="partial">Chrome only</span></td>
+            </tr>
+            <tr>
+              <td>YouTube-focused (not bloated)</td>
+              <td class="col-highlight"><span class="check" aria-label="Yes">&#10003;</span></td>
+              <td><span class="partial">Web + YT</span></td>
+              <td><span class="partial">Multi-format</span></td>
+              <td><span class="partial">Multi-format</span></td>
+              <td><span class="check" aria-label="Yes">&#10003;</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="comparison-note">Feature data based on publicly available information as of March 2026.</p>
+
+      <div class="comparison-links">
+        <a href="/vs/glasp">Milton vs Glasp (detailed)</a>
+        <a href="/for-students">Milton for Students</a>
+        <a href="/blog/how-to-take-notes-youtube">How to Take Notes on YouTube</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== PRICING ==================== -->
+  <section class="bg-gray section-pad reveal-section" id="pricing">
+    <div class="container text-center">
+      <span class="section-label">Pricing</span>
+      <h2>Simple pricing. Serious value.</h2>
+      <p class="subhead" style="margin: 16px auto 0;">One plan. Everything included. No tiers, no limits, no surprises.</p>
+
+      <div class="pricing-card">
+        <div class="pricing-badge">7-DAY TRIAL</div>
+        <h3>Everything. Included.</h3>
+        <div class="pricing-amount">
+          <span class="dollar">$</span>
+          <span class="number">10</span>
+          <span class="period">/month</span>
+        </div>
+        <p class="pricing-subtitle">Flat rate. Cancel anytime. No credit card to start.</p>
+
+        <ul class="pricing-features">
+          <li>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Unlimited video snips and AI summaries
+          </li>
+          <li>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Weekly digest email (spaced repetition)
+          </li>
+          <li>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Full transcript access for every video
+          </li>
+          <li>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Chat with Milton (AI video Q&amp;A)
+          </li>
+          <li>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Searchable personal notes library
+          </li>
+          <li>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Works on any browser, any device
+          </li>
+        </ul>
+
+        <a href="https://miltonapp.co" class="btn btn-primary btn-large magnetic-btn" style="width: 100%;">Start your free trial</a>
+        <p class="pricing-trial">7-day free trial. No credit card required. Cancel anytime.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== FAQ ==================== -->
+  <section class="bg-white section-pad reveal-section" id="faq">
+    <div class="container">
+      <div class="text-center">
+        <span class="section-label">FAQ</span>
+        <h2>Questions? Answers.</h2>
+      </div>
+
+      <div class="faq-list">
+        <!-- Q1 -->
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">
+            <span>How does Milton work as a YouTube note-taking app?</span>
+            <span class="faq-icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </span>
+          </button>
+          <div class="faq-answer">
+            <p>Paste any YouTube URL into Milton. Watch the video inside the app. Whenever you hear something worth remembering, hit Snip -- Milton captures the timestamp, an AI-generated summary, key points, and the exact quote. All your snips are saved to your personal library and resurface in a weekly digest email. That's it. No extension, no setup, no learning curve.</p>
+          </div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">
+            <span>Do I need a browser extension?</span>
+            <span class="faq-icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </span>
+          </button>
+          <div class="faq-answer">
+            <p>No. Milton is a web app -- no Chrome extension, no Firefox add-on, no download whatsoever. Paste a YouTube URL and you're in. This means it works on any browser (Chrome, Safari, Firefox, Edge) and any device (laptop, tablet, phone). Most competitors require a Chrome extension, which locks you into one browser. Milton doesn't.</p>
+          </div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">
+            <span>What is the weekly digest and why does it matter?</span>
+            <span class="faq-icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </span>
+          </button>
+          <div class="faq-answer">
+            <p>Every week, Milton emails you a curated digest of your recent snips and notes. Think of it as spaced repetition for video learners -- your insights come back to you before they fade from memory. This is Milton's biggest differentiator. No other YouTube note-taking tool resurfaces your notes proactively. You capture once, Milton reminds you forever. Learn more about <a href="/blog/how-to-take-notes-youtube">effective YouTube note-taking strategies</a>.</p>
+          </div>
+        </div>
+
+        <!-- Q4 -->
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">
+            <span>How much does Milton cost?</span>
+            <span class="faq-icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </span>
+          </button>
+          <div class="faq-answer">
+            <p>$10/month flat. No tiers, no limits, no upsells, no "pro" plan dangling features behind a paywall. Everything is included -- unlimited snips, AI summaries, weekly digest, chat, search, the works. You get a 7-day free trial with no credit card required. If it's not for you, just don't come back. No hard feelings.</p>
+          </div>
+        </div>
+
+        <!-- Q5 -->
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">
+            <span>How is Milton different from Glasp, Recall, or NoteGPT?</span>
+            <span class="faq-icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </span>
+          </button>
+          <div class="faq-answer">
+            <p>Three things set Milton apart. First: active snipping -- you choose what to capture instead of getting a passive auto-summary of everything. Second: the weekly digest email -- no competitor resurfaces your notes proactively. Third: no browser extension -- paste a URL and you're in, on any browser, any device. Most alternatives require a Chrome extension, auto-summarize passively, and never help you remember what you captured. <a href="/vs/glasp">See the full Milton vs Glasp comparison</a>.</p>
+          </div>
+        </div>
+
+        <!-- Q6 -->
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">
+            <span>Can I use Milton for online courses, lectures, and tutorials?</span>
+            <span class="faq-icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </span>
+          </button>
+          <div class="faq-answer">
+            <p>Absolutely. Milton is built for anyone who learns from YouTube -- <a href="/for-students">students watching lectures</a>, professionals following tutorials, researchers reviewing conference talks, self-learners exploring new topics. If it's on YouTube and you want to remember it, Milton is your tool. The weekly digest is especially useful for course material -- your notes come back to you right before they'd normally fade.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== FINAL CTA ==================== -->
+  <section class="final-cta bg-dark-green reveal-section">
+    <div class="container">
+      <h2>Ready to actually remember what you watch?</h2>
+      <p>Start your free trial today. No credit card. No extension. No setup. Just paste a YouTube URL and start learning for real.</p>
+      <a href="https://miltonapp.co" class="btn btn-white btn-large magnetic-btn">Try Milton free for 7 days</a>
+    </div>
+  </section>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="footer" role="contentinfo">
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-logo">milton</div>
+        <div class="footer-links">
+          <a href="https://miltonapp.co/#features">Features</a>
+          <a href="https://miltonapp.co/#pricing">Pricing</a>
+          <a href="/for-students">For Students</a>
+          <a href="/vs/glasp">Milton vs Glasp</a>
+          <a href="/blog/how-to-take-notes-youtube">Blog</a>
+          <a href="https://miltonapp.co/login">Log in</a>
+        </div>
+        <div class="footer-copy">&copy; 2026 Milton. All rights reserved.</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==================== SCRIPTS ==================== -->
+  <!-- GSAP -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+  <!-- Lenis Smooth Scroll -->
+  <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.23/bundled/lenis.min.js"></script>
+
+  <script>
+    (function () {
+      'use strict';
+
+      /* ========== PRELOADER ========== */
+      window.addEventListener('load', function () {
+        setTimeout(function () {
+          document.querySelector('.preloader').classList.add('hidden');
+        }, 800);
+      });
+
+      /* ========== LENIS SMOOTH SCROLL ========== */
+      var lenis = new Lenis({
+        duration: 1.2,
+        easing: function (t) { return Math.min(1, 1.001 - Math.pow(2, -10 * t)); },
+        orientation: 'vertical',
+        smoothWheel: true
+      });
+
+      // Sync Lenis with ScrollTrigger
+      lenis.on('scroll', ScrollTrigger.update);
+      gsap.ticker.add(function (time) {
+        lenis.raf(time * 1000);
+      });
+      gsap.ticker.lagSmoothing(0);
+
+      /* ========== SCROLL-TRIGGERED REVEALS ========== */
+      gsap.registerPlugin(ScrollTrigger);
+
+      gsap.utils.toArray('.reveal-section').forEach(function (section) {
+        gsap.to(section, {
+          opacity: 1,
+          y: 0,
+          duration: 0.9,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: section,
+            start: 'top 85%',
+            once: true
+          }
+        });
+      });
+
+      /* ========== STAGGERED CARD ANIMATIONS ========== */
+      // Feature cards
+      gsap.utils.toArray('.feature-card').forEach(function (card, i) {
+        gsap.from(card, {
+          opacity: 0,
+          y: 30,
+          duration: 0.6,
+          delay: i * 0.1,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: card,
+            start: 'top 88%',
+            once: true
+          }
+        });
+      });
+
+      // Stat cards
+      gsap.utils.toArray('.stat-card').forEach(function (card, i) {
+        gsap.from(card, {
+          opacity: 0,
+          y: 20,
+          scale: 0.95,
+          duration: 0.5,
+          delay: i * 0.12,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: card,
+            start: 'top 88%',
+            once: true
+          }
+        });
+      });
+
+      // Steps
+      gsap.utils.toArray('.step').forEach(function (step, i) {
+        gsap.from(step, {
+          opacity: 0,
+          y: 30,
+          duration: 0.6,
+          delay: i * 0.15,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: step,
+            start: 'top 88%',
+            once: true
+          }
+        });
+      });
+
+      // Pricing card
+      gsap.from('.pricing-card', {
+        opacity: 0,
+        y: 40,
+        scale: 0.96,
+        duration: 0.8,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: '.pricing-card',
+          start: 'top 85%',
+          once: true
+        }
+      });
+
+      // Hero entrance (no scroll trigger needed)
+      gsap.from('.hero-content', {
+        opacity: 0,
+        y: 40,
+        duration: 1,
+        delay: 0.9,
+        ease: 'power3.out'
+      });
+
+      /* ========== MAGNETIC BUTTONS ========== */
+      var magneticBtns = document.querySelectorAll('.magnetic-btn');
+
+      magneticBtns.forEach(function (btn) {
+        btn.addEventListener('mousemove', function (e) {
+          var rect = btn.getBoundingClientRect();
+          var x = e.clientX - rect.left - rect.width / 2;
+          var y = e.clientY - rect.top - rect.height / 2;
+          var strength = 0.15;
+          gsap.to(btn, {
+            x: x * strength,
+            y: y * strength,
+            duration: 0.3,
+            ease: 'power2.out'
+          });
+        });
+
+        btn.addEventListener('mouseleave', function () {
+          gsap.to(btn, {
+            x: 0,
+            y: 0,
+            duration: 0.5,
+            ease: 'elastic.out(1, 0.4)'
+          });
+        });
+      });
+
+      /* ========== HAMBURGER MENU ========== */
+      var hamburger = document.querySelector('.hamburger');
+      var mobileMenu = document.querySelector('.mobile-menu');
+
+      hamburger.addEventListener('click', function () {
+        var isOpen = hamburger.classList.toggle('active');
+        mobileMenu.classList.toggle('open');
+        hamburger.setAttribute('aria-expanded', isOpen);
+        document.body.style.overflow = isOpen ? 'hidden' : '';
+      });
+
+      // Close on link click
+      mobileMenu.querySelectorAll('a').forEach(function (link) {
+        link.addEventListener('click', function () {
+          hamburger.classList.remove('active');
+          mobileMenu.classList.remove('open');
+          hamburger.setAttribute('aria-expanded', 'false');
+          document.body.style.overflow = '';
+        });
+      });
+
+      /* ========== FAQ ACCORDION ========== */
+      document.querySelectorAll('.faq-question').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var item = btn.closest('.faq-item');
+          var wasOpen = item.classList.contains('open');
+
+          // Close all
+          document.querySelectorAll('.faq-item').forEach(function (faq) {
+            faq.classList.remove('open');
+            faq.querySelector('.faq-question').setAttribute('aria-expanded', 'false');
+          });
+
+          // Toggle current
+          if (!wasOpen) {
+            item.classList.add('open');
+            btn.setAttribute('aria-expanded', 'true');
+          }
+        });
+      });
+
+      /* ========== SMOOTH SCROLL FOR ANCHOR LINKS ========== */
+      document.querySelectorAll('a[href^="#"]').forEach(function (anchor) {
+        anchor.addEventListener('click', function (e) {
+          var targetId = this.getAttribute('href');
+          if (targetId === '#') return;
+          var target = document.querySelector(targetId);
+          if (target) {
+            e.preventDefault();
+            lenis.scrollTo(target, { offset: -80 });
+          }
+        });
+      });
+
+    })();
+  </script>
+</body>
+</html>

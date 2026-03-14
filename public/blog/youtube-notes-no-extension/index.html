@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How to Take Notes on YouTube Without a Browser Extension</title>
+  <meta name="description" content="Most YouTube note-taking apps require Chrome. Milton works on any browser — just paste a URL and start snipping. No extension. Free 7-day trial.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://miltonapp.co/blog/youtube-notes-no-extension">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="How to Take Notes on YouTube Without a Browser Extension">
+  <meta property="og:description" content="Most YouTube note-taking apps require Chrome. Milton works on any browser — just paste a URL and start snipping. No extension. Free 7-day trial.">
+  <meta property="og:url" content="https://miltonapp.co/blog/youtube-notes-no-extension">
+  <meta property="og:site_name" content="Milton">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="How to Take Notes on YouTube Without a Browser Extension">
+  <meta name="twitter:description" content="Most YouTube note-taking apps require Chrome. Milton works on any browser — just paste a URL and start snipping. No extension. Free 7-day trial.">
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Article JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "How to Take Notes on YouTube Without a Browser Extension",
+    "description": "Most YouTube note-taking apps require Chrome. Milton works on any browser — just paste a URL and start snipping. No extension. Free 7-day trial.",
+    "author": {
+      "@type": "Organization",
+      "name": "Milton",
+      "url": "https://miltonapp.co"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Milton",
+      "url": "https://miltonapp.co"
+    },
+    "datePublished": "2026-03-14",
+    "dateModified": "2026-03-14",
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "https://miltonapp.co/blog/youtube-notes-no-extension"
+    }
+  }
+  </script>
+
+  <!-- FAQ JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Can I take notes on YouTube without installing a browser extension?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. Milton is a web-based YouTube note-taking app that works entirely in your browser. You paste a YouTube URL, watch the video inside Milton, and snip the moments that matter. No extension to install, no Chrome dependency, no permissions to grant."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does Milton work on Safari, Firefox, and other browsers?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Absolutely. Because Milton is a web app (not an extension), it works on any modern browser including Safari, Firefox, Edge, Brave, and Chrome. You can even use it on a tablet. If your browser can play YouTube, Milton works."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How is Milton different from extension-based YouTube note tools?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Three key differences: 1) No extension required — paste a URL and you are in. 2) Active snipping — you choose what to capture, then AI adds a summary, timestamp, and exact quote. 3) Weekly digest email — Milton resurfaces your notes every week so nothing gets buried. No other tool does this."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How much does Milton cost?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Milton is $10/month flat. No tiers, no upsells. You get a 7-day free trial with no credit card required — just sign up and start snipping."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <style>
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: auto; /* Lenis handles smooth scroll */
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: #111827;
+      background: #FFFFFF;
+      line-height: 1.7;
+      font-size: 17px;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    /* ===== PRELOADER ===== */
+    .preloader {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
+
+    .preloader.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .preloader-logo {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #10B981;
+      letter-spacing: -0.03em;
+      animation: preloaderPulse 1s ease-in-out infinite;
+    }
+
+    @keyframes preloaderPulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.96); }
+    }
+
+    /* ===== NAVIGATION ===== */
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+      transition: transform 0.3s ease;
+    }
+
+    .nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-logo {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #10B981;
+      letter-spacing: -0.03em;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 0.938rem;
+      font-weight: 500;
+      color: #374151;
+      transition: color 0.2s ease;
+    }
+
+    .nav-links a:hover {
+      color: #10B981;
+    }
+
+    .nav-cta {
+      display: inline-flex;
+      align-items: center;
+      padding: 10px 22px;
+      background: #10B981;
+      color: #FFFFFF !important;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.938rem;
+      transition: background 0.2s ease, transform 0.2s ease;
+      cursor: pointer;
+      border: none;
+    }
+
+    .nav-cta:hover {
+      background: #059669;
+      transform: translateY(-1px);
+    }
+
+    /* Hamburger */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 8px;
+      background: none;
+      border: none;
+      z-index: 1001;
+    }
+
+    .hamburger span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: #111827;
+      border-radius: 2px;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    .hamburger.active span:nth-child(1) {
+      transform: rotate(45deg) translate(5px, 5px);
+    }
+
+    .hamburger.active span:nth-child(2) {
+      opacity: 0;
+    }
+
+    .hamburger.active span:nth-child(3) {
+      transform: rotate(-45deg) translate(5px, -5px);
+    }
+
+    /* Mobile nav */
+    .mobile-nav {
+      display: none;
+      position: fixed;
+      inset: 0;
+      top: 72px;
+      background: #FFFFFF;
+      z-index: 999;
+      padding: 40px 24px;
+      flex-direction: column;
+      gap: 24px;
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .mobile-nav.open {
+      display: flex;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .mobile-nav a {
+      font-size: 1.25rem;
+      font-weight: 500;
+      color: #374151;
+      padding: 8px 0;
+    }
+
+    .mobile-nav .nav-cta {
+      text-align: center;
+      justify-content: center;
+      margin-top: 8px;
+    }
+
+    /* ===== LAYOUT ===== */
+    .container {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .container-wide {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ===== SECTIONS ===== */
+    section {
+      padding: 80px 0;
+    }
+
+    .bg-white {
+      background: #FFFFFF;
+    }
+
+    .bg-gray {
+      background: #F9FAFB;
+    }
+
+    .bg-dark-green {
+      background: #064E3B;
+      color: #FFFFFF;
+    }
+
+    /* ===== HERO ===== */
+    .hero {
+      padding: 140px 0 80px;
+      background: #FFFFFF;
+    }
+
+    .hero-breadcrumb {
+      font-size: 0.875rem;
+      color: #6B7280;
+      margin-bottom: 24px;
+    }
+
+    .hero-breadcrumb a {
+      color: #10B981;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      color: #111827;
+      margin-bottom: 16px;
+      max-width: 680px;
+    }
+
+    .hero-meta {
+      font-size: 0.875rem;
+      color: #6B7280;
+      margin-bottom: 32px;
+    }
+
+    .hero-intro {
+      font-size: 1.125rem;
+      line-height: 1.8;
+      color: #374151;
+      max-width: 640px;
+    }
+
+    .hero-intro strong {
+      color: #111827;
+    }
+
+    /* ===== TYPOGRAPHY ===== */
+    h2 {
+      font-size: clamp(1.5rem, 3.5vw, 2rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-bottom: 20px;
+      color: #111827;
+    }
+
+    h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      line-height: 1.3;
+      margin-bottom: 12px;
+      color: #111827;
+    }
+
+    p {
+      margin-bottom: 16px;
+      color: #374151;
+    }
+
+    /* ===== CONTENT SECTIONS ===== */
+    .content-section h2 {
+      margin-bottom: 24px;
+    }
+
+    .content-section p {
+      font-size: 1.063rem;
+      line-height: 1.8;
+    }
+
+    .pain-list {
+      list-style: none;
+      padding: 0;
+      margin: 24px 0;
+    }
+
+    .pain-list li {
+      position: relative;
+      padding: 16px 0 16px 40px;
+      border-bottom: 1px solid #E5E7EB;
+      font-size: 1.063rem;
+      color: #374151;
+      line-height: 1.6;
+    }
+
+    .bg-gray .pain-list li {
+      border-bottom-color: #E5E7EB;
+    }
+
+    .pain-list li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 22px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .pain-list.problems li::before {
+      background: #FEE2E2;
+    }
+
+    .pain-list.problems li::after {
+      content: "\2717";
+      position: absolute;
+      left: 6px;
+      top: 20px;
+      font-size: 0.8rem;
+      color: #DC2626;
+      font-weight: 700;
+    }
+
+    .pain-list.checks li::before {
+      background: #D1FAE5;
+    }
+
+    .pain-list.checks li::after {
+      content: "\2713";
+      position: absolute;
+      left: 5px;
+      top: 20px;
+      font-size: 0.85rem;
+      color: #059669;
+      font-weight: 700;
+    }
+
+    /* ===== STEP-BY-STEP ===== */
+    .steps {
+      counter-reset: step-counter;
+      list-style: none;
+      padding: 0;
+      margin: 32px 0;
+    }
+
+    .steps li {
+      counter-increment: step-counter;
+      position: relative;
+      padding: 28px 0 28px 80px;
+      border-bottom: 1px solid #E5E7EB;
+      min-height: 80px;
+    }
+
+    .steps li::before {
+      content: counter(step-counter);
+      position: absolute;
+      left: 0;
+      top: 28px;
+      width: 52px;
+      height: 52px;
+      background: #10B981;
+      color: #FFFFFF;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .steps li h3 {
+      margin-bottom: 6px;
+      font-size: 1.125rem;
+    }
+
+    .steps li p {
+      margin-bottom: 0;
+      color: #6B7280;
+      font-size: 1rem;
+    }
+
+    /* ===== COMPARISON TABLE ===== */
+    .comparison-wrapper {
+      overflow-x: auto;
+      margin: 32px 0;
+      border-radius: 12px;
+      border: 1px solid #E5E7EB;
+    }
+
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 600px;
+    }
+
+    .comparison-table thead th {
+      background: #F3F4F6;
+      padding: 16px 20px;
+      text-align: left;
+      font-size: 0.875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #6B7280;
+      border-bottom: 1px solid #E5E7EB;
+    }
+
+    .comparison-table thead th:first-child {
+      border-top-left-radius: 12px;
+    }
+
+    .comparison-table thead th:last-child {
+      border-top-right-radius: 12px;
+    }
+
+    .comparison-table thead th.highlight {
+      background: #10B981;
+      color: #FFFFFF;
+    }
+
+    .comparison-table tbody td {
+      padding: 16px 20px;
+      font-size: 0.938rem;
+      border-bottom: 1px solid #F3F4F6;
+      color: #374151;
+      vertical-align: top;
+    }
+
+    .comparison-table tbody td.highlight {
+      background: #F0FDF4;
+      color: #064E3B;
+      font-weight: 500;
+    }
+
+    .comparison-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .comparison-table .check {
+      color: #10B981;
+      font-weight: 700;
+    }
+
+    .comparison-table .cross {
+      color: #EF4444;
+      font-weight: 700;
+    }
+
+    /* ===== FAQ ===== */
+    .faq-list {
+      margin: 32px 0;
+    }
+
+    .faq-item {
+      border-bottom: 1px solid #E5E7EB;
+    }
+
+    .faq-question {
+      width: 100%;
+      text-align: left;
+      background: none;
+      border: none;
+      padding: 24px 40px 24px 0;
+      font-size: 1.063rem;
+      font-weight: 600;
+      color: #111827;
+      cursor: pointer;
+      font-family: inherit;
+      line-height: 1.5;
+      position: relative;
+      transition: color 0.2s ease;
+    }
+
+    .faq-question:hover {
+      color: #10B981;
+    }
+
+    .faq-question::after {
+      content: "+";
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1.5rem;
+      font-weight: 400;
+      color: #9CA3AF;
+      transition: transform 0.3s ease;
+    }
+
+    .faq-item.open .faq-question::after {
+      content: "\2212";
+      transform: translateY(-50%);
+    }
+
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease, padding 0.4s ease;
+    }
+
+    .faq-item.open .faq-answer {
+      max-height: 500px;
+      padding-bottom: 24px;
+    }
+
+    .faq-answer p {
+      font-size: 1rem;
+      color: #6B7280;
+      line-height: 1.7;
+    }
+
+    /* ===== INLINE CTA ===== */
+    .inline-cta {
+      background: #F0FDF4;
+      border: 1px solid #A7F3D0;
+      border-radius: 16px;
+      padding: 40px;
+      text-align: center;
+      margin: 40px 0;
+    }
+
+    .inline-cta h3 {
+      font-size: 1.375rem;
+      margin-bottom: 8px;
+    }
+
+    .inline-cta p {
+      color: #6B7280;
+      margin-bottom: 20px;
+    }
+
+    /* ===== CTA BUTTON ===== */
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 32px;
+      background: #10B981;
+      color: #FFFFFF;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 1rem;
+      transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+    }
+
+    .btn-primary:hover {
+      background: #059669;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(16, 185, 129, 0.25);
+    }
+
+    .btn-primary svg {
+      width: 18px;
+      height: 18px;
+      transition: transform 0.2s ease;
+    }
+
+    .btn-primary:hover svg {
+      transform: translateX(3px);
+    }
+
+    /* ===== FOOTER CTA ===== */
+    .footer-cta {
+      padding: 100px 0;
+      text-align: center;
+    }
+
+    .footer-cta h2 {
+      color: #FFFFFF;
+      font-size: clamp(1.75rem, 4vw, 2.5rem);
+      margin-bottom: 16px;
+    }
+
+    .footer-cta p {
+      color: rgba(255, 255, 255, 0.75);
+      font-size: 1.125rem;
+      max-width: 500px;
+      margin: 0 auto 32px;
+    }
+
+    .btn-white {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 16px 36px;
+      background: #FFFFFF;
+      color: #064E3B;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 1.063rem;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+    }
+
+    .btn-white:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-white svg {
+      width: 18px;
+      height: 18px;
+      transition: transform 0.2s ease;
+    }
+
+    .btn-white:hover svg {
+      transform: translateX(3px);
+    }
+
+    /* ===== FOOTER ===== */
+    .footer {
+      background: #064E3B;
+      padding: 32px 0;
+      text-align: center;
+    }
+
+    .footer p {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 0.875rem;
+      margin: 0;
+    }
+
+    .footer a {
+      color: rgba(255, 255, 255, 0.8);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .footer a:hover {
+      color: #FFFFFF;
+    }
+
+    /* ===== SECTION ANIM PREP ===== */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+      }
+
+      .hamburger {
+        display: flex;
+      }
+
+      section {
+        padding: 60px 0;
+      }
+
+      .hero {
+        padding: 110px 0 60px;
+      }
+
+      .steps li {
+        padding-left: 64px;
+      }
+
+      .steps li::before {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        font-size: 1.1rem;
+      }
+
+      .inline-cta {
+        padding: 28px 20px;
+      }
+
+      .footer-cta {
+        padding: 72px 0;
+      }
+
+      .comparison-wrapper {
+        margin-left: -12px;
+        margin-right: -12px;
+        border-radius: 8px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        font-size: 16px;
+      }
+
+      .hero h1 {
+        font-size: 1.75rem;
+      }
+
+      h2 {
+        font-size: 1.375rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Preloader -->
+  <div class="preloader" aria-hidden="true">
+    <div class="preloader-logo">milton</div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <div class="nav-inner">
+      <a href="https://miltonapp.co" class="nav-logo" aria-label="Milton home">milton</a>
+      <ul class="nav-links">
+        <li><a href="https://miltonapp.co/features">Features</a></li>
+        <li><a href="https://miltonapp.co/pricing">Pricing</a></li>
+        <li><a href="https://miltonapp.co/login">Log in</a></li>
+        <li><a href="https://miltonapp.co" class="nav-cta">Try for free</a></li>
+      </ul>
+      <button class="hamburger" aria-label="Toggle menu" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div class="mobile-nav" role="menu">
+      <a href="https://miltonapp.co/features" role="menuitem">Features</a>
+      <a href="https://miltonapp.co/pricing" role="menuitem">Pricing</a>
+      <a href="https://miltonapp.co/login" role="menuitem">Log in</a>
+      <a href="https://miltonapp.co" class="nav-cta" role="menuitem">Try for free</a>
+    </div>
+  </nav>
+
+  <main>
+    <!-- Hero -->
+    <section class="hero bg-white">
+      <div class="container">
+        <div class="reveal">
+          <nav class="hero-breadcrumb" aria-label="Breadcrumb">
+            <a href="https://miltonapp.co">Milton</a> &nbsp;/&nbsp; <a href="https://miltonapp.co/blog">Blog</a> &nbsp;/&nbsp; YouTube Notes Without Extension
+          </nav>
+          <h1>How to Take Notes on YouTube Without a Browser Extension</h1>
+          <p class="hero-meta">Published March 14, 2026 &middot; 6 min read</p>
+          <p class="hero-intro">
+            You found a YouTube tutorial that could change the way you work. You want to capture the key moments. So you search for a note-taking tool and... it requires a Chrome extension. You are on Safari. Or Firefox. Or your work laptop that blocks extensions.
+            <br><br>
+            <strong>Sound familiar?</strong> You are not alone. Most YouTube note-taking apps are glued to Chrome. That is a problem. Here is how to fix it.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section: Why Extensions Are a Pain -->
+    <section class="content-section bg-gray">
+      <div class="container">
+        <div class="reveal">
+          <h2>Why Browser Extensions Are a Pain for YouTube Notes</h2>
+          <p>
+            Extension-based note-taking tools have been the default for years. And they worked fine... if you checked every box. Chrome? Check. Personal laptop? Check. Willing to grant a tool full access to your browser data? Uh, check?
+          </p>
+          <p>
+            The reality is messier than the marketing page suggests.
+          </p>
+          <ul class="pain-list problems">
+            <li><strong>Chrome-only lock-in.</strong> Most extensions only work in Chrome or Chromium browsers. If you use Safari, Firefox, or Arc, you are out of luck.</li>
+            <li><strong>IT and security restrictions.</strong> Corporate and school devices often block extension installs entirely. Your learning workflow dies at the admin policy.</li>
+            <li><strong>Permission overreach.</strong> Extensions often request access to "all your data on all websites." That is a steep price to pay for timestamps on a cooking tutorial.</li>
+            <li><strong>Update fragility.</strong> Chrome updates regularly break extensions. One morning your tool works. The next, it does not. You lose your workflow mid-project.</li>
+            <li><strong>Context-switching overhead.</strong> Extensions inject UI into YouTube's page. Every YouTube redesign can break the overlay. And you are always one tab-close away from losing your place.</li>
+          </ul>
+          <p>
+            You should not need to install software on your browser just to jot down what someone said at the 4-minute mark.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section: What to Look For -->
+    <section class="content-section bg-white">
+      <div class="container">
+        <div class="reveal">
+          <h2>What to Look for in a Web-Based YouTube Note-Taking Tool</h2>
+          <p>
+            If you want to ditch extensions, you need a tool that lives on the web. But not every web app is built the same. Here is what matters.
+          </p>
+          <ul class="pain-list checks">
+            <li><strong>Works on any browser.</strong> Safari, Firefox, Edge, Brave, Chrome, Arc. If it plays YouTube, your tool should work there.</li>
+            <li><strong>No install required.</strong> You paste a URL, you start taking notes. That is it. No onboarding wizard, no browser restart, no permissions popup.</li>
+            <li><strong>Timestamps are automatic.</strong> When you capture a moment, the tool should know exactly where you were in the video. You should not have to type "3:42" by hand.</li>
+            <li><strong>Your notes are retrievable.</strong> Taking notes is only half the job. You need to actually find and revisit them later. A good tool makes retrieval effortless.</li>
+            <li><strong>AI that helps, not replaces.</strong> Full auto-summaries miss the point. The best tools let you choose what to capture, then use AI to enhance your selection with context.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section: How Milton Works -->
+    <section class="content-section bg-gray">
+      <div class="container">
+        <div class="reveal">
+          <h2>How Milton Works: Paste, Snip, Done</h2>
+          <p>
+            <a href="https://miltonapp.co" style="color: #10B981; font-weight: 600;">Milton</a> is a web-based YouTube note-taking app. No extension. No Chrome dependency. No nonsense. Here is the core idea:
+          </p>
+          <p>
+            You paste a YouTube URL into Milton. The video loads inside the app. You watch it. When something hits&mdash;an insight, a step, a quote you want to remember&mdash;you hit <strong>snip</strong>. Milton captures that moment with a timestamp, pulls the exact quote from the transcript, and wraps it in a short AI-generated summary.
+          </p>
+          <p>
+            That is <strong>active snipping</strong>. You choose what matters. AI handles the formatting. You are not drowning in a wall of auto-generated bullet points you will never read.
+          </p>
+          <p>
+            Then, every week, Milton sends you a <strong>digest email</strong> with your recent snips. Your notes come back to you. You do not have to remember to open another app. Zero other YouTube note tools do this.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section: Step-by-Step Guide -->
+    <section class="content-section bg-white">
+      <div class="container">
+        <div class="reveal">
+          <h2>Take YouTube Notes Without an Extension: Step-by-Step</h2>
+          <p>Here is exactly how to go from YouTube video to organized notes in under two minutes.</p>
+          <ol class="steps">
+            <li>
+              <h3>Sign up for Milton</h3>
+              <p>Head to <a href="https://miltonapp.co" style="color: #10B981; font-weight: 500;">miltonapp.co</a> and create a free account. No credit card required. Takes about 15 seconds.</p>
+            </li>
+            <li>
+              <h3>Paste a YouTube URL</h3>
+              <p>Grab the URL of any YouTube video. Paste it into Milton. The video loads right inside the app&mdash;no tab switching.</p>
+            </li>
+            <li>
+              <h3>Watch and snip</h3>
+              <p>Hit play. When you hear something worth remembering, click the snip button. Milton captures the timestamp, pulls the transcript quote, and generates a concise AI summary of that moment.</p>
+            </li>
+            <li>
+              <h3>Review your snips</h3>
+              <p>Your snips stack up in a clean sidebar. Each one has the timestamp (click to jump back), the exact quote, and the AI summary. Edit or annotate anything you want.</p>
+            </li>
+            <li>
+              <h3>Get your weekly digest</h3>
+              <p>Every week, Milton emails you a digest of your recent snips. Your notes resurface automatically. No more "I know I watched a video about that..." moments.</p>
+            </li>
+          </ol>
+
+          <div class="inline-cta">
+            <h3>Ready to try it?</h3>
+            <p>7-day free trial. No credit card. No extension.</p>
+            <a href="https://miltonapp.co" class="btn-primary" aria-label="Start free trial of Milton">
+              Try Milton free
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section: Comparison Table -->
+    <section class="content-section bg-gray">
+      <div class="container-wide">
+        <div class="reveal">
+          <h2 style="text-align: center;">Milton vs. Extension-Based YouTube Note Tools</h2>
+          <p style="text-align: center; max-width: 560px; margin: 0 auto 32px; color: #6B7280;">
+            Here is how Milton stacks up against typical Chrome extension note-taking tools.
+          </p>
+          <div class="comparison-wrapper">
+            <table class="comparison-table" role="table" aria-label="Comparison of Milton versus extension-based YouTube note tools">
+              <thead>
+                <tr>
+                  <th scope="col">Feature</th>
+                  <th scope="col" class="highlight">Milton</th>
+                  <th scope="col">Extension-Based Tools</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Browser support</td>
+                  <td class="highlight"><span class="check">&#10003;</span> Any modern browser</td>
+                  <td><span class="cross">&#10007;</span> Chrome / Chromium only</td>
+                </tr>
+                <tr>
+                  <td>Install required</td>
+                  <td class="highlight"><span class="check">&#10003;</span> None &mdash; paste a URL</td>
+                  <td><span class="cross">&#10007;</span> Extension install + permissions</td>
+                </tr>
+                <tr>
+                  <td>Works on managed devices</td>
+                  <td class="highlight"><span class="check">&#10003;</span> Yes, it is just a website</td>
+                  <td><span class="cross">&#10007;</span> Often blocked by IT policy</td>
+                </tr>
+                <tr>
+                  <td>Note-taking approach</td>
+                  <td class="highlight"><span class="check">&#10003;</span> Active snipping &mdash; you choose</td>
+                  <td>Auto-generated full transcript notes</td>
+                </tr>
+                <tr>
+                  <td>AI summaries</td>
+                  <td class="highlight"><span class="check">&#10003;</span> Per-snip contextual summaries</td>
+                  <td>Full-video summaries (often noisy)</td>
+                </tr>
+                <tr>
+                  <td>Timestamps</td>
+                  <td class="highlight"><span class="check">&#10003;</span> Automatic, clickable</td>
+                  <td><span class="check">&#10003;</span> Automatic, clickable</td>
+                </tr>
+                <tr>
+                  <td>Transcript quotes</td>
+                  <td class="highlight"><span class="check">&#10003;</span> Exact quote per snip</td>
+                  <td>Full transcript dump</td>
+                </tr>
+                <tr>
+                  <td>Weekly digest email</td>
+                  <td class="highlight"><span class="check">&#10003;</span> Built-in, automatic</td>
+                  <td><span class="cross">&#10007;</span> Not available</td>
+                </tr>
+                <tr>
+                  <td>Breaks with browser updates</td>
+                  <td class="highlight"><span class="check">&#10003;</span> Never</td>
+                  <td><span class="cross">&#10007;</span> Frequently</td>
+                </tr>
+                <tr>
+                  <td>Pricing</td>
+                  <td class="highlight">$10/mo flat. 7-day free trial.</td>
+                  <td>Free tier + paid tiers ($8&ndash;$20/mo)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section: FAQ -->
+    <section class="content-section bg-white" id="faq">
+      <div class="container">
+        <div class="reveal">
+          <h2>Frequently Asked Questions</h2>
+
+          <div class="faq-list">
+            <div class="faq-item">
+              <button class="faq-question" aria-expanded="false">Can I take notes on YouTube without installing a browser extension?</button>
+              <div class="faq-answer" role="region">
+                <p>
+                  Yes. Milton is a web-based YouTube note-taking app that works entirely in your browser. You paste a YouTube URL, watch the video inside Milton, and snip the moments that matter. No extension to install, no Chrome dependency, no permissions to grant. It works on Safari, Firefox, Edge, Brave, Arc, and Chrome.
+                </p>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <button class="faq-question" aria-expanded="false">Does Milton work on Safari, Firefox, and other browsers?</button>
+              <div class="faq-answer" role="region">
+                <p>
+                  Absolutely. Because Milton is a web app (not an extension), it works on any modern browser including Safari, Firefox, Edge, Brave, and Chrome. You can even use it on a tablet. If your browser can play YouTube, Milton works.
+                </p>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <button class="faq-question" aria-expanded="false">How is Milton different from extension-based YouTube note tools?</button>
+              <div class="faq-answer" role="region">
+                <p>
+                  Three key differences. First, no extension required&mdash;paste a URL and you are in. Second, active snipping&mdash;you choose what to capture, then AI adds a summary, timestamp, and exact quote. Third, weekly digest email&mdash;Milton resurfaces your notes every week so nothing gets buried. No other YouTube note-taking tool sends you a digest.
+                </p>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <button class="faq-question" aria-expanded="false">How much does Milton cost?</button>
+              <div class="faq-answer" role="region">
+                <p>
+                  Milton is $10/month flat. No tiers, no upsells, no "Pro" plan that locks the good features. You get a 7-day free trial with no credit card required&mdash;just sign up and start snipping. If it is not for you, you walk away. No awkward cancellation flow.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer CTA -->
+    <section class="footer-cta bg-dark-green">
+      <div class="container">
+        <div class="reveal">
+          <h2>Your notes should survive a browser switch</h2>
+          <p>Try Milton free for 7 days. No extension. No credit card. Just paste a URL and start snipping.</p>
+          <a href="https://miltonapp.co" class="btn-white" aria-label="Start free trial of Milton">
+            Start your free trial
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer" role="contentinfo">
+    <div class="container">
+      <p>&copy; 2026 <a href="https://miltonapp.co">Milton</a>. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- GSAP + ScrollTrigger -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+  <!-- Lenis Smooth Scroll -->
+  <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.23/bundled/lenis.min.js"></script>
+
+  <script>
+    (function() {
+      'use strict';
+
+      // ===== PRELOADER =====
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          document.querySelector('.preloader').classList.add('hidden');
+        }, 800);
+      });
+
+      // ===== LENIS SMOOTH SCROLL =====
+      const lenis = new Lenis({
+        duration: 1.2,
+        easing: function(t) { return Math.min(1, 1.001 - Math.pow(2, -10 * t)); },
+        smooth: true,
+      });
+
+      // Sync Lenis with GSAP ScrollTrigger
+      lenis.on('scroll', ScrollTrigger.update);
+      gsap.ticker.add(function(time) {
+        lenis.raf(time * 1000);
+      });
+      gsap.ticker.lagSmoothing(0);
+
+      // ===== SCROLL-TRIGGERED REVEALS =====
+      gsap.registerPlugin(ScrollTrigger);
+
+      var reveals = document.querySelectorAll('.reveal');
+      reveals.forEach(function(el) {
+        gsap.fromTo(el,
+          { opacity: 0, y: 40 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            ease: 'power3.out',
+            scrollTrigger: {
+              trigger: el,
+              start: 'top 85%',
+              once: true,
+            },
+          }
+        );
+      });
+
+      // ===== MAGNETIC CTA BUTTONS =====
+      var magneticBtns = document.querySelectorAll('.btn-primary, .btn-white, .nav-cta');
+      magneticBtns.forEach(function(btn) {
+        btn.addEventListener('mousemove', function(e) {
+          var rect = btn.getBoundingClientRect();
+          var x = e.clientX - rect.left - rect.width / 2;
+          var y = e.clientY - rect.top - rect.height / 2;
+          var strength = 0.15;
+          gsap.to(btn, {
+            x: x * strength,
+            y: y * strength,
+            duration: 0.3,
+            ease: 'power2.out',
+          });
+        });
+
+        btn.addEventListener('mouseleave', function() {
+          gsap.to(btn, {
+            x: 0,
+            y: 0,
+            duration: 0.5,
+            ease: 'elastic.out(1, 0.5)',
+          });
+        });
+      });
+
+      // ===== HAMBURGER MENU =====
+      var hamburger = document.querySelector('.hamburger');
+      var mobileNav = document.querySelector('.mobile-nav');
+
+      hamburger.addEventListener('click', function() {
+        var isOpen = hamburger.classList.toggle('active');
+        hamburger.setAttribute('aria-expanded', isOpen);
+        mobileNav.classList.toggle('open');
+        document.body.style.overflow = isOpen ? 'hidden' : '';
+      });
+
+      // Close mobile nav on link click
+      var mobileLinks = mobileNav.querySelectorAll('a');
+      mobileLinks.forEach(function(link) {
+        link.addEventListener('click', function() {
+          hamburger.classList.remove('active');
+          hamburger.setAttribute('aria-expanded', 'false');
+          mobileNav.classList.remove('open');
+          document.body.style.overflow = '';
+        });
+      });
+
+      // ===== FAQ ACCORDION =====
+      var faqItems = document.querySelectorAll('.faq-item');
+      faqItems.forEach(function(item) {
+        var question = item.querySelector('.faq-question');
+        question.addEventListener('click', function() {
+          var isOpen = item.classList.contains('open');
+
+          // Close all others
+          faqItems.forEach(function(other) {
+            other.classList.remove('open');
+            other.querySelector('.faq-question').setAttribute('aria-expanded', 'false');
+          });
+
+          // Toggle current
+          if (!isOpen) {
+            item.classList.add('open');
+            question.setAttribute('aria-expanded', 'true');
+          }
+        });
+      });
+
+    })();
+  </script>
+</body>
+</html>
