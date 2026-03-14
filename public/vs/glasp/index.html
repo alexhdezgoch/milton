@@ -1564,42 +1564,55 @@
       // GSAP Scroll Reveals
       gsap.registerPlugin(ScrollTrigger);
 
+      // Fade up: .reveal
       gsap.utils.toArray('.reveal').forEach(function (el) {
         gsap.fromTo(el,
           { opacity: 0, y: 40 },
-          {
-            opacity: 1, y: 0, duration: 0.7, ease: 'power3.out',
-            scrollTrigger: { trigger: el, start: 'top 88%', once: true }
-          }
+          { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out',
+            scrollTrigger: { trigger: el, start: 'top 88%', once: true } }
         );
       });
 
-      // Staggered grid reveals
+      // Slide from left: .reveal-left
+      gsap.utils.toArray('.reveal-left').forEach(function (el) {
+        gsap.fromTo(el,
+          { opacity: 0, x: -40 },
+          { opacity: 1, x: 0, duration: 0.7, ease: 'power3.out',
+            scrollTrigger: { trigger: el, start: 'top 88%', once: true } }
+        );
+      });
+
+      // Slide from right: .reveal-right
+      gsap.utils.toArray('.reveal-right').forEach(function (el) {
+        gsap.fromTo(el,
+          { opacity: 0, x: 40 },
+          { opacity: 1, x: 0, duration: 0.7, ease: 'power3.out',
+            scrollTrigger: { trigger: el, start: 'top 88%', once: true } }
+        );
+      });
+
+      // Staggered grid reveals: .reveal-stagger
       gsap.utils.toArray('.reveal-stagger').forEach(function (container) {
-        var items = container.children;
-        gsap.fromTo(items,
+        gsap.fromTo(Array.from(container.children),
           { opacity: 0, y: 30 },
-          {
-            opacity: 1, y: 0, duration: 0.6, ease: 'power3.out', stagger: 0.1,
-            scrollTrigger: { trigger: container, start: 'top 85%', once: true }
-          }
+          { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out', stagger: 0.1,
+            scrollTrigger: { trigger: container, start: 'top 85%', once: true } }
         );
       });
 
       // FAQ accordion
-      document.querySelectorAll('.faq-item, .faq-question').forEach(function (item) {
-        item.addEventListener('click', function () {
-          var faqItem = this.closest('.faq-item') || this.parentElement;
-          var isActive = faqItem.classList.contains('active');
+      document.querySelectorAll('.faq-item').forEach(function (item) {
+        var trigger = item.querySelector('.faq-question') || item;
+        trigger.addEventListener('click', function () {
+          var isActive = item.classList.contains('active');
           document.querySelectorAll('.faq-item').forEach(function (f) {
             f.classList.remove('active');
-            var btn = f.querySelector('.faq-question, button');
+            var btn = f.querySelector('.faq-question');
             if (btn) btn.setAttribute('aria-expanded', 'false');
           });
           if (!isActive) {
-            faqItem.classList.add('active');
-            var btn = faqItem.querySelector('.faq-question, button');
-            if (btn) btn.setAttribute('aria-expanded', 'true');
+            item.classList.add('active');
+            if (trigger !== item) trigger.setAttribute('aria-expanded', 'true');
           }
         });
       });
