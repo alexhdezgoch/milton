@@ -1548,11 +1548,9 @@
     </footer>
   </div>
 
-  <!-- Scripts: GSAP + ScrollTrigger + Lenis -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.23/bundled/lenis.min.js"></script>
-
+  
   <script>
     (function() {
       'use strict';
@@ -1565,19 +1563,9 @@
         }, 800);
       });
 
-      // ─── Lenis Smooth Scroll ───
-      var lenis = new Lenis({
-        duration: 1.1,
         easing: function(t) { return t; },
         smooth: true,
       });
-
-      // Sync Lenis with GSAP ScrollTrigger
-      lenis.on('scroll', ScrollTrigger.update);
-      gsap.ticker.add(function(time) {
-        lenis.raf(time * 1000);
-      });
-      gsap.ticker.lagSmoothing(0);
 
       // ─── GSAP Scroll Reveals ───
       gsap.registerPlugin(ScrollTrigger);
@@ -1592,7 +1580,6 @@
           },
           opacity: 1,
           y: 0,
-          duration: 0.8,
           ease: 'power3.out',
         });
       });
@@ -1607,7 +1594,6 @@
           },
           opacity: 1,
           x: 0,
-          duration: 0.9,
           ease: 'power3.out',
         });
       });
@@ -1622,7 +1608,6 @@
           },
           opacity: 1,
           x: 0,
-          duration: 0.9,
           ease: 'power3.out',
         });
       });
@@ -1636,7 +1621,6 @@
           gsap.to('.intro-card', {
             opacity: 1,
             y: 0,
-            duration: 0.6,
             stagger: 0.15,
             ease: 'power3.out',
           });
@@ -1652,7 +1636,6 @@
           gsap.from('.comp-table tbody tr', {
             opacity: 0,
             x: -20,
-            duration: 0.4,
             stagger: 0.07,
             ease: 'power2.out',
           });
@@ -1668,7 +1651,6 @@
           gsap.from('.pricing-card', {
             scale: 0.92,
             opacity: 0,
-            duration: 0.7,
             ease: 'back.out(1.5)',
           });
         },
@@ -1738,7 +1720,7 @@
           var target = document.querySelector(this.getAttribute('href'));
           if (target) {
             e.preventDefault();
-            lenis.scrollTo(target, { offset: -80 });
+            const target = document.querySelector(this.getAttribute('href')); if(target) target.scrollIntoView({behavior:'smooth'});
           }
         });
       });
