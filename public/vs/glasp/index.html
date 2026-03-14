@@ -1568,7 +1568,7 @@
       // ─── Lenis Smooth Scroll ───
       var lenis = new Lenis({
         duration: 1.1,
-        easing: function(t) { return Math.min(1, 1.001 - Math.pow(2, -10 * t)); },
+        easing: function(t) { return t; },
         smooth: true,
       });
 

@@ -1150,7 +1150,7 @@
       // ===== LENIS SMOOTH SCROLL =====
       const lenis = new Lenis({
         duration: 0.8,
-        easing: function(t) { return Math.min(1, 1.001 - Math.pow(2, -10 * t)); },
+        easing: function(t) { return t; },
         smooth: true,
       });
 
