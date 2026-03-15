@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>YouTube Notes for Content Creators — Your Research Library for Video Ideas</title>
+  <meta name="description" content="Milton helps creators turn YouTube watching into an organized idea bank. Snip inspiration, build topic collections, and never lose a good idea again. Free 7-day trial." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://miltonapp.co/for-creators" />
+  <meta property="og:title" content="YouTube Notes for Content Creators — Your Research Library for Video Ideas" />
+  <meta property="og:description" content="Milton helps creators turn YouTube watching into an organized idea bank. Snip inspiration, build topic collections, never lose a good idea again." />
+  <meta property="og:url" content="https://miltonapp.co/for-creators" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Milton" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Milton",
+    "applicationCategory": "ProductivityApplication",
+    "operatingSystem": "Web",
+    "url": "https://miltonapp.co",
+    "description": "Milton helps content creators turn YouTube research into an organized idea bank — snip inspiration, build topic collections, and never lose a good idea again.",
+    "offers": {
+      "@type": "Offer",
+      "price": "10",
+      "priceCurrency": "USD",
+      "description": "Monthly subscription with 7-day free trial"
+    }
+  }
+  </script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --emerald: #10B981; --emerald-light: #34D399; --emerald-dark: #064E3B; --white: #FFFFFF; --gray-50: #F9FAFB; --gray-100: #F3F4F6; --gray-200: #E5E7EB; --gray-300: #D1D5DB; --gray-400: #9CA3AF; --gray-500: #6B7280; --gray-600: #4B5563; --gray-700: #374151; --near-black: #111827; --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05); --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.04); }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; color: var(--near-black); background: var(--white); line-height: 1.6; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+    .preloader { position: fixed; inset: 0; z-index: 9999; background: var(--white); display: flex; align-items: center; justify-content: center; transition: opacity 0.4s ease, visibility 0.4s ease; }
+    .preloader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+    .preloader-logo { font-size: 2rem; font-weight: 800; color: var(--emerald); letter-spacing: -0.03em; animation: pulse 1s ease-in-out infinite alternate; }
+    @keyframes pulse { from { opacity: 0.4; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
+    .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: rgba(255,255,255,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--gray-200); }
+    .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; height: 64px; display: flex; align-items: center; justify-content: space-between; }
+    .nav-logo { font-size: 1.5rem; font-weight: 800; color: var(--emerald); text-decoration: none; letter-spacing: -0.03em; }
+    .nav-links { display: flex; align-items: center; gap: 32px; list-style: none; }
+    .nav-links a { color: var(--gray-600); text-decoration: none; font-size: 0.9375rem; font-weight: 500; transition: color 0.2s ease; }
+    .nav-links a:hover { color: var(--near-black); }
+    .nav-cta { display: inline-flex; align-items: center; padding: 9px 20px; background: var(--emerald); color: var(--white) !important; border-radius: 8px; font-weight: 600; font-size: 0.9375rem; transition: background 0.2s ease, transform 0.15s ease; text-decoration: none; }
+    .nav-cta:hover { background: var(--emerald-light); transform: translateY(-1px); }
+    .hamburger { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 4px; z-index: 1001; }
+    .hamburger span { display: block; width: 24px; height: 2px; background: var(--near-black); border-radius: 2px; transition: transform 0.3s ease, opacity 0.3s ease; }
+    .hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+    .hamburger.active span:nth-child(2) { opacity: 0; }
+    .hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+    .mobile-menu { display: none; position: fixed; inset: 0; top: 64px; background: var(--white); z-index: 999; padding: 32px 24px; flex-direction: column; gap: 24px; }
+    .mobile-menu.active { display: flex; }
+    .mobile-menu a { color: var(--near-black); text-decoration: none; font-size: 1.125rem; font-weight: 500; padding: 8px 0; border-bottom: 1px solid var(--gray-100); }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+    section { padding: 96px 0; }
+    .bg-white { background: var(--white); }
+    .bg-gray { background: var(--gray-50); }
+    .bg-dark { background: var(--emerald-dark); color: var(--white); }
+    h1, h2, h3 { letter-spacing: -0.025em; line-height: 1.2; }
+    h1 { font-size: clamp(2.25rem, 5vw, 3.5rem); font-weight: 800; }
+    h2 { font-size: clamp(1.75rem, 3.5vw, 2.5rem); font-weight: 700; }
+    h3 { font-size: 1.375rem; font-weight: 700; }
+    .section-label { display: inline-block; font-size: 0.8125rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--emerald); margin-bottom: 12px; }
+    .section-subtitle { font-size: clamp(1.0625rem, 2vw, 1.25rem); color: var(--gray-500); max-width: 640px; line-height: 1.6; }
+    .reveal { opacity: 0; transform: translateY(32px); }
+    .reveal-left { opacity: 0; transform: translateX(-32px); }
+    .reveal-right { opacity: 0; transform: translateX(32px); }
+    .hero { padding-top: 140px; padding-bottom: 80px; text-align: center; }
+    .hero h1 .accent { color: var(--emerald); }
+    .hero-desc { font-size: clamp(1.0625rem, 2vw, 1.25rem); color: var(--gray-500); max-width: 620px; margin: 0 auto 40px; line-height: 1.7; }
+    .hero-cta-group { display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 28px; border-radius: 10px; font-size: 1rem; font-weight: 600; text-decoration: none; transition: all 0.2s ease; cursor: pointer; border: none; }
+    .btn-primary { background: var(--emerald); color: var(--white); box-shadow: 0 2px 8px rgba(16,185,129,0.25); }
+    .btn-primary:hover { background: #0EA472; transform: translateY(-2px); }
+    .btn-secondary { background: var(--white); color: var(--near-black); border: 1.5px solid var(--gray-200); }
+    .btn-secondary:hover { background: var(--gray-50); transform: translateY(-2px); }
+    .btn-white { background: var(--white); color: var(--emerald-dark); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .btn-white:hover { transform: translateY(-2px); }
+    .btn-arrow::after { content: '\2192'; transition: transform 0.2s ease; }
+    .btn-arrow:hover::after { transform: translateX(3px); }
+    .problem-text { font-size: clamp(1.0625rem, 2vw, 1.1875rem); color: var(--gray-600); max-width: 680px; margin: 0 auto; line-height: 1.8; }
+    .problem-text strong { color: var(--near-black); }
+    .problem-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 48px; }
+    .problem-card { background: var(--white); border: 1px solid var(--gray-200); border-radius: 12px; padding: 32px 24px; }
+    .problem-card-icon { font-size: 2rem; margin-bottom: 16px; }
+    .problem-card h3 { font-size: 1.125rem; margin-bottom: 8px; }
+    .problem-card p { font-size: 0.9375rem; color: var(--gray-500); line-height: 1.6; }
+    .features-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 32px; margin-top: 48px; }
+    .feature-card { background: var(--white); border: 1px solid var(--gray-200); border-radius: 16px; padding: 32px; }
+    .feature-card-icon { width: 48px; height: 48px; background: rgba(16,185,129,0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 20px; }
+    .feature-card h3 { font-size: 1.25rem; margin-bottom: 10px; }
+    .feature-card p { font-size: 0.9375rem; color: var(--gray-600); line-height: 1.7; }
+    .use-cases { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-top: 48px; }
+    .use-case-card { background: var(--white); border: 1px solid var(--gray-200); border-radius: 12px; padding: 28px 24px; }
+    .use-case-card h3 { font-size: 1.0625rem; margin-bottom: 8px; }
+    .use-case-card p { font-size: 0.9rem; color: var(--gray-500); line-height: 1.6; }
+    .use-case-label { display: inline-block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--emerald); background: rgba(16,185,129,0.08); padding: 4px 10px; border-radius: 100px; margin-bottom: 12px; }
+    .workflow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-top: 48px; }
+    .workflow-step { text-align: center; padding: 24px 16px; }
+    .workflow-step-number { width: 40px; height: 40px; background: var(--emerald); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 800; color: var(--white); margin: 0 auto 16px; }
+    .workflow-step h3 { font-size: 1rem; margin-bottom: 6px; }
+    .workflow-step p { font-size: 0.875rem; color: var(--gray-500); line-height: 1.6; }
+    .pricing { text-align: center; }
+    .pricing-card { max-width: 480px; margin: 48px auto 0; background: var(--white); border: 2px solid var(--emerald); border-radius: 20px; padding: 48px 40px; box-shadow: 0 8px 30px rgba(16,185,129,0.12); position: relative; }
+    .pricing-badge { position: absolute; top: -14px; left: 50%; transform: translateX(-50%); background: var(--emerald); color: var(--white); font-size: 0.8125rem; font-weight: 700; padding: 6px 20px; border-radius: 100px; white-space: nowrap; }
+    .pricing-amount { display: flex; align-items: baseline; justify-content: center; gap: 4px; margin: 16px 0; }
+    .pricing-dollar { font-size: 1.5rem; font-weight: 700; }
+    .pricing-number { font-size: 4rem; font-weight: 800; line-height: 1; letter-spacing: -0.03em; }
+    .pricing-period { font-size: 1.125rem; color: var(--gray-500); font-weight: 500; }
+    .pricing-desc { color: var(--gray-500); font-size: 1rem; margin-bottom: 32px; }
+    .pricing-features { list-style: none; text-align: left; margin-bottom: 32px; }
+    .pricing-features li { display: flex; align-items: center; gap: 12px; padding: 10px 0; font-size: 0.9375rem; color: var(--gray-700); border-bottom: 1px solid var(--gray-100); }
+    .pricing-features li:last-child { border-bottom: none; }
+    .pricing-features li::before { content: '\2713'; color: var(--emerald); font-weight: 700; font-size: 1rem; flex-shrink: 0; }
+    .pricing-note { font-size: 0.875rem; color: var(--gray-400); margin-top: 16px; }
+    .footer-cta { padding: 96px 0; text-align: center; }
+    .footer-cta h2 { color: var(--white); margin-bottom: 16px; }
+    .footer-cta p { color: rgba(255,255,255,0.7); font-size: 1.125rem; max-width: 520px; margin: 0 auto 40px; line-height: 1.7; }
+    .footer { padding: 32px 0; }
+    .footer-inner { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+    .footer-logo { font-size: 1.25rem; font-weight: 800; color: var(--white); letter-spacing: -0.03em; }
+    .footer-copy { font-size: 0.875rem; color: rgba(255,255,255,0.5); }
+    .footer-links { display: flex; gap: 24px; list-style: none; }
+    .footer-links a { font-size: 0.875rem; color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s ease; }
+    .footer-links a:hover { color: var(--white); }
+    @media (max-width: 900px) { .problem-cards, .workflow { grid-template-columns: 1fr; } .features-grid { grid-template-columns: 1fr; } .use-cases { grid-template-columns: 1fr; } }
+    @media (max-width: 768px) { .nav-links { display: none; } .hamburger { display: flex; } section { padding: 64px 0; } .hero { padding-top: 120px; padding-bottom: 56px; } .pricing-card { padding: 40px 24px; } .footer-inner { flex-direction: column; text-align: center; } .footer-links { justify-content: center; } }
+    @media (max-width: 480px) { .hero-cta-group { flex-direction: column; width: 100%; } .hero-cta-group .btn { width: 100%; } }
+  </style>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-YK9X313Q2L"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-YK9X313Q2L');</script>
+</head>
+<body>
+  <div class="preloader" id="preloader" aria-hidden="true"><div class="preloader-logo">milton</div></div>
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <div class="nav-inner">
+      <a href="https://miltonapp.co" class="nav-logo">milton</a>
+      <ul class="nav-links">
+        <li><a href="https://miltonapp.co#features">Features</a></li>
+        <li><a href="https://miltonapp.co#pricing">Pricing</a></li>
+        <li><a href="https://miltonapp.co/login">Log in</a></li>
+        <li><a href="https://miltonapp.co" class="nav-cta">Try for free</a></li>
+      </ul>
+      <button class="hamburger" id="hamburger" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button>
+    </div>
+    <div class="mobile-menu" id="mobileMenu" role="menu">
+      <a href="https://miltonapp.co#features">Features</a>
+      <a href="https://miltonapp.co#pricing">Pricing</a>
+      <a href="https://miltonapp.co/login">Log in</a>
+      <a href="https://miltonapp.co" class="nav-cta">Try for free</a>
+    </div>
+  </nav>
+
+  <section class="hero bg-white">
+    <div class="container">
+      <div class="reveal">
+        <span class="section-label">Milton for Creators</span>
+        <h1>Stop Losing Your <span class="accent">Best Ideas</span> to the YouTube Feed</h1>
+        <p class="hero-desc">You watch hours of content for inspiration, research, and competitive analysis. Milton captures the moments that matter — so when it's time to create, your best ideas are already waiting for you.</p>
+        <div class="hero-cta-group">
+          <a href="https://miltonapp.co" class="btn btn-primary btn-arrow">Start your free trial</a>
+          <a href="#features" class="btn btn-secondary">See how it works</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-gray">
+    <div class="container">
+      <div class="reveal" style="text-align:center;">
+        <span class="section-label">The Creator Problem</span>
+        <h2>You Watch Hours of YouTube. Most of It Disappears.</h2>
+        <p class="problem-text" style="margin-top:16px;">The irony of being a creator: you spend hours on YouTube for research, inspiration, and competitive analysis — and you capture almost none of it. <strong>The best moments vanish into the feed the moment you close the tab.</strong></p>
+      </div>
+      <div class="problem-cards">
+        <div class="problem-card reveal">
+          <div class="problem-card-icon">💡</div>
+          <h3>Ideas evaporate</h3>
+          <p>You see a hook structure, a format, an angle that would work perfectly for your audience. You think "I'll remember that." You don't.</p>
+        </div>
+        <div class="problem-card reveal">
+          <div class="problem-card-icon">🕰️</div>
+          <h3>Research takes forever</h3>
+          <p>You watched three hours of competitor content. Now you're trying to remember who said what, in which video, at what timestamp. Scrubbing through video is not research.</p>
+        </div>
+        <div class="problem-card reveal">
+          <div class="problem-card-icon">📦</div>
+          <h3>No organized idea bank</h3>
+          <p>Your inspiration lives in browser bookmarks, voice memos, screenshot folders, and text files. None of it is searchable. None of it is connected.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-white" id="features">
+    <div class="container">
+      <div class="reveal" style="text-align:center;">
+        <span class="section-label">How Milton Helps</span>
+        <h2>An Idea Bank That Builds Itself As You Watch</h2>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card reveal">
+          <div class="feature-card-icon" aria-hidden="true">✂️</div>
+          <h3>Snip the moments that spark ideas</h3>
+          <p>See a hook you love? A structure that works? A competitor angle you want to study? Hit Snip. Milton captures the exact moment with timestamp, transcript quote, and AI context. Your idea bank grows every time you watch.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="feature-card-icon" aria-hidden="true">🏷️</div>
+          <h3>Organize by topic and project</h3>
+          <p>Tag snips by content pillar, format type, or current project. Building a video about productivity? You've got a tagged collection of every insight you've ever snipped on the topic — from dozens of different videos.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="feature-card-icon" aria-hidden="true">🔍</div>
+          <h3>Search your entire inspiration library</h3>
+          <p>Type a keyword and find every relevant snip across everything you've ever saved. "hooks," "storytelling," "objection handling" — your library of ideas is instantly searchable, not buried in a folder you'll never open.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="feature-card-icon" aria-hidden="true">💬</div>
+          <h3>Chat with competitor videos</h3>
+          <p>Save a competitor's video and ask it questions. "What's their call to action?" "How do they structure their intro?" Milton gives you the exact answer with the timestamp. Competitive research in seconds, not hours.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="feature-card-icon" aria-hidden="true">📧</div>
+          <h3>Weekly digest of your best snips</h3>
+          <p>Every week, your best captures come back to you in a curated email. The idea you snipped three weeks ago resurfaces exactly when you're looking for your next video concept.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="feature-card-icon" aria-hidden="true">📄</div>
+          <h3>Full transcripts you can search and quote</h3>
+          <p>Every saved video has a full searchable transcript. Find the exact thing someone said, verify the quote, use it in your content. No more "I think they said something like..."</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-gray">
+    <div class="container">
+      <div class="reveal" style="text-align:center;">
+        <span class="section-label">The Workflow</span>
+        <h2>From Watching to Creating, Organized</h2>
+      </div>
+      <div class="workflow">
+        <div class="workflow-step reveal">
+          <div class="workflow-step-number">1</div>
+          <h3>Watch</h3>
+          <p>Open any YouTube video in Milton. Full transcript ready. No extension.</p>
+        </div>
+        <div class="workflow-step reveal">
+          <div class="workflow-step-number">2</div>
+          <h3>Snip</h3>
+          <p>Hit Snip on anything worth keeping. AI wraps it with context and timestamp.</p>
+        </div>
+        <div class="workflow-step reveal">
+          <div class="workflow-step-number">3</div>
+          <h3>Tag</h3>
+          <p>Add tags for topic, format, or project. Your library self-organizes.</p>
+        </div>
+        <div class="workflow-step reveal">
+          <div class="workflow-step-number">4</div>
+          <h3>Create</h3>
+          <p>Search your snips when you're ready to create. Your best ideas are waiting.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-white">
+    <div class="container">
+      <div class="reveal" style="text-align:center;">
+        <span class="section-label">Who Uses Milton</span>
+        <h2>Built for Every Kind of Creator</h2>
+      </div>
+      <div class="use-cases">
+        <div class="use-case-card reveal">
+          <div class="use-case-label">YouTube Creators</div>
+          <h3>Research and inspiration for your next video</h3>
+          <p>Study what's working in your niche. Snip hook structures, formats, and angles. Build a swipe file of the best content your competitors and inspirations are making — organized and searchable.</p>
+        </div>
+        <div class="use-case-card reveal">
+          <div class="use-case-label">Newsletter Writers</div>
+          <h3>Curate and quote from video content</h3>
+          <p>YouTube has experts saying interesting things every day. Milton lets you capture those moments with exact quotes and citations — your newsletter has a richer, more varied source of material.</p>
+        </div>
+        <div class="use-case-card reveal">
+          <div class="use-case-label">Podcast Hosts</div>
+          <h3>Research guests and build talking points</h3>
+          <p>Watch interviews your guest has given. Snip their best ideas, their controversial positions, the stories they tell. Show up to interviews knowing more than they expect.</p>
+        </div>
+        <div class="use-case-card reveal">
+          <div class="use-case-label">Course Creators</div>
+          <h3>Build curriculum from the best of YouTube</h3>
+          <p>Save expert explanations, demonstrations, and case studies. Build a searchable library of the best content in your subject area — and actually remember what's in it.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="pricing bg-gray" id="pricing">
+    <div class="container">
+      <div class="reveal" style="text-align:center;">
+        <span class="section-label">Pricing</span>
+        <h2>One Plan. Everything Included.</h2>
+        <p class="section-subtitle" style="margin:12px auto 0;">Less than a coffee a month. Build your idea bank today.</p>
+      </div>
+      <div class="pricing-card reveal">
+        <div class="pricing-badge">7-Day Free Trial</div>
+        <h3>Milton</h3>
+        <div class="pricing-amount">
+          <span class="pricing-dollar">$</span>
+          <span class="pricing-number">10</span>
+          <span class="pricing-period">/month</span>
+        </div>
+        <p class="pricing-desc">Everything. No feature gating.</p>
+        <ul class="pricing-features">
+          <li>Unlimited video saves and snipping</li>
+          <li>AI summaries and context on every snip</li>
+          <li>Tags and topic collections</li>
+          <li>Full searchable library and transcripts</li>
+          <li>Chat with any saved video</li>
+          <li>Weekly digest email</li>
+          <li>Works on any browser, no extension</li>
+        </ul>
+        <a href="https://miltonapp.co" class="btn btn-primary btn-arrow" style="width:100%;display:flex;">Start your free trial</a>
+        <p class="pricing-note">No credit card required. Cancel anytime.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="bg-dark">
+    <section class="footer-cta">
+      <div class="container">
+        <div class="reveal">
+          <h2>Never Lose a Good Idea Again.</h2>
+          <p>Seven days free. No credit card. Start building the idea bank your creative work deserves.</p>
+          <a href="https://miltonapp.co" class="btn btn-white btn-arrow">Try Milton free for 7 days</a>
+        </div>
+      </div>
+    </section>
+    <footer class="footer" role="contentinfo">
+      <div class="container">
+        <div class="footer-inner">
+          <div class="footer-logo">milton</div>
+          <ul class="footer-links">
+            <li><a href="https://miltonapp.co#features">Features</a></li>
+            <li><a href="https://miltonapp.co#pricing">Pricing</a></li>
+            <li><a href="https://miltonapp.co/login">Log in</a></li>
+          </ul>
+          <p class="footer-copy">&copy; 2026 Milton. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+  <script>
+    (function(){
+      'use strict';
+      window.addEventListener('load', function(){ var p=document.getElementById('preloader'); if(p) setTimeout(function(){p.classList.add('hidden');},800); });
+      gsap.registerPlugin(ScrollTrigger);
+      gsap.utils.toArray('.reveal').forEach(function(el){ gsap.fromTo(el,{opacity:0,y:40},{opacity:1,y:0,duration:0.7,ease:'power3.out',scrollTrigger:{trigger:el,start:'top 88%',once:true}}); });
+      gsap.utils.toArray('.reveal-left').forEach(function(el){ gsap.fromTo(el,{opacity:0,x:-40},{opacity:1,x:0,duration:0.7,ease:'power3.out',scrollTrigger:{trigger:el,start:'top 88%',once:true}}); });
+      gsap.utils.toArray('.reveal-right').forEach(function(el){ gsap.fromTo(el,{opacity:0,x:40},{opacity:1,x:0,duration:0.7,ease:'power3.out',scrollTrigger:{trigger:el,start:'top 88%',once:true}}); });
+      var hamburger=document.getElementById('hamburger'), mobileMenu=document.getElementById('mobileMenu');
+      if(hamburger) hamburger.addEventListener('click', function(){ hamburger.classList.toggle('active'); mobileMenu.classList.toggle('active'); hamburger.setAttribute('aria-expanded', mobileMenu.classList.contains('active')); });
+      document.querySelectorAll('a[href^="#"]').forEach(function(a){ a.addEventListener('click',function(e){var el=document.querySelector(this.getAttribute('href'));if(el){e.preventDefault();el.scrollIntoView({behavior:'smooth'});}}); });
+    }());
+  </script>
+</body>
+</html>

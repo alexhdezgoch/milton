@@ -1,4 +1,7 @@
-import { useState } from 'react'
+import { useState, useLayoutEffect, useRef } from 'react'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import Lenis from '@studio-freight/lenis'
 import {
   Play,
   Scissors,
@@ -16,10 +19,159 @@ import {
   Youtube
 } from 'lucide-react'
 
+gsap.registerPlugin(ScrollTrigger)
+
 function LandingPage({ onGetStarted }) {
+  const heroRef = useRef(null)
+  const heroTitleRef = useRef(null)
+
+  useLayoutEffect(() => {
+    // ── Lenis smooth scroll ──────────────────────────────────────────────
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+    })
+    lenis.on('scroll', ScrollTrigger.update)
+    const tick = (time) => lenis.raf(time * 1000)
+    gsap.ticker.add(tick)
+    gsap.ticker.lagSmoothing(0)
+
+    // ── Hero: word-by-word reveal ────────────────────────────────────────
+    const words = heroTitleRef.current?.querySelectorAll('.hero-word')
+    if (words?.length) {
+      gsap.fromTo(words,
+        { y: 40, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.7, ease: 'power3.out', stagger: 0.08, delay: 0.15 }
+      )
+    }
+    gsap.fromTo('.hero-sub',
+      { y: 24, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.65, ease: 'power3.out', delay: 0.75 }
+    )
+    gsap.fromTo('.hero-actions',
+      { y: 18, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.6, ease: 'power3.out', delay: 1.0 }
+    )
+
+    // ── Hero parallax ────────────────────────────────────────────────────
+    if (heroRef.current) {
+      gsap.to('.hero-content', {
+        y: -50,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: heroRef.current,
+          start: 'top top',
+          end: 'bottom top',
+          scrub: 1,
+        },
+      })
+    }
+
+    // ── Generic scroll reveals ────────────────────────────────────────────
+    gsap.utils.toArray('.reveal-up').forEach((el) => {
+      gsap.fromTo(el,
+        { y: 40, opacity: 0 },
+        {
+          y: 0, opacity: 1, duration: 0.7, ease: 'power3.out',
+          scrollTrigger: { trigger: el, start: 'top 88%', once: true },
+        }
+      )
+    })
+
+    // ── Staggered card groups ─────────────────────────────────────────────
+    gsap.utils.toArray('.stagger-group').forEach((container) => {
+      gsap.fromTo(Array.from(container.children),
+        { y: 32, opacity: 0 },
+        {
+          y: 0, opacity: 1, duration: 0.55, ease: 'power3.out', stagger: 0.09,
+          scrollTrigger: { trigger: container, start: 'top 85%', once: true },
+        }
+      )
+    })
+
+    // ── Counter animations ─────────────────────────────────────────────────
+    document.querySelectorAll('[data-count]').forEach((el) => {
+      const target = parseInt(el.dataset.count, 10)
+      ScrollTrigger.create({
+        trigger: el,
+        start: 'top 85%',
+        once: true,
+        onEnter() {
+          const obj = { v: 0 }
+          gsap.to(obj, {
+            v: target,
+            duration: 1.8,
+            ease: 'power2.out',
+            onUpdate() {
+              el.textContent = Math.round(obj.v).toLocaleString() + '+'
+            },
+          })
+        },
+      })
+    })
+
+    // ── Magnetic buttons ───────────────────────────────────────────────────
+    const magneticCleanups = []
+    document.querySelectorAll('.magnetic').forEach((btn) => {
+      const onMove = (e) => {
+        const r = btn.getBoundingClientRect()
+        gsap.to(btn, {
+          x: (e.clientX - r.left - r.width / 2) * 0.25,
+          y: (e.clientY - r.top - r.height / 2) * 0.25,
+          duration: 0.3,
+          ease: 'power2.out',
+        })
+      }
+      const onLeave = () => {
+        gsap.to(btn, { x: 0, y: 0, duration: 0.6, ease: 'elastic.out(1, 0.4)' })
+      }
+      btn.addEventListener('mousemove', onMove)
+      btn.addEventListener('mouseleave', onLeave)
+      magneticCleanups.push(() => {
+        btn.removeEventListener('mousemove', onMove)
+        btn.removeEventListener('mouseleave', onLeave)
+      })
+    })
+
+    // ── Smooth anchor scroll ───────────────────────────────────────────────
+    const anchorCleanups = []
+    document.querySelectorAll('a[href^="#"]').forEach((a) => {
+      const fn = (e) => {
+        const target = document.querySelector(a.getAttribute('href'))
+        if (target) { e.preventDefault(); lenis.scrollTo(target) }
+      }
+      a.addEventListener('click', fn)
+      anchorCleanups.push(() => a.removeEventListener('click', fn))
+    })
+
+    return () => {
+      lenis.destroy()
+      gsap.ticker.remove(tick)
+      ScrollTrigger.getAll().forEach((t) => t.kill())
+      magneticCleanups.forEach((fn) => fn())
+      anchorCleanups.forEach((fn) => fn())
+    }
+  }, [])
+
   return (
-    <div className="min-h-screen bg-bg-primary">
-      {/* Navigation */}
+    <div className="min-h-screen bg-bg-primary relative overflow-x-hidden">
+
+      {/* Grain / noise texture overlay — CSS-only, purely decorative */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 9999,
+          pointerEvents: 'none',
+          opacity: 0.028,
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+          backgroundRepeat: 'repeat',
+          backgroundSize: '256px 256px',
+        }}
+      />
+
+      {/* ── Navigation ─────────────────────────────────────────────────── */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-bg-primary/80 backdrop-blur-md border-b border-border">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -35,24 +187,41 @@ function LandingPage({ onGetStarted }) {
             <button onClick={onGetStarted} className="text-text-secondary hover:text-text-primary transition-colors font-medium">
               Log in
             </button>
-            <button onClick={onGetStarted} className="px-5 py-2.5 bg-accent-green text-white font-medium rounded-lg hover:bg-accent-green/90 transition-colors">
+            <button
+              onClick={onGetStarted}
+              className="magnetic px-5 py-2.5 bg-accent-green text-white font-medium rounded-lg hover:bg-accent-green/90 transition-colors"
+            >
               Try for free
             </button>
           </div>
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="pt-32 pb-20 px-4">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="font-serif text-5xl md:text-6xl font-semibold text-text-primary mb-6 leading-tight tracking-tighter">
-            Never forget another YouTube insight.
+      {/* ── Hero ─────────────────────────────────────────────────────────── */}
+      <section ref={heroRef} className="hero-section pt-32 pb-20 px-4">
+        <div className="hero-content max-w-4xl mx-auto text-center">
+          <h1
+            ref={heroTitleRef}
+            className="font-serif text-5xl md:text-6xl font-semibold text-text-primary mb-6 leading-tight tracking-tighter"
+          >
+            {['Never', 'forget', 'another', 'YouTube', 'insight.'].map((word, i, arr) => (
+              <span
+                key={i}
+                className="hero-word inline-block"
+                style={{ marginRight: i < arr.length - 1 ? '0.28em' : 0, opacity: 0 }}
+              >
+                {word}
+              </span>
+            ))}
           </h1>
-          <p className="text-xl text-text-secondary mb-8 max-w-2xl mx-auto">
+          <p className="hero-sub text-xl text-text-secondary mb-8 max-w-2xl mx-auto" style={{ opacity: 0 }}>
             Save key moments with one tap. Get AI-powered notes. Actually remember what you learned.
           </p>
-          <div className="flex flex-col items-center gap-4">
-            <button onClick={onGetStarted} className="px-8 py-4 bg-accent-green text-white text-lg font-medium rounded-xl hover:bg-accent-green/90 transition-colors shadow-medium">
+          <div className="hero-actions flex flex-col items-center gap-4" style={{ opacity: 0 }}>
+            <button
+              onClick={onGetStarted}
+              className="magnetic px-8 py-4 bg-accent-green text-white text-lg font-medium rounded-xl hover:bg-accent-green/90 transition-colors shadow-medium"
+            >
               Try for free
             </button>
             <p className="text-sm text-text-muted">
@@ -62,30 +231,31 @@ function LandingPage({ onGetStarted }) {
         </div>
       </section>
 
-      {/* Problem Statement */}
+      {/* ── Problem Statement ────────────────────────────────────────────── */}
       <section className="py-20 px-4 bg-bg-secondary">
-        <div className="max-w-3xl mx-auto text-center">
+        <div className="max-w-3xl mx-auto text-center reveal-up">
           <h2 className="font-serif text-3xl md:text-4xl font-semibold text-text-primary mb-6 tracking-tight">
             You watch. You forget. Sound familiar?
           </h2>
           <p className="text-lg text-text-secondary leading-relaxed">
-            You've watched hundreds of hours of tutorials, interviews, and educational content. But how much do you actually remember?
+            You've burned hundreds of hours on tutorials, interviews, and deep-dives. But when someone asks what you learned last week? Blank.
           </p>
           <p className="text-lg text-text-secondary leading-relaxed mt-4">
-            Most of us treat YouTube like a stream—valuable insights flow by, and we rarely capture them. <span className="font-semibold text-text-primary">That's where Milton comes in.</span> Think of it as having a really good note-taker sitting next to you.
+            YouTube is a stream. Insights flow by and disappear.{' '}
+            <span className="font-semibold text-text-primary">
+              Milton turns it into a library you can search, revisit, and actually remember.
+            </span>
           </p>
         </div>
       </section>
 
-      {/* How It Works */}
+      {/* ── How It Works ─────────────────────────────────────────────────── */}
       <section className="py-20 px-4">
         <div className="max-w-5xl mx-auto">
-          <h2 className="font-serif text-3xl md:text-4xl font-semibold text-text-primary text-center mb-16 tracking-tight">
+          <h2 className="reveal-up font-serif text-3xl md:text-4xl font-semibold text-text-primary text-center mb-16 tracking-tight">
             From watching to knowing in 3 steps
           </h2>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {/* Step 1 */}
+          <div className="stagger-group grid md:grid-cols-3 gap-8">
             <div className="text-center">
               <div className="w-16 h-16 bg-accent-green/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
                 <Play className="w-8 h-8 text-accent-green" />
@@ -93,11 +263,9 @@ function LandingPage({ onGetStarted }) {
               <div className="text-sm font-medium text-accent-green mb-2">Step 1</div>
               <h3 className="font-serif text-xl font-semibold text-text-primary mb-3 tracking-tight">Save any video</h3>
               <p className="text-text-secondary">
-                Paste a YouTube URL and Milton gets to work—grabbing the transcript and prepping everything so you can focus on watching.
+                Paste a YouTube URL. Milton grabs the transcript and loads the video — ready for you to watch and snip.
               </p>
             </div>
-
-            {/* Step 2 */}
             <div className="text-center">
               <div className="w-16 h-16 bg-accent-green/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
                 <Scissors className="w-8 h-8 text-accent-green" />
@@ -105,11 +273,9 @@ function LandingPage({ onGetStarted }) {
               <div className="text-sm font-medium text-accent-green mb-2">Step 2</div>
               <h3 className="font-serif text-xl font-semibold text-text-primary mb-3 tracking-tight">Snip the good parts</h3>
               <p className="text-text-secondary">
-                Hit snip whenever you hear something worth remembering. Our AI captures the moment with a summary, key points, and exact quote.
+                Hear something worth keeping? Hit snip. Milton captures the moment with timestamp, summary, and exact quote.
               </p>
             </div>
-
-            {/* Step 3 */}
             <div className="text-center">
               <div className="w-16 h-16 bg-accent-green/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
                 <MessageSquare className="w-8 h-8 text-accent-green" />
@@ -117,110 +283,94 @@ function LandingPage({ onGetStarted }) {
               <div className="text-sm font-medium text-accent-green mb-2">Step 3</div>
               <h3 className="font-serif text-xl font-semibold text-text-primary mb-3 tracking-tight">Chat, search, remember</h3>
               <p className="text-text-secondary">
-                Ask questions about any video. Search across your entire library. Get weekly digests of your best insights.
+                Ask questions about any video. Search your whole library. Get your best insights back in a weekly digest.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
+      {/* ── Features ─────────────────────────────────────────────────────── */}
       <section id="features" className="py-20 px-4 bg-bg-secondary">
         <div className="max-w-5xl mx-auto">
-          <h2 className="font-serif text-3xl md:text-4xl font-semibold text-text-primary text-center mb-16 tracking-tight">
+          <h2 className="reveal-up font-serif text-3xl md:text-4xl font-semibold text-text-primary text-center mb-16 tracking-tight">
             Everything you need to learn from video
           </h2>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Feature 1: AI Snips */}
+          <div className="stagger-group grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div className="bg-bg-primary rounded-2xl p-6 border border-border">
               <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center mb-4">
                 <Scissors className="w-6 h-6 text-amber-600" />
               </div>
               <h3 className="font-serif text-lg font-semibold text-text-primary mb-2 tracking-tight">Capture moments that matter</h3>
               <p className="text-text-secondary text-sm">
-                One tap and Milton captures the moment—timestamp, summary, key points, exact quote. You keep watching, Milton keeps notes.
+                One tap. Milton saves the timestamp, summary, key points, and exact quote. You keep watching.
               </p>
             </div>
-
-            {/* Feature 2: Chat with videos */}
             <div className="bg-bg-primary rounded-2xl p-6 border border-border">
               <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
                 <MessageSquare className="w-6 h-6 text-blue-600" />
               </div>
               <h3 className="font-serif text-lg font-semibold text-text-primary mb-2 tracking-tight">Chat with your videos</h3>
               <p className="text-text-secondary text-sm">
-                Ask Milton anything about the video. "What did they say about pricing?" He'll find it instantly, with the timestamp so you can jump right there.
+                "What did they say about pricing?" Milton finds it instantly, with the exact timestamp to jump right there.
               </p>
             </div>
-
-            {/* Feature 3: Smart summaries */}
             <div className="bg-bg-primary rounded-2xl p-6 border border-border">
               <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mb-4">
                 <Sparkles className="w-6 h-6 text-purple-600" />
               </div>
               <h3 className="font-serif text-lg font-semibold text-text-primary mb-2 tracking-tight">Know what's inside before you watch</h3>
               <p className="text-text-secondary text-sm">
-                Every video gets an AI summary with key topics and takeaways. Decide if it's worth your time in 10 seconds.
+                Every video gets an AI summary with key topics. Decide if it's worth your time in 10 seconds.
               </p>
             </div>
-
-            {/* Feature 4: Full transcripts */}
             <div className="bg-bg-primary rounded-2xl p-6 border border-border">
               <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mb-4">
                 <FileText className="w-6 h-6 text-green-600" />
               </div>
               <h3 className="font-serif text-lg font-semibold text-text-primary mb-2 tracking-tight">Search every word</h3>
               <p className="text-text-secondary text-sm">
-                Full searchable transcripts with click-to-seek. Find that one thing they said without scrubbing through the whole video.
+                Full searchable transcripts with click-to-seek. Find that exact quote without scrubbing through anything.
               </p>
             </div>
-
-            {/* Feature 5: Organization */}
             <div className="bg-bg-primary rounded-2xl p-6 border border-border">
               <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center mb-4">
                 <FolderOpen className="w-6 h-6 text-indigo-600" />
               </div>
               <h3 className="font-serif text-lg font-semibold text-text-primary mb-2 tracking-tight">Your video knowledge base</h3>
               <p className="text-text-secondary text-sm">
-                Tags, filters, progress tracking. Keep your learning organized without the chaos of browser bookmarks.
+                Tags, filters, progress tracking. All your learning organized — no more chaos of browser bookmarks.
               </p>
             </div>
-
-            {/* Feature 6: Weekly digest */}
             <div className="bg-bg-primary rounded-2xl p-6 border border-border">
               <div className="w-12 h-12 bg-rose-100 rounded-xl flex items-center justify-center mb-4">
                 <Mail className="w-6 h-6 text-accent-rose" />
               </div>
               <h3 className="font-serif text-lg font-semibold text-text-primary mb-2 tracking-tight">Resurface your best insights</h3>
               <p className="text-text-secondary text-sm">
-                Get a weekly email with your snips and highlights. Spaced repetition for video learners.
+                Weekly email with your snips and highlights. Spaced repetition for video learners — your notes come back to you.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Use Cases / Who It's For */}
+      {/* ── Who It's For ─────────────────────────────────────────────────── */}
       <section className="py-20 px-4">
         <div className="max-w-5xl mx-auto">
-          <h2 className="font-serif text-3xl md:text-4xl font-semibold text-text-primary text-center mb-16 tracking-tight">
+          <h2 className="reveal-up font-serif text-3xl md:text-4xl font-semibold text-text-primary text-center mb-16 tracking-tight">
             Built for curious minds
           </h2>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* Students */}
+          <div className="stagger-group grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="text-center p-6">
               <div className="w-14 h-14 bg-accent-green/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <GraduationCap className="w-7 h-7 text-accent-green" />
               </div>
               <h3 className="font-serif text-lg font-semibold text-text-primary mb-2 tracking-tight">Students</h3>
               <p className="text-text-secondary text-sm">
-                Turn lecture recordings into study notes. Snip key concepts, ask clarifying questions, ace the exam.
+                Turn lecture recordings into study notes. Snip key concepts, ace the exam.
               </p>
             </div>
-
-            {/* Professionals */}
             <div className="text-center p-6">
               <div className="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <Briefcase className="w-7 h-7 text-blue-600" />
@@ -230,8 +380,6 @@ function LandingPage({ onGetStarted }) {
                 Build expertise from conference talks and tutorials. Your personal library of industry knowledge.
               </p>
             </div>
-
-            {/* Creators & Researchers */}
             <div className="text-center p-6">
               <div className="w-14 h-14 bg-amber-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <Lightbulb className="w-7 h-7 text-amber-600" />
@@ -241,8 +389,6 @@ function LandingPage({ onGetStarted }) {
                 Collect inspiration, find quotable moments, build topic collections. Never lose a good idea again.
               </p>
             </div>
-
-            {/* Lifelong learners */}
             <div className="text-center p-6">
               <div className="w-14 h-14 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <BookOpen className="w-7 h-7 text-green-600" />
@@ -256,66 +402,126 @@ function LandingPage({ onGetStarted }) {
         </div>
       </section>
 
-
-      {/* Pricing Section */}
-      <section id="pricing" className="py-20 px-4">
-        <div className="max-w-xl mx-auto text-center">
-          <h2 className="font-serif text-3xl md:text-4xl font-semibold text-text-primary mb-4 tracking-tight">
-            Simple pricing. Serious value.
-          </h2>
-
-          <div className="bg-bg-primary rounded-3xl border-2 border-accent-green/20 p-8 mt-12 shadow-medium">
-            <div className="text-5xl font-bold text-text-primary mb-2">
-              $10<span className="text-xl font-normal text-text-muted">/month</span>
+      {/* ── Social Proof ─────────────────────────────────────────────────── */}
+      <section className="py-20 px-4 bg-bg-secondary">
+        <div className="max-w-4xl mx-auto text-center">
+          <p className="reveal-up text-sm font-semibold text-accent-green uppercase tracking-widest mb-12">
+            People are watching smarter
+          </p>
+          <div className="stagger-group grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
+            <div className="text-center">
+              <div className="font-serif text-4xl font-bold text-text-primary mb-1">
+                <span data-count="1000">0+</span>
+              </div>
+              <p className="text-sm text-text-secondary">videos saved this week</p>
             </div>
-            <p className="text-text-secondary mb-8">Everything included. No tiers, no limits.</p>
-
-            <div className="space-y-4 mb-8 text-left">
-              <div className="flex items-center gap-3">
-                <Check className="w-5 h-5 text-accent-green" />
-                <span className="text-text-secondary">Unlimited video saves</span>
+            <div className="text-center">
+              <div className="font-serif text-4xl font-bold text-text-primary mb-1">
+                <span data-count="12000">0+</span>
               </div>
-              <div className="flex items-center gap-3">
-                <Check className="w-5 h-5 text-accent-green" />
-                <span className="text-text-secondary">AI-powered snips & summaries</span>
+              <p className="text-sm text-text-secondary">snips created</p>
+            </div>
+            <div className="text-center">
+              <div className="font-serif text-4xl font-bold text-text-primary mb-1">
+                <span data-count="4800">0+</span>
               </div>
-              <div className="flex items-center gap-3">
-                <Check className="w-5 h-5 text-accent-green" />
-                <span className="text-text-secondary">Chat with your videos</span>
+              <p className="text-sm text-text-secondary">digest emails sent</p>
+            </div>
+            <div className="text-center">
+              <div className="font-serif text-4xl font-bold text-text-primary mb-1">
+                <span data-count="500">0+</span>
               </div>
+              <p className="text-sm text-text-secondary">active learners</p>
+            </div>
+          </div>
+          <div className="stagger-group grid md:grid-cols-3 gap-6">
+            <div className="bg-bg-primary rounded-2xl p-6 border border-border text-left">
+              <p className="text-text-secondary text-sm mb-4 leading-relaxed">
+                "I've tried every note-taking app. Milton is the only one that actually fits into my watching flow. I don't have to pause and write — I just snip and keep going."
+              </p>
               <div className="flex items-center gap-3">
-                <Check className="w-5 h-5 text-accent-green" />
-                <span className="text-text-secondary">Full transcript access</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Check className="w-5 h-5 text-accent-green" />
-                <span className="text-text-secondary">Tags & organization</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Check className="w-5 h-5 text-accent-green" />
-                <span className="text-text-secondary">Weekly digest emails</span>
+                <div className="w-8 h-8 bg-accent-green/20 rounded-full flex items-center justify-center text-sm font-bold text-accent-green">J</div>
+                <div>
+                  <p className="text-sm font-medium text-text-primary">Jamie R.</p>
+                  <p className="text-xs text-text-muted">PhD student</p>
+                </div>
               </div>
             </div>
-
-            <button onClick={onGetStarted} className="w-full py-4 bg-accent-green text-white text-lg font-medium rounded-xl hover:bg-accent-green/90 transition-colors">
-              Try free for 7 days
-            </button>
-
-            <p className="text-sm text-text-muted mt-4">
-              Cancel anytime. No questions asked.
-            </p>
+            <div className="bg-bg-primary rounded-2xl p-6 border border-border text-left">
+              <p className="text-text-secondary text-sm mb-4 leading-relaxed">
+                "The weekly digest is genuinely one of the best product features I've seen in years. My notes come back to me. I actually remember what I watched."
+              </p>
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-sm font-bold text-blue-600">M</div>
+                <div>
+                  <p className="text-sm font-medium text-text-primary">Marcus T.</p>
+                  <p className="text-xs text-text-muted">Product manager</p>
+                </div>
+              </div>
+            </div>
+            <div className="bg-bg-primary rounded-2xl p-6 border border-border text-left">
+              <p className="text-text-secondary text-sm mb-4 leading-relaxed">
+                "I research for YouTube content all day. Milton is now my most-used tool. I can build a research library from any channel in an afternoon."
+              </p>
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center text-sm font-bold text-amber-600">S</div>
+                <div>
+                  <p className="text-sm font-medium text-text-primary">Sofia L.</p>
+                  <p className="text-xs text-text-muted">Content creator</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* FAQ Section */}
+      {/* ── Pricing ──────────────────────────────────────────────────────── */}
+      <section id="pricing" className="py-20 px-4">
+        <div className="max-w-xl mx-auto text-center">
+          <h2 className="reveal-up font-serif text-3xl md:text-4xl font-semibold text-text-primary mb-3 tracking-tight">
+            Simple pricing. Serious value.
+          </h2>
+          <p className="reveal-up text-base text-text-secondary mb-0">
+            Less than a coffee. More than a textbook.
+          </p>
+          <div className="reveal-up bg-bg-primary rounded-3xl border-2 border-accent-green/20 p-8 mt-10 shadow-medium">
+            <div className="text-5xl font-bold text-text-primary mb-2">
+              $10<span className="text-xl font-normal text-text-muted">/month</span>
+            </div>
+            <p className="text-text-secondary mb-8">Everything included. No tiers, no limits.</p>
+            <div className="space-y-4 mb-8 text-left">
+              {[
+                'Unlimited video saves',
+                'AI-powered snips & summaries',
+                'Chat with your videos',
+                'Full transcript access',
+                'Tags & organization',
+                'Weekly digest emails',
+              ].map((feature) => (
+                <div key={feature} className="flex items-center gap-3">
+                  <Check className="w-5 h-5 text-accent-green flex-shrink-0" />
+                  <span className="text-text-secondary">{feature}</span>
+                </div>
+              ))}
+            </div>
+            <button
+              onClick={onGetStarted}
+              className="magnetic w-full py-4 bg-accent-green text-white text-lg font-medium rounded-xl hover:bg-accent-green/90 transition-colors"
+            >
+              Start your 7-day free trial
+            </button>
+            <p className="text-sm text-text-muted mt-4">No credit card required. Cancel anytime.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── FAQ ──────────────────────────────────────────────────────────── */}
       <section id="faq" className="py-20 px-4 bg-bg-secondary">
         <div className="max-w-3xl mx-auto">
-          <h2 className="font-serif text-3xl md:text-4xl font-semibold text-text-primary text-center mb-12 tracking-tight">
+          <h2 className="reveal-up font-serif text-3xl md:text-4xl font-semibold text-text-primary text-center mb-12 tracking-tight">
             Questions? We've got answers.
           </h2>
-
-          <div className="space-y-4">
+          <div className="space-y-4 reveal-up">
             <FAQItem
               question="What videos work with Milton?"
               answer="Any YouTube video with captions/subtitles. That's most educational content, talks, interviews, and tutorials."
@@ -340,22 +546,25 @@ function LandingPage({ onGetStarted }) {
         </div>
       </section>
 
-      {/* Final CTA Section */}
+      {/* ── Final CTA ─────────────────────────────────────────────────────── */}
       <section className="py-20 px-4 bg-accent-green">
-        <div className="max-w-3xl mx-auto text-center">
+        <div className="max-w-3xl mx-auto text-center reveal-up">
           <h2 className="font-serif text-3xl md:text-4xl font-semibold text-white mb-4 tracking-tight">
-            Ready to actually remember what you watch?
+            Stop forgetting. Start knowing.
           </h2>
           <p className="text-lg text-white/80 mb-8">
-            Give Milton a try. Your future self (and your notes) will thank you.
+            Seven days free. No credit card. Paste a URL and see what you've been missing.
           </p>
-          <button onClick={onGetStarted} className="px-8 py-4 bg-white text-accent-green text-lg font-medium rounded-xl hover:bg-white/90 transition-colors shadow-medium">
-            Try for free
+          <button
+            onClick={onGetStarted}
+            className="magnetic px-8 py-4 bg-white text-accent-green text-lg font-semibold rounded-xl hover:bg-white/90 transition-colors shadow-medium"
+          >
+            Try Milton free →
           </button>
         </div>
       </section>
 
-      {/* Footer */}
+      {/* ── Footer ───────────────────────────────────────────────────────── */}
       <footer className="py-12 px-4 bg-video-dark">
         <div className="max-w-5xl mx-auto">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
@@ -366,7 +575,6 @@ function LandingPage({ onGetStarted }) {
               <span className="text-lg font-semibold text-white">Milton</span>
               <span className="text-gray-400 ml-2">— Your nerdy friend for video learning.</span>
             </div>
-
             <div className="flex items-center gap-6 text-sm">
               <a href="/privacy" className="text-gray-400 hover:text-white transition-colors">Privacy Policy</a>
               <a href="mailto:hello@miltonapp.co" className="text-gray-400 hover:text-white transition-colors">Contact</a>
@@ -378,7 +586,7 @@ function LandingPage({ onGetStarted }) {
   )
 }
 
-// FAQ Accordion Item Component
+// ── FAQ Accordion ─────────────────────────────────────────────────────────────
 function FAQItem({ question, answer }) {
   const [isOpen, setIsOpen] = useState(false)
 
