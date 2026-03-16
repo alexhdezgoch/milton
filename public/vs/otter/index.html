@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Otter.ai Alternative for YouTube: Active Notes vs Auto-Transcription</title>
+  <meta name="description" content="Looking for an Otter.ai alternative for YouTube learning? Milton lets you choose what matters, not auto-transcribe everything. Weekly digest, video chat, no extension. Free 7-day trial." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://miltonapp.co/vs/otter" />
+  <meta property="og:title" content="Otter.ai Alternative for YouTube: Active Notes vs Auto-Transcription" />
+  <meta property="og:description" content="Looking for an Otter.ai alternative for YouTube learning? Milton lets you choose what matters, not auto-transcribe everything. Weekly digest, video chat, no extension. Free 7-day trial." />
+  <meta property="og:url" content="https://miltonapp.co/vs/otter" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Milton" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How is Milton different from Otter.ai?","acceptedAnswer":{"@type":"Answer","text":"Otter.ai is built for meetings. Milton is built for YouTube learning. You watch, snip the moments that matter, and Milton wraps each one with AI context, timestamp, and exact quote."}},{"@type":"Question","name":"Does Milton auto-transcribe like Otter?","acceptedAnswer":{"@type":"Answer","text":"Yes — every YouTube video gets a full searchable transcript. But you also get active snipping, weekly digest, and video chat."}}]}</script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--emerald:#10B981;--emerald-light:#34D399;--emerald-dark:#064E3B;--white:#FFFFFF;--gray-50:#F9FAFB;--gray-100:#F3F4F6;--gray-200:#E5E7EB;--gray-300:#D1D5DB;--gray-400:#9CA3AF;--gray-500:#6B7280;--gray-600:#4B5563;--gray-700:#374151;--gray-800:#1F2937;--near-black:#111827;--shadow-md:0 4px 6px -1px rgba(0,0,0,0.07),0 2px 4px -2px rgba(0,0,0,0.05);--shadow-lg:0 10px 15px -3px rgba(0,0,0,0.08),0 4px 6px -4px rgba(0,0,0,0.04)}
+    html{scroll-behavior:smooth}
+    body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;color:var(--near-black);background:var(--white);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+    .preloader{position:fixed;inset:0;z-index:9999;background:var(--white);display:flex;align-items:center;justify-content:center;transition:opacity 0.4s ease,visibility 0.4s ease}
+    .preloader.hidden{opacity:0;visibility:hidden;pointer-events:none}
+    .preloader-logo{font-size:2rem;font-weight:800;color:var(--emerald);letter-spacing:-0.03em;animation:pulse 1s ease-in-out infinite alternate}
+    @keyframes pulse{from{opacity:0.4;transform:scale(0.96)}to{opacity:1;transform:scale(1)}}
+    .nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(255,255,255,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--gray-200)}
+    .nav-inner{max-width:1200px;margin:0 auto;padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between}
+    .nav-logo{font-size:1.5rem;font-weight:800;color:var(--emerald);text-decoration:none;letter-spacing:-0.03em}
+    .nav-links{display:flex;align-items:center;gap:32px;list-style:none}
+    .nav-links a{color:var(--gray-600);text-decoration:none;font-size:0.9375rem;font-weight:500;transition:color 0.2s}
+    .nav-links a:hover{color:var(--near-black)}
+    .nav-cta{display:inline-flex;align-items:center;padding:9px 20px;background:var(--emerald);color:var(--white)!important;border-radius:8px;font-weight:600;font-size:0.9375rem;transition:background 0.2s,transform 0.15s;text-decoration:none}
+    .nav-cta:hover{background:var(--emerald-light);transform:translateY(-1px)}
+    .hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:4px;z-index:1001}
+    .hamburger span{display:block;width:24px;height:2px;background:var(--near-black);border-radius:2px;transition:transform 0.3s,opacity 0.3s}
+    .hamburger.active span:nth-child(1){transform:rotate(45deg) translate(5px,5px)}
+    .hamburger.active span:nth-child(2){opacity:0}
+    .hamburger.active span:nth-child(3){transform:rotate(-45deg) translate(5px,-5px)}
+    .mobile-menu{display:none;position:fixed;inset:0;top:64px;background:var(--white);z-index:999;padding:32px 24px;flex-direction:column;gap:24px}
+    .mobile-menu.active{display:flex}
+    .mobile-menu a{color:var(--near-black);text-decoration:none;font-size:1.125rem;font-weight:500;padding:8px 0;border-bottom:1px solid var(--gray-100)}
+    .container{max-width:1200px;margin:0 auto;padding:0 24px}
+    .container--narrow{max-width:800px}
+    section{padding:96px 0}
+    .bg-white{background:var(--white)}
+    .bg-gray{background:var(--gray-50)}
+    .bg-dark{background:var(--emerald-dark);color:var(--white)}
+    h1,h2,h3,h4{letter-spacing:-0.025em;line-height:1.2}
+    h1{font-size:clamp(2.25rem,5vw,3.5rem);font-weight:800}
+    h2{font-size:clamp(1.75rem,3.5vw,2.5rem);font-weight:700}
+    h3{font-size:1.375rem;font-weight:700}
+    .section-label{display:inline-block;font-size:0.8125rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--emerald);margin-bottom:12px}
+    .section-subtitle{font-size:clamp(1.0625rem,2vw,1.25rem);color:var(--gray-500);max-width:640px;line-height:1.6}
+    .reveal{opacity:0;transform:translateY(32px)}
+    .reveal-left{opacity:0;transform:translateX(-32px)}
+    .reveal-right{opacity:0;transform:translateX(32px)}
+    .hero{padding-top:140px;padding-bottom:80px;text-align:center}
+    .hero h1{margin-bottom:24px}
+    .hero h1 .accent{color:var(--emerald)}
+    .hero-desc{font-size:clamp(1.0625rem,2vw,1.25rem);color:var(--gray-500);max-width:620px;margin:0 auto 40px;line-height:1.7}
+    .hero-cta-group{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 28px;border-radius:10px;font-size:1rem;font-weight:600;text-decoration:none;transition:all 0.2s;cursor:pointer;border:none}
+    .btn-primary{background:var(--emerald);color:var(--white);box-shadow:0 2px 8px rgba(16,185,129,0.25)}
+    .btn-primary:hover{background:#0EA472;box-shadow:0 4px 16px rgba(16,185,129,0.35);transform:translateY(-2px)}
+    .btn-secondary{background:var(--white);color:var(--near-black);border:1.5px solid var(--gray-200)}
+    .btn-secondary:hover{border-color:var(--gray-300);background:var(--gray-50);transform:translateY(-2px)}
+    .btn-white{background:var(--white);color:var(--emerald-dark);box-shadow:0 2px 8px rgba(0,0,0,0.1)}
+    .btn-white:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,0.15)}
+    .btn-arrow::after{content:'\2192';transition:transform 0.2s}
+    .btn-arrow:hover::after{transform:translateX(3px)}
+    .intro{text-align:center}
+    .intro-text{font-size:clamp(1.0625rem,2vw,1.1875rem);color:var(--gray-600);max-width:680px;margin:0 auto;line-height:1.8}
+    .intro-text strong{color:var(--near-black)}
+    .intro-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:48px}
+    .intro-card{background:var(--white);border:1px solid var(--gray-200);border-radius:12px;padding:32px 24px;text-align:left}
+    .intro-card-icon{width:48px;height:48px;background:rgba(16,185,129,0.1);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:16px}
+    .intro-card h3{font-size:1.125rem;margin-bottom:8px}
+    .intro-card p{font-size:0.9375rem;color:var(--gray-500);line-height:1.6}
+    .comparison{text-align:center}
+    .table-wrap{margin-top:48px;border-radius:16px;overflow:hidden;border:1px solid var(--gray-200);background:var(--white);box-shadow:var(--shadow-lg)}
+    .comp-table{width:100%;border-collapse:collapse;text-align:left}
+    .comp-table thead th{padding:20px 24px;font-size:0.9375rem;font-weight:700;background:var(--gray-50);border-bottom:2px solid var(--gray-200)}
+    .comp-table thead th:nth-child(2){text-align:center;color:var(--emerald)}
+    .comp-table thead th:nth-child(3){text-align:center;color:var(--gray-500)}
+    .comp-table tbody td{padding:18px 24px;font-size:0.9375rem;border-bottom:1px solid var(--gray-100);vertical-align:middle}
+    .comp-table tbody td:first-child{font-weight:500}
+    .comp-table tbody td:nth-child(2),.comp-table tbody td:nth-child(3){text-align:center;color:var(--gray-600)}
+    .comp-table tbody tr:last-child td{border-bottom:none}
+    .comp-table tbody tr:hover{background:var(--gray-50)}
+    .check{color:var(--emerald);font-weight:700;font-size:1.25rem}
+    .cross{color:var(--gray-300);font-size:1.25rem}
+    .highlight-row{background:rgba(16,185,129,0.04)}
+    .feature-dive{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;padding:64px 0}
+    .feature-dive:not(:last-child){border-bottom:1px solid var(--gray-200)}
+    .feature-dive.reversed{direction:rtl}
+    .feature-dive.reversed>*{direction:ltr}
+    .feature-content h3{font-size:clamp(1.5rem,2.5vw,1.875rem);margin-bottom:16px;font-weight:700}
+    .feature-content p{font-size:1.0625rem;color:var(--gray-600);line-height:1.7;margin-bottom:12px}
+    .feature-highlight{display:flex;align-items:flex-start;gap:12px;margin-top:20px;padding:16px;background:rgba(16,185,129,0.06);border-radius:10px;border:1px solid rgba(16,185,129,0.12)}
+    .feature-highlight-icon{flex-shrink:0;width:24px;height:24px;background:var(--emerald);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--white);font-size:0.75rem;font-weight:700;margin-top:2px}
+    .feature-highlight p{font-size:0.9375rem;color:var(--near-black);margin-bottom:0}
+    .feature-visual{background:var(--gray-50);border:1px solid var(--gray-200);border-radius:16px;padding:40px;display:flex;align-items:center;justify-content:center;min-height:280px}
+    .pricing{text-align:center}
+    .pricing-card{max-width:480px;margin:48px auto 0;background:var(--white);border:2px solid var(--emerald);border-radius:20px;padding:48px 40px;box-shadow:0 8px 30px rgba(16,185,129,0.12);position:relative}
+    .pricing-badge{position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:var(--emerald);color:var(--white);font-size:0.8125rem;font-weight:700;padding:6px 20px;border-radius:100px;white-space:nowrap}
+    .pricing-amount{display:flex;align-items:baseline;justify-content:center;gap:4px;margin:16px 0}
+    .pricing-dollar{font-size:1.5rem;font-weight:700}
+    .pricing-number{font-size:4rem;font-weight:800;line-height:1;letter-spacing:-0.03em}
+    .pricing-period{font-size:1.125rem;color:var(--gray-500);font-weight:500}
+    .pricing-desc{color:var(--gray-500);font-size:1rem;margin-bottom:32px}
+    .pricing-features{list-style:none;text-align:left;margin-bottom:32px}
+    .pricing-features li{display:flex;align-items:center;gap:12px;padding:10px 0;font-size:0.9375rem;color:var(--gray-700);border-bottom:1px solid var(--gray-100)}
+    .pricing-features li:last-child{border-bottom:none}
+    .pricing-features li::before{content:'\2713';color:var(--emerald);font-weight:700;font-size:1rem;flex-shrink:0}
+    .pricing-note{font-size:0.875rem;color:var(--gray-400);margin-top:16px}
+    .faq{text-align:center}
+    .faq-list{max-width:720px;margin:48px auto 0;text-align:left}
+    .faq-item{border-bottom:1px solid var(--gray-200)}
+    .faq-question{width:100%;background:none;border:none;padding:24px 0;font-size:1.0625rem;font-weight:600;color:var(--near-black);text-align:left;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:16px;font-family:'Inter',sans-serif;line-height:1.4}
+    .faq-question:hover{color:var(--emerald)}
+    .faq-icon{flex-shrink:0;width:24px;height:24px;border-radius:50%;border:1.5px solid var(--gray-300);display:flex;align-items:center;justify-content:center;font-size:1.125rem;color:var(--gray-400);transition:transform 0.3s,border-color 0.3s}
+    .faq-item.active .faq-icon{transform:rotate(45deg);border-color:var(--emerald);color:var(--emerald)}
+    .faq-answer{max-height:0;overflow:hidden;transition:max-height 0.4s}
+    .faq-item.active .faq-answer{max-height:300px}
+    .faq-answer p{padding:0 0 24px;font-size:1rem;color:var(--gray-600);line-height:1.7}
+    .footer-cta{padding:96px 0;text-align:center}
+    .footer-cta h2{color:var(--white);margin-bottom:16px}
+    .footer-cta p{color:rgba(255,255,255,0.7);font-size:1.125rem;max-width:520px;margin:0 auto 40px;line-height:1.7}
+    .footer{padding:32px 0}
+    .footer-inner{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+    .footer-logo{font-size:1.25rem;font-weight:800;color:var(--white);letter-spacing:-0.03em}
+    .footer-copy{font-size:0.875rem;color:rgba(255,255,255,0.5)}
+    .footer-links{display:flex;gap:24px;list-style:none}
+    .footer-links a{font-size:0.875rem;color:rgba(255,255,255,0.6);text-decoration:none;transition:color 0.2s}
+    .footer-links a:hover{color:var(--white)}
+    /* Blog-specific */
+    .article-body{max-width:720px;margin:0 auto;font-size:1.0625rem;color:var(--gray-700);line-height:1.8}
+    .article-body h2{font-size:1.75rem;margin:48px 0 16px;color:var(--near-black)}
+    .article-body h3{font-size:1.25rem;margin:32px 0 12px;color:var(--near-black)}
+    .article-body p{margin-bottom:20px}
+    .article-body ul,.article-body ol{margin:16px 0 20px 24px}
+    .article-body li{margin-bottom:8px}
+    .article-body strong{color:var(--near-black)}
+    .article-body .callout{background:rgba(16,185,129,0.06);border-left:3px solid var(--emerald);border-radius:0 8px 8px 0;padding:20px 24px;margin:32px 0}
+    .article-body .callout p{margin-bottom:0}
+    .article-cta{background:var(--gray-50);border:1px solid var(--gray-200);border-radius:16px;padding:32px;text-align:center;margin:48px 0}
+    .article-cta h3{font-size:1.25rem;margin-bottom:8px}
+    .article-cta p{color:var(--gray-500);margin-bottom:20px}
+    @media(max-width:900px){.intro-cards{grid-template-columns:1fr}.feature-dive{grid-template-columns:1fr;gap:40px}.feature-dive.reversed{direction:ltr}.feature-visual{order:-1;min-height:220px}}
+    @media(max-width:768px){.nav-links{display:none}.hamburger{display:flex}section{padding:64px 0}.hero{padding-top:120px;padding-bottom:56px}.pricing-card{padding:40px 24px}.footer-inner{flex-direction:column;text-align:center}.footer-links{justify-content:center}.table-wrap{overflow-x:auto}}
+    @media(max-width:480px){.hero-cta-group{flex-direction:column;width:100%}.hero-cta-group .btn{width:100%}}
+</style>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-YK9X313Q2L"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-YK9X313Q2L');</script>
+</head>
+<body>
+  <div class="preloader" id="preloader" aria-hidden="true"><div class="preloader-logo">milton</div></div>
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <div class="nav-inner">
+      <a href="https://miltonapp.co" class="nav-logo">milton</a>
+      <ul class="nav-links">
+        <li><a href="https://miltonapp.co#features">Features</a></li>
+        <li><a href="https://miltonapp.co#pricing">Pricing</a></li>
+        <li><a href="https://miltonapp.co/login">Log in</a></li>
+        <li><a href="https://miltonapp.co" class="nav-cta">Try for free</a></li>
+      </ul>
+      <button class="hamburger" id="hamburger" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button>
+    </div>
+    <div class="mobile-menu" id="mobileMenu" role="menu">
+      <a href="https://miltonapp.co#features">Features</a>
+      <a href="https://miltonapp.co#pricing">Pricing</a>
+      <a href="https://miltonapp.co/login">Log in</a>
+      <a href="https://miltonapp.co" class="nav-cta">Try for free</a>
+    </div>
+  </nav>
+  <section class="hero bg-white"><div class="container"><div class="reveal">
+    <span class="section-label">Milton vs Otter.ai</span>
+    <h1>Otter is for Meetings. <span class="accent">Milton is for Learning.</span></h1>
+    <p class="hero-desc">Otter auto-transcribes everything. Milton lets you choose what matters. Great tools — very different jobs. Here's when you need Milton instead.</p>
+    <div class="hero-cta-group"><a href="https://miltonapp.co" class="btn btn-primary btn-arrow">Start your free trial</a><a href="#comparison" class="btn btn-secondary">See the comparison</a></div>
+  </div></div></section>
+  <section class="intro bg-gray"><div class="container"><div class="reveal">
+    <span class="section-label">The Difference</span>
+    <h2>Active Learning vs Passive Transcription</h2>
+    <p class="intro-text" style="margin-top:16px;">Otter is designed for meetings — it listens to everything and produces a full transcript. That's exactly what you need for a call. But for YouTube? <strong>Auto-transcribing a 90-minute deep-dive leaves you with a wall of text you'll never read.</strong> Milton takes a different approach: you watch, you decide what matters, you snip — and Milton captures that moment with AI context.</p>
+  </div>
+  <div class="intro-cards">
+    <div class="intro-card reveal"><div class="intro-card-icon">✂️</div><h3>You Choose What Matters</h3><p>Otter captures everything. Milton captures what you tell it to capture. Active selection builds deeper memory — that's the generation effect.</p></div>
+    <div class="intro-card reveal"><div class="intro-card-icon">📧</div><h3>Weekly Digest</h3><p>Otter doesn't resurface your notes. Milton sends a weekly email with your best snips, timestamps, and AI takeaways. Your notes work for you over time.</p></div>
+    <div class="intro-card reveal"><div class="intro-card-icon">💬</div><h3>Chat With Your Videos</h3><p>After saving a video in Milton, ask it anything. "What did they say about pricing?" Milton finds the moment. Otter's AI is focused on meeting follow-ups.</p></div>
+  </div></div></section>
+  <section class="comparison bg-white" id="comparison"><div class="container"><div class="reveal">
+    <span class="section-label">Feature Comparison</span>
+    <h2>Milton vs Otter.ai</h2>
+    <p class="section-subtitle" style="margin:12px auto 0;">For YouTube learning specifically — not meetings.</p>
+  </div><div class="table-wrap reveal"><table class="comp-table">
+    <thead><tr><th>Feature</th><th>Milton</th><th>Otter.ai</th></tr></thead>
+    <tbody>
+      <tr class="highlight-row"><td>Built for YouTube</td><td><span class="check">&#10003;</span></td><td><span class="cross">&#10005;</span></td></tr>
+      <tr><td>Active snipping (you choose)</td><td><span class="check">&#10003;</span></td><td><span class="cross">&#10005;</span></td></tr>
+      <tr class="highlight-row"><td>Weekly digest / spaced repetition</td><td><span class="check">&#10003;</span></td><td><span class="cross">&#10005;</span></td></tr>
+      <tr><td>Chat with video</td><td><span class="check">&#10003;</span></td><td>Meeting-focused</td></tr>
+      <tr class="highlight-row"><td>Full transcripts</td><td><span class="check">&#10003;</span></td><td><span class="check">&#10003;</span></td></tr>
+      <tr><td>No extension required</td><td><span class="check">&#10003;</span></td><td><span class="check">&#10003;</span></td></tr>
+      <tr class="highlight-row"><td>Searchable library</td><td><span class="check">&#10003;</span></td><td>Limited</td></tr>
+      <tr><td>Pricing</td><td><span class="check">&#10003;</span> $10/mo</td><td>Free + paid tiers</td></tr>
+    </tbody>
+  </table></div></div></section><section class="faq bg-gray" id="faq"><div class="container"><div class="reveal"><span class="section-label">FAQ</span><h2>Questions You Probably Have</h2></div><div class="faq-list reveal"><div class="faq-item"><button class="faq-question" aria-expanded="false"><span>How is Milton different from Otter.ai?</span><span class="faq-icon" aria-hidden="true">+</span></button><div class="faq-answer" role="region"><p>Otter.ai is built for meetings — it auto-transcribes everything and works great for Zoom calls. Milton is built for YouTube learning. You watch, you snip the moments that matter, and Milton wraps each one with AI context, timestamp, and exact quote. Different tools for different jobs.</p></div></div><div class="faq-item"><button class="faq-question" aria-expanded="false"><span>Does Milton auto-transcribe like Otter?</span><span class="faq-icon" aria-hidden="true">+</span></button><div class="faq-answer" role="region"><p>Yes — every YouTube video you save gets a full searchable transcript automatically. But unlike Otter, you also get active snipping, a weekly digest that resurfaces your notes, and the ability to chat with your videos.</p></div></div><div class="faq-item"><button class="faq-question" aria-expanded="false"><span>Can I use Milton and Otter together?</span><span class="faq-icon" aria-hidden="true">+</span></button><div class="faq-answer" role="region"><p>Absolutely. Otter for your meetings, Milton for your YouTube learning. They don't overlap. Milton is the only tool built specifically for extracting and retaining knowledge from YouTube video.</p></div></div><div class="faq-item"><button class="faq-question" aria-expanded="false"><span>How much does Milton cost?</span><span class="faq-icon" aria-hidden="true">+</span></button><div class="faq-answer" role="region"><p>$10/month flat. Everything included — unlimited snipping, AI summaries, weekly digest, video chat, full transcripts. 7-day free trial, no credit card required.</p></div></div></div></div></section>
+  <section class="pricing bg-white" id="pricing">
+    <div class="container">
+      <div class="reveal">
+        <span class="section-label">Pricing</span>
+        <h2>One Plan. Everything Included.</h2>
+        <p class="section-subtitle" style="margin:12px auto 0;">Less than a coffee a month. No tiers, no feature gating.</p>
+      </div>
+      <div class="pricing-card reveal">
+        <div class="pricing-badge">7-Day Free Trial</div>
+        <h3>Milton</h3>
+        <div class="pricing-amount"><span class="pricing-dollar">$</span><span class="pricing-number">10</span><span class="pricing-period">/month</span></div>
+        <p class="pricing-desc">Everything. No asterisks.</p>
+        <ul class="pricing-features">
+          <li>Unlimited video saves and snipping</li>
+          <li>AI summaries on every snip</li>
+          <li>Weekly digest email</li>
+          <li>Chat with your videos</li>
+          <li>Full searchable transcripts</li>
+          <li>Works on any browser, no extension</li>
+        </ul>
+        <a href="https://miltonapp.co" class="btn btn-primary btn-arrow" style="width:100%;display:flex;">Start your free trial</a>
+        <p class="pricing-note">No credit card required. Cancel anytime.</p>
+      </div>
+    </div>
+  </section>
+  <div class="bg-dark">
+    <section class="footer-cta">
+      <div class="container">
+        <div class="reveal">
+          <h2>Meetings Are Otter's Job. YouTube Learning Is Milton's.</h2>
+          <p>Seven days free. No credit card. Paste a URL and start capturing the moments that actually matter.</p>
+          <a href="https://miltonapp.co" class="btn btn-white btn-arrow">Try Milton free for 7 days</a>
+        </div>
+      </div>
+    </section>
+    <footer class="footer" role="contentinfo">
+      <div class="container">
+        <div class="footer-inner">
+          <div class="footer-logo">milton</div>
+          <ul class="footer-links">
+            <li><a href="https://miltonapp.co#features">Features</a></li>
+            <li><a href="https://miltonapp.co#pricing">Pricing</a></li>
+            <li><a href="https://miltonapp.co/login">Log in</a></li>
+          </ul>
+          <p class="footer-copy">&copy; 2026 Milton. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+<script>
+(function(){
+  'use strict';
+  window.addEventListener('load',function(){var p=document.getElementById('preloader');if(p)setTimeout(function(){p.classList.add('hidden');},800);});
+  gsap.registerPlugin(ScrollTrigger);
+  gsap.utils.toArray('.reveal').forEach(function(el){gsap.fromTo(el,{opacity:0,y:40},{opacity:1,y:0,duration:0.7,ease:'power3.out',scrollTrigger:{trigger:el,start:'top 88%',once:true}});});
+  gsap.utils.toArray('.reveal-left').forEach(function(el){gsap.fromTo(el,{opacity:0,x:-40},{opacity:1,x:0,duration:0.7,ease:'power3.out',scrollTrigger:{trigger:el,start:'top 88%',once:true}});});
+  gsap.utils.toArray('.reveal-right').forEach(function(el){gsap.fromTo(el,{opacity:0,x:40},{opacity:1,x:0,duration:0.7,ease:'power3.out',scrollTrigger:{trigger:el,start:'top 88%',once:true}});});
+  document.querySelectorAll('.faq-item').forEach(function(item){
+    var btn=item.querySelector('.faq-question');
+    if(btn)btn.addEventListener('click',function(){
+      var isActive=item.classList.contains('active');
+      document.querySelectorAll('.faq-item').forEach(function(f){f.classList.remove('active');var b=f.querySelector('.faq-question');if(b)b.setAttribute('aria-expanded','false');});
+      if(!isActive){item.classList.add('active');if(btn)btn.setAttribute('aria-expanded','true');}
+    });
+  });
+  var hamburger=document.getElementById('hamburger'),mobileMenu=document.getElementById('mobileMenu');
+  if(hamburger)hamburger.addEventListener('click',function(){hamburger.classList.toggle('active');mobileMenu.classList.toggle('active');hamburger.setAttribute('aria-expanded',mobileMenu.classList.contains('active'));});
+  document.querySelectorAll('a[href^="#"]').forEach(function(a){a.addEventListener('click',function(e){var el=document.querySelector(this.getAttribute('href'));if(el){e.preventDefault();el.scrollIntoView({behavior:'smooth'});}});});
+}());
+</script>
+</body>
+</html>

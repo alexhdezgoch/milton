@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Snipd Alternative: YouTube Notes That Go Beyond Podcasts</title>
+  <meta name="description" content="Snipd is built for podcasts. Milton is built for YouTube. If you learn from video, Milton gives you active snipping, weekly digest, and video chat. Free 7-day trial." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://miltonapp.co/vs/snipd" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Snipd Alternative: YouTube Notes That Go Beyond Podcasts" />
+  <meta property="og:description" content="Snipd is built for podcasts. Milton is built for YouTube. If you learn from video, Milton gives you active snipping, weekly digest, and video chat. Free 7-day trial." />
+  <meta property="og:url" content="https://miltonapp.co/vs/snipd" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Milton" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- FAQ Schema -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Does Snipd work with YouTube?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. Snipd is a podcast app and only supports podcast RSS feeds. It is an excellent tool for podcast listeners who want AI summaries and smart clipping, but it does not support YouTube videos at all. For YouTube note-taking, Milton is built specifically for that use case."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is Milton similar to Snipd?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes in philosophy — both tools let you clip the moments that matter so you can actually retain what you learned. But Milton is for YouTube while Snipd is for podcasts. They are genuinely complementary tools for different media types. If you consume both formats heavily, you might use both. If your primary learning medium is YouTube, Milton is the right fit."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I take notes on YouTube videos like I do on podcasts with Snipd?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, that is exactly what Milton is built for. Paste any YouTube URL into Milton, watch the video inside the app, and hit Snip when something matters. Milton captures the timestamp, a thumbnail frame, and the transcript context — the visual equivalent of what Snipd does for audio moments."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does Milton have a weekly digest like Snipd's review features?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. Every week Milton emails you a curated summary of your recent snips — with timestamps, quotes, and AI takeaways from the videos you watched. It is designed to resurface what you learned at just the right time, turning passive watching into actual retained knowledge."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <!-- Google Analytics 4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-YK9X313Q2L"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-YK9X313Q2L');
+  </script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --emerald: #10B981; --emerald-light: #34D399; --emerald-dark: #064E3B;
+      --white: #FFFFFF; --gray-50: #F9FAFB; --gray-100: #F3F4F6; --gray-200: #E5E7EB;
+      --gray-300: #D1D5DB; --gray-400: #9CA3AF; --gray-500: #6B7280; --gray-600: #4B5563;
+      --gray-700: #374151; --gray-800: #1F2937; --near-black: #111827;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.04);
+      --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.08), 0 8px 10px -6px rgba(0,0,0,0.04);
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; color: var(--near-black); background: var(--white); line-height: 1.6; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; overflow-x: hidden; }
+    .preloader { position: fixed; inset: 0; z-index: 9999; background: var(--white); display: flex; align-items: center; justify-content: center; transition: opacity 0.4s ease, visibility 0.4s ease; }
+    .preloader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+    .preloader-logo { font-size: 2rem; font-weight: 800; color: var(--emerald); letter-spacing: -0.03em; animation: preloaderPulse 1s ease-in-out infinite alternate; }
+    @keyframes preloaderPulse { from { opacity: 0.4; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
+    .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: rgba(255,255,255,0.92); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--gray-200); transition: transform 0.3s ease; }
+    .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; height: 64px; display: flex; align-items: center; justify-content: space-between; }
+    .nav-logo { font-size: 1.5rem; font-weight: 800; color: var(--emerald); text-decoration: none; letter-spacing: -0.03em; }
+    .nav-links { display: flex; align-items: center; gap: 32px; list-style: none; }
+    .nav-links a { color: var(--gray-600); text-decoration: none; font-size: 0.9375rem; font-weight: 500; transition: color 0.2s ease; }
+    .nav-links a:hover { color: var(--near-black); }
+    .nav-cta { display: inline-flex; align-items: center; padding: 9px 20px; background: var(--emerald); color: var(--white) !important; border-radius: 8px; font-weight: 600; font-size: 0.9375rem; transition: background 0.2s ease, transform 0.15s ease; text-decoration: none; }
+    .nav-cta:hover { background: var(--emerald-light); color: var(--white) !important; transform: translateY(-1px); }
+    .hamburger { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 4px; z-index: 1001; }
+    .hamburger span { display: block; width: 24px; height: 2px; background: var(--near-black); border-radius: 2px; transition: transform 0.3s ease, opacity 0.3s ease; }
+    .hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(5px,5px); }
+    .hamburger.active span:nth-child(2) { opacity: 0; }
+    .hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(5px,-5px); }
+    .mobile-menu { display: none; position: fixed; inset: 0; top: 64px; background: var(--white); z-index: 999; padding: 32px 24px; flex-direction: column; gap: 24px; }
+    .mobile-menu.active { display: flex; }
+    .mobile-menu a { color: var(--near-black); text-decoration: none; font-size: 1.125rem; font-weight: 500; padding: 8px 0; border-bottom: 1px solid var(--gray-100); }
+    .mobile-menu .nav-cta { text-align: center; justify-content: center; margin-top: 8px; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+    section { padding: 96px 0; }
+    .bg-white { background: var(--white); }
+    .bg-gray { background: var(--gray-50); }
+    .bg-dark { background: var(--emerald-dark); color: var(--white); }
+    h1, h2, h3, h4 { letter-spacing: -0.025em; line-height: 1.2; }
+    h1 { font-size: clamp(2.25rem, 5vw, 3.5rem); font-weight: 800; }
+    h2 { font-size: clamp(1.75rem, 3.5vw, 2.5rem); font-weight: 700; }
+    h3 { font-size: 1.375rem; font-weight: 700; }
+    .section-label { display: inline-block; font-size: 0.8125rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--emerald); margin-bottom: 12px; }
+    .section-subtitle { font-size: clamp(1.0625rem, 2vw, 1.25rem); color: var(--gray-500); max-width: 640px; line-height: 1.6; }
+    .reveal { opacity: 0; transform: translateY(32px); }
+    .reveal-left { opacity: 0; transform: translateX(-32px); }
+    .reveal-right { opacity: 0; transform: translateX(32px); }
+    .hero { padding-top: 140px; padding-bottom: 80px; text-align: center; }
+    .hero h1 { margin-bottom: 24px; }
+    .hero h1 .accent { color: var(--emerald); }
+    .hero-desc { font-size: clamp(1.0625rem, 2vw, 1.25rem); color: var(--gray-500); max-width: 620px; margin: 0 auto 40px; line-height: 1.7; }
+    .hero-cta-group { display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 28px; border-radius: 10px; font-size: 1rem; font-weight: 600; text-decoration: none; transition: all 0.2s ease; cursor: pointer; border: none; position: relative; overflow: hidden; }
+    .btn-primary { background: var(--emerald); color: var(--white); box-shadow: 0 2px 8px rgba(16,185,129,0.25); }
+    .btn-primary:hover { background: #0EA472; box-shadow: 0 4px 16px rgba(16,185,129,0.35); transform: translateY(-2px); }
+    .btn-secondary { background: var(--white); color: var(--near-black); border: 1.5px solid var(--gray-200); }
+    .btn-secondary:hover { border-color: var(--gray-300); background: var(--gray-50); transform: translateY(-2px); }
+    .btn-white { background: var(--white); color: var(--emerald-dark); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .btn-white:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
+    .btn-arrow::after { content: '\2192'; transition: transform 0.2s ease; }
+    .btn-arrow:hover::after { transform: translateX(3px); }
+    .magnetic-btn { transition: transform 0.15s ease-out; }
+    .intro { text-align: center; }
+    .intro-text { font-size: clamp(1.0625rem, 2vw, 1.1875rem); color: var(--gray-600); max-width: 680px; margin: 0 auto; line-height: 1.8; }
+    .intro-text strong { color: var(--near-black); }
+    .intro-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 48px; }
+    .intro-card { background: var(--white); border: 1px solid var(--gray-200); border-radius: 12px; padding: 32px 24px; text-align: left; }
+    .intro-card-icon { width: 48px; height: 48px; background: rgba(16,185,129,0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 16px; }
+    .intro-card h3 { font-size: 1.125rem; margin-bottom: 8px; }
+    .intro-card p { font-size: 0.9375rem; color: var(--gray-500); line-height: 1.6; }
+    .comparison { text-align: center; }
+    .table-wrap { margin-top: 48px; border-radius: 16px; overflow: hidden; border: 1px solid var(--gray-200); background: var(--white); box-shadow: var(--shadow-lg); }
+    .comp-table { width: 100%; border-collapse: collapse; text-align: left; }
+    .comp-table thead th { padding: 20px 24px; font-size: 0.9375rem; font-weight: 700; background: var(--gray-50); border-bottom: 2px solid var(--gray-200); }
+    .comp-table thead th:first-child { text-align: left; }
+    .comp-table thead th:nth-child(2) { text-align: center; color: var(--emerald); }
+    .comp-table thead th:nth-child(3) { text-align: center; color: var(--gray-500); }
+    .comp-table tbody td { padding: 18px 24px; font-size: 0.9375rem; border-bottom: 1px solid var(--gray-100); vertical-align: middle; }
+    .comp-table tbody td:first-child { font-weight: 500; color: var(--near-black); }
+    .comp-table tbody td:nth-child(2), .comp-table tbody td:nth-child(3) { text-align: center; color: var(--gray-600); }
+    .comp-table tbody tr:last-child td { border-bottom: none; }
+    .comp-table tbody tr:hover { background: var(--gray-50); }
+    .check { color: var(--emerald); font-weight: 700; font-size: 1.25rem; }
+    .cross { color: var(--gray-300); font-size: 1.25rem; }
+    .comp-table .highlight-row { background: rgba(16,185,129,0.04); }
+    .feature-dive { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; padding: 64px 0; }
+    .feature-dive:not(:last-child) { border-bottom: 1px solid var(--gray-200); }
+    .feature-dive.reversed { direction: rtl; }
+    .feature-dive.reversed > * { direction: ltr; }
+    .feature-content h3 { font-size: clamp(1.5rem, 2.5vw, 1.875rem); margin-bottom: 16px; font-weight: 700; }
+    .feature-content p { font-size: 1.0625rem; color: var(--gray-600); line-height: 1.7; margin-bottom: 12px; }
+    .feature-content .feature-highlight { display: flex; align-items: flex-start; gap: 12px; margin-top: 20px; padding: 16px; background: rgba(16,185,129,0.06); border-radius: 10px; border: 1px solid rgba(16,185,129,0.12); }
+    .feature-highlight-icon { flex-shrink: 0; width: 24px; height: 24px; background: var(--emerald); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--white); font-size: 0.75rem; font-weight: 700; margin-top: 2px; }
+    .feature-highlight p { font-size: 0.9375rem; color: var(--near-black); margin-bottom: 0; }
+    .feature-visual { background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: 16px; padding: 40px; display: flex; align-items: center; justify-content: center; min-height: 320px; }
+    .mock-snip-ui { width: 100%; max-width: 280px; }
+    .mock-player { background: var(--near-black); border-radius: 8px; height: 140px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
+    .mock-player-play { width: 40px; height: 40px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .mock-player-play::after { content: ''; width: 0; height: 0; border-top: 8px solid transparent; border-bottom: 8px solid transparent; border-left: 14px solid white; margin-left: 3px; }
+    .mock-snip-btn { background: var(--emerald); color: var(--white); border-radius: 8px; padding: 10px 16px; font-size: 0.8125rem; font-weight: 600; text-align: center; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .mock-snip-btn::before { content: ''; width: 6px; height: 6px; background: var(--white); border-radius: 50%; animation: snipPulse 1.5s ease-in-out infinite; }
+    @keyframes snipPulse { 0%, 100% { opacity: 0.5; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.2); } }
+    .mock-digest { width: 100%; max-width: 260px; background: var(--white); border: 1px solid var(--gray-200); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow-md); }
+    .mock-digest-header { background: var(--emerald); padding: 16px; color: var(--white); font-weight: 700; font-size: 0.875rem; }
+    .mock-digest-body { padding: 16px; }
+    .mock-digest-item { padding: 10px 0; border-bottom: 1px solid var(--gray-100); }
+    .mock-digest-item:last-child { border-bottom: none; }
+    .mock-digest-item-title { font-size: 0.8125rem; font-weight: 600; color: var(--near-black); margin-bottom: 2px; }
+    .mock-digest-item-meta { font-size: 0.6875rem; color: var(--gray-400); }
+    .mock-chat { width: 100%; max-width: 280px; background: var(--white); border: 1px solid var(--gray-200); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow-md); }
+    .mock-chat-header { background: var(--near-black); padding: 12px 16px; color: var(--white); font-weight: 600; font-size: 0.8125rem; }
+    .mock-chat-body { padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+    .mock-chat-msg { padding: 8px 12px; border-radius: 8px; font-size: 0.8125rem; line-height: 1.5; }
+    .mock-chat-msg.user { background: var(--emerald); color: var(--white); margin-left: 24px; }
+    .mock-chat-msg.ai { background: var(--gray-100); color: var(--near-black); margin-right: 24px; }
+    .pricing-card { max-width: 480px; margin: 48px auto 0; background: var(--white); border: 2px solid var(--emerald); border-radius: 20px; padding: 48px 40px; box-shadow: 0 8px 30px rgba(16,185,129,0.12); position: relative; }
+    .pricing-badge { position: absolute; top: -14px; left: 50%; transform: translateX(-50%); background: var(--emerald); color: var(--white); font-size: 0.8125rem; font-weight: 700; padding: 6px 20px; border-radius: 100px; white-space: nowrap; }
+    .pricing-amount { display: flex; align-items: baseline; justify-content: center; gap: 4px; margin: 16px 0; }
+    .pricing-dollar { font-size: 1.5rem; font-weight: 700; color: var(--near-black); }
+    .pricing-number { font-size: 4rem; font-weight: 800; color: var(--near-black); line-height: 1; letter-spacing: -0.03em; }
+    .pricing-period { font-size: 1.125rem; color: var(--gray-500); font-weight: 500; }
+    .pricing-desc { color: var(--gray-500); font-size: 1rem; margin-bottom: 32px; }
+    .pricing-features { list-style: none; text-align: left; margin-bottom: 32px; }
+    .pricing-features li { display: flex; align-items: center; gap: 12px; padding: 10px 0; font-size: 0.9375rem; color: var(--gray-700); border-bottom: 1px solid var(--gray-100); }
+    .pricing-features li:last-child { border-bottom: none; }
+    .pricing-features li::before { content: '\2713'; color: var(--emerald); font-weight: 700; font-size: 1rem; flex-shrink: 0; }
+    .pricing-note { font-size: 0.875rem; color: var(--gray-400); margin-top: 16px; }
+    .faq { text-align: center; }
+    .faq-list { max-width: 720px; margin: 48px auto 0; text-align: left; }
+    .faq-item { border-bottom: 1px solid var(--gray-200); }
+    .faq-question { width: 100%; background: none; border: none; padding: 24px 0; font-size: 1.0625rem; font-weight: 600; color: var(--near-black); text-align: left; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 16px; font-family: 'Inter', sans-serif; line-height: 1.4; }
+    .faq-question:hover { color: var(--emerald); }
+    .faq-icon { flex-shrink: 0; width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid var(--gray-300); display: flex; align-items: center; justify-content: center; font-size: 1.125rem; color: var(--gray-400); transition: transform 0.3s ease, border-color 0.3s ease; }
+    .faq-item.active .faq-icon { transform: rotate(45deg); border-color: var(--emerald); color: var(--emerald); }
+    .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+    .faq-item.active .faq-answer { max-height: 300px; }
+    .faq-answer p { padding: 0 0 24px; font-size: 1rem; color: var(--gray-600); line-height: 1.7; }
+    .footer-cta { padding: 96px 0; text-align: center; }
+    .footer-cta h2 { color: var(--white); margin-bottom: 16px; }
+    .footer-cta p { color: rgba(255,255,255,0.7); font-size: 1.125rem; max-width: 520px; margin: 0 auto 40px; line-height: 1.7; }
+    .footer { padding: 32px 0; text-align: center; }
+    .footer-inner { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+    .footer-logo { font-size: 1.25rem; font-weight: 800; color: var(--white); letter-spacing: -0.03em; }
+    .footer-copy { font-size: 0.875rem; color: rgba(255,255,255,0.5); }
+    .footer-links { display: flex; gap: 24px; list-style: none; }
+    .footer-links a { font-size: 0.875rem; color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s ease; }
+    .footer-links a:hover { color: var(--white); }
+    @media (max-width: 900px) { .intro-cards { grid-template-columns: 1fr; gap: 16px; } .feature-dive { grid-template-columns: 1fr; gap: 40px; } .feature-dive.reversed { direction: ltr; } .feature-visual { order: -1; min-height: 240px; } }
+    @media (max-width: 768px) { .nav-links { display: none; } .hamburger { display: flex; } section { padding: 64px 0; } .hero { padding-top: 120px; padding-bottom: 56px; } .comp-table thead th, .comp-table tbody td { padding: 14px 12px; font-size: 0.8125rem; } .pricing-card { padding: 40px 24px; } .footer-inner { flex-direction: column; text-align: center; } .footer-links { justify-content: center; } .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; } .comp-table { min-width: 480px; } }
+    @media (max-width: 480px) { .hero-cta-group { flex-direction: column; width: 100%; } .hero-cta-group .btn { width: 100%; } }
+  </style>
+</head>
+<body>
+
+  <!-- Preloader -->
+  <div class="preloader" id="preloader">
+    <span class="preloader-logo">milton</span>
+  </div>
+
+  <!-- Nav -->
+  <nav class="nav" id="nav">
+    <div class="nav-inner">
+      <a href="https://miltonapp.co" class="nav-logo">milton</a>
+      <ul class="nav-links">
+        <li><a href="https://miltonapp.co/#features">Features</a></li>
+        <li><a href="https://miltonapp.co/#pricing">Pricing</a></li>
+        <li><a href="https://miltonapp.co/blog">Blog</a></li>
+        <li><a href="https://app.miltonapp.co/signup" class="nav-cta">Try Free</a></li>
+      </ul>
+      <button class="hamburger" id="hamburger" aria-label="Toggle menu" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" id="mobileMenu" role="dialog" aria-label="Mobile navigation">
+    <a href="https://miltonapp.co/#features">Features</a>
+    <a href="https://miltonapp.co/#pricing">Pricing</a>
+    <a href="https://miltonapp.co/blog">Blog</a>
+    <a href="https://app.miltonapp.co/signup" class="nav-cta">Try Free — No Credit Card</a>
+  </div>
+
+  <!-- Hero -->
+  <section class="hero bg-white">
+    <div class="container">
+      <span class="section-label reveal">Milton vs Snipd</span>
+      <h1 class="reveal">Great for Podcasts.<br /><span class="accent">Not Built for YouTube.</span></h1>
+      <p class="hero-desc reveal">Snipd is an excellent podcast tool. But it doesn't support YouTube — at all. If your learning happens on video, Milton is the Snipd for that world.</p>
+      <div class="hero-cta-group reveal">
+        <a href="https://app.miltonapp.co/signup" class="btn btn-primary btn-arrow magnetic-btn">Start Free Trial</a>
+        <a href="#comparison" class="btn btn-secondary magnetic-btn">See Comparison</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Intro -->
+  <section class="intro bg-gray">
+    <div class="container">
+      <span class="section-label reveal">Why Milton for YouTube</span>
+      <h2 class="reveal">Same philosophy, different medium.</h2>
+      <p class="intro-text reveal" style="margin-top: 16px;">Both tools are built on a powerful idea: <strong>clip the moments that matter so you actually remember them.</strong> Snipd owns that for podcasts. Milton owns it for YouTube. If video is where you learn, Milton was built for exactly that.</p>
+      <div class="intro-cards">
+        <div class="intro-card reveal">
+          <div class="intro-card-icon" aria-hidden="true">&#9654;</div>
+          <h3>YouTube Native</h3>
+          <p>Paste any YouTube URL and watch inside Milton. No extension, no setup. Snipd works with podcast RSS feeds — YouTube isn't in its design at all.</p>
+        </div>
+        <div class="intro-card reveal">
+          <div class="intro-card-icon" aria-hidden="true">&#128247;</div>
+          <h3>Visual Context</h3>
+          <p>Video has something audio doesn't: frames. Milton captures timestamps, thumbnail stills, and transcript context when you snip — so you know exactly what you were watching.</p>
+        </div>
+        <div class="intro-card reveal">
+          <div class="intro-card-icon" aria-hidden="true">&#128140;</div>
+          <h3>Weekly Digest</h3>
+          <p>Every week Milton emails you a curated recap of your recent snips with AI takeaways. Spaced repetition built into your inbox — not a feature Snipd offers for video.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Comparison Table -->
+  <section class="comparison bg-white" id="comparison">
+    <div class="container">
+      <span class="section-label reveal">Feature Comparison</span>
+      <h2 class="reveal">Milton vs Snipd</h2>
+      <p class="section-subtitle reveal" style="margin: 12px auto 0;">A direct look at where each tool excels — and where the gap is.</p>
+      <div class="table-wrap reveal">
+        <table class="comp-table" role="table" aria-label="Milton vs Snipd feature comparison">
+          <thead>
+            <tr>
+              <th scope="col">Feature</th>
+              <th scope="col">Milton</th>
+              <th scope="col">Snipd</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="highlight-row">
+              <td>YouTube support</td>
+              <td><span class="check" aria-label="Yes">&#10003;</span></td>
+              <td><span class="cross" aria-label="No">&#10007;</span></td>
+            </tr>
+            <tr>
+              <td>Active video snipping</td>
+              <td><span class="check" aria-label="Yes">&#10003;</span></td>
+              <td><span class="cross" aria-label="No">&#10007;</span></td>
+            </tr>
+            <tr>
+              <td>Visual timestamps &amp; thumbnails</td>
+              <td><span class="check" aria-label="Yes">&#10003;</span></td>
+              <td><span class="cross" aria-label="No">&#10007;</span></td>
+            </tr>
+            <tr>
+              <td>Video chat (Q&amp;A on content)</td>
+              <td><span class="check" aria-label="Yes">&#10003;</span></td>
+              <td><span class="cross" aria-label="No">&#10007;</span></td>
+            </tr>
+            <tr class="highlight-row">
+              <td>Weekly digest email</td>
+              <td><span class="check" aria-label="Yes">&#10003;</span></td>
+              <td><span class="cross" aria-label="No">&#10007;</span></td>
+            </tr>
+            <tr>
+              <td>Searchable snip library</td>
+              <td><span class="check" aria-label="Yes">&#10003;</span></td>
+              <td><span class="check" aria-label="Yes">&#10003;</span></td>
+            </tr>
+            <tr>
+              <td>Works without app or extension</td>
+              <td><span class="check" aria-label="Yes">&#10003;</span></td>
+              <td>App required</td>
+            </tr>
+            <tr>
+              <td>Podcast RSS support</td>
+              <td><span class="cross" aria-label="No">&#10007;</span></td>
+              <td><span class="check" aria-label="Yes">&#10003;</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Feature Deep Dives -->
+  <section class="bg-white">
+    <div class="container">
+      <span class="section-label reveal">Deep Dives</span>
+      <h2 class="reveal">Where the difference really shows</h2>
+
+      <!-- Feature 01: YouTube as a medium -->
+      <div class="feature-dive">
+        <div class="feature-content reveal-left">
+          <span class="section-label">Feature 01</span>
+          <h3>Video is a different medium. It needs a different tool.</h3>
+          <p>Podcasts are linear audio. YouTube is something else entirely — it has visual context, chapter markers, on-screen diagrams, timestamps you can jump to, and searchable transcripts. Snipd is brilliantly optimized for audio. But none of those video-native properties exist in its world.</p>
+          <p>Milton is built around the fact that when you snip a YouTube moment, you're capturing a <em>frame in time</em>, not just an audio clip. The thumbnail, the transcript at that exact second, the chapter context — all of it gets saved together so future-you understands exactly what past-you found important.</p>
+          <div class="feature-highlight">
+            <div class="feature-highlight-icon" aria-hidden="true">&#9654;</div>
+            <p>Paste any YouTube URL. Watch inside Milton. Hit Snip. The visual context is captured automatically — no extra steps.</p>
+          </div>
+        </div>
+        <div class="feature-visual reveal-right">
+          <div class="mock-snip-ui" aria-hidden="true">
+            <div class="mock-player">
+              <div class="mock-player-play"></div>
+            </div>
+            <div style="background: var(--white); border: 1px solid var(--gray-200); border-radius: 8px; padding: 10px 12px; margin-bottom: 10px; font-size: 0.75rem; color: var(--gray-500); display: flex; align-items: center; gap: 8px;">
+              <span style="color: var(--emerald); font-weight: 700;">12:34</span>
+              <span>The key insight here is...</span>
+            </div>
+            <div class="mock-snip-btn">Snip this moment</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feature 02: Video Chat -->
+      <div class="feature-dive reversed">
+        <div class="feature-content reveal-right">
+          <span class="section-label">Feature 02</span>
+          <h3>Ask questions about what you're watching, while watching it.</h3>
+          <p>Snipd has great AI features for podcasts — it can summarize episodes and surface key ideas from your audio library. But there's a category of interaction it simply can't do: talking to a video.</p>
+          <p>Milton's video chat lets you ask questions about the YouTube video you're currently watching. "What did the speaker mean by X?" "Summarize the last 10 minutes." "What frameworks were mentioned?" The answers are grounded in the actual transcript — not hallucinated from general knowledge.</p>
+          <div class="feature-highlight">
+            <div class="feature-highlight-icon" aria-hidden="true">&#10003;</div>
+            <p>Video chat is available on any YouTube video you open in Milton. No setup — just ask.</p>
+          </div>
+        </div>
+        <div class="feature-visual reveal-left">
+          <div class="mock-chat" aria-hidden="true">
+            <div class="mock-chat-header">Ask about this video</div>
+            <div class="mock-chat-body">
+              <div class="mock-chat-msg user">What frameworks did he mention?</div>
+              <div class="mock-chat-msg ai">He covered three: Jobs-to-be-Done at 8:12, the Eisenhower Matrix at 14:40, and second-order thinking starting at 21:05.</div>
+              <div class="mock-chat-msg user">Summarize the main takeaway</div>
+              <div class="mock-chat-msg ai">Prioritization is about saying no to good ideas so you can say yes to great ones — the constraint is attention, not time.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feature 03: Weekly Digest -->
+      <div class="feature-dive">
+        <div class="feature-content reveal-left">
+          <span class="section-label">Feature 03</span>
+          <h3>Your notes come back to you. Every week, without fail.</h3>
+          <p>Snipd has review features for podcasts — you can revisit your snips and it surfaces them over time. That's a strong idea. But it's built entirely around your podcast library. If you watch YouTube, those notes live nowhere in Snipd's ecosystem.</p>
+          <p>Milton's weekly digest is a curated email that lands every week with your best snips from recent videos: the timestamps, the quotes, AI-generated takeaways, and links back to the exact moment in the video. It's spaced repetition without the flashcard friction — your notes resurface in a format you'll actually read.</p>
+          <div class="feature-highlight">
+            <div class="feature-highlight-icon" aria-hidden="true">&#10003;</div>
+            <p>The digest is automatic. Snip as you watch, and Milton handles the rest — no curation required from you.</p>
+          </div>
+        </div>
+        <div class="feature-visual reveal-right">
+          <div class="mock-digest" aria-hidden="true">
+            <div class="mock-digest-header">Your Milton Digest — This Week</div>
+            <div class="mock-digest-body">
+              <div class="mock-digest-item">
+                <div class="mock-digest-item-title">How to Think in Systems</div>
+                <div class="mock-digest-item-meta">3 snips &middot; 14:22, 28:07, 41:55</div>
+              </div>
+              <div class="mock-digest-item">
+                <div class="mock-digest-item-title">The Psychology of Pricing</div>
+                <div class="mock-digest-item-meta">2 snips &middot; 6:14, 19:38</div>
+              </div>
+              <div class="mock-digest-item">
+                <div class="mock-digest-item-title">Why Most Strategies Fail</div>
+                <div class="mock-digest-item-meta">4 snips &middot; 3:22, 11:45, 24:10, 37:02</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section class="bg-gray" id="pricing">
+    <div class="container" style="text-align: center;">
+      <span class="section-label reveal">Pricing</span>
+      <h2 class="reveal">One plan. Everything included.</h2>
+      <p class="section-subtitle reveal" style="margin: 12px auto 0;">Snipd has a free tier and a premium tier around $5/month for podcast features. Milton is $10/month flat — all features, no gating, no tiers.</p>
+      <div class="pricing-card reveal">
+        <span class="pricing-badge">7-Day Free Trial</span>
+        <p style="font-weight: 700; font-size: 1.125rem; color: var(--near-black);">Milton</p>
+        <div class="pricing-amount">
+          <span class="pricing-dollar">$</span>
+          <span class="pricing-number">10</span>
+          <span class="pricing-period">/ month</span>
+        </div>
+        <p class="pricing-desc">Everything you need to actually learn from YouTube. No credit card required to start.</p>
+        <ul class="pricing-features" aria-label="Included features">
+          <li>Unlimited YouTube video snipping</li>
+          <li>Visual timestamps and thumbnail capture</li>
+          <li>Searchable snip library</li>
+          <li>Video chat — ask questions about any video</li>
+          <li>Weekly digest email with AI takeaways</li>
+          <li>Works in any browser, no extension needed</li>
+        </ul>
+        <a href="https://app.miltonapp.co/signup" class="btn btn-primary" style="width: 100%; justify-content: center;" aria-label="Start your free 7-day trial">Start Free Trial</a>
+        <p class="pricing-note">No credit card required. Cancel anytime.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="faq bg-white">
+    <div class="container">
+      <span class="section-label reveal">FAQ</span>
+      <h2 class="reveal">Common questions</h2>
+      <div class="faq-list reveal" role="list">
+
+        <div class="faq-item" role="listitem">
+          <button class="faq-question" aria-expanded="false">
+            Does Snipd work with YouTube?
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-answer" role="region">
+            <p>No. Snipd is a podcast app and only supports podcast RSS feeds. It is an excellent tool for podcast listeners who want AI summaries and smart clipping, but it does not support YouTube videos at all. For YouTube note-taking, Milton is built specifically for that use case.</p>
+          </div>
+        </div>
+
+        <div class="faq-item" role="listitem">
+          <button class="faq-question" aria-expanded="false">
+            Is Milton similar to Snipd?
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-answer" role="region">
+            <p>Yes in philosophy — both tools let you clip the moments that matter so you can actually retain what you learned. But Milton is for YouTube while Snipd is for podcasts. They are genuinely complementary tools for different media types. If you consume both formats heavily, you might use both. If your primary learning medium is YouTube, Milton is the right fit.</p>
+          </div>
+        </div>
+
+        <div class="faq-item" role="listitem">
+          <button class="faq-question" aria-expanded="false">
+            Can I take notes on YouTube videos like I do on podcasts with Snipd?
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-answer" role="region">
+            <p>Yes, that is exactly what Milton is built for. Paste any YouTube URL into Milton, watch the video inside the app, and hit Snip when something matters. Milton captures the timestamp, a thumbnail frame, and the transcript context — the visual equivalent of what Snipd does for audio moments.</p>
+          </div>
+        </div>
+
+        <div class="faq-item" role="listitem">
+          <button class="faq-question" aria-expanded="false">
+            Does Milton have a weekly digest like Snipd's review features?
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-answer" role="region">
+            <p>Yes. Every week Milton emails you a curated summary of your recent snips — with timestamps, quotes, and AI takeaways from the videos you watched. It is designed to resurface what you learned at just the right time, turning passive watching into actual retained knowledge.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer CTA -->
+  <section class="footer-cta bg-dark">
+    <div class="container">
+      <span class="section-label reveal" style="color: var(--emerald-light);">Get Started</span>
+      <h2 class="reveal">Your YouTube library deserves its own tool.</h2>
+      <p class="reveal">Snipd is great for podcasts. Milton is built for the other half of what you learn — video. Start your free trial and snip your first moment in under a minute.</p>
+      <div class="hero-cta-group reveal">
+        <a href="https://app.miltonapp.co/signup" class="btn btn-white btn-arrow magnetic-btn">Try Milton Free for 7 Days</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer bg-dark" style="border-top: 1px solid rgba(255,255,255,0.08);">
+    <div class="container">
+      <div class="footer-inner">
+        <span class="footer-logo">milton</span>
+        <p class="footer-copy">&copy; 2026 Milton. All rights reserved.</p>
+        <ul class="footer-links">
+          <li><a href="https://miltonapp.co/privacy">Privacy</a></li>
+          <li><a href="https://miltonapp.co/terms">Terms</a></li>
+          <li><a href="https://miltonapp.co/vs/glasp">vs Glasp</a></li>
+          <li><a href="https://miltonapp.co/vs/readwise">vs Readwise</a></li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+
+  <!-- GSAP -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+  <script>
+    // Preloader
+    window.addEventListener('load', () => {
+      const preloader = document.getElementById('preloader');
+      setTimeout(() => {
+        preloader.classList.add('hidden');
+      }, 400);
+    });
+
+    // GSAP ScrollTrigger reveals
+    gsap.registerPlugin(ScrollTrigger);
+
+    const revealEls = document.querySelectorAll('.reveal');
+    revealEls.forEach(el => {
+      gsap.to(el, {
+        opacity: 1,
+        y: 0,
+        duration: 0.7,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: el,
+          start: 'top 88%',
+          toggleActions: 'play none none none'
+        }
+      });
+    });
+
+    const revealLeft = document.querySelectorAll('.reveal-left');
+    revealLeft.forEach(el => {
+      gsap.to(el, {
+        opacity: 1,
+        x: 0,
+        duration: 0.7,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: el,
+          start: 'top 88%',
+          toggleActions: 'play none none none'
+        }
+      });
+    });
+
+    const revealRight = document.querySelectorAll('.reveal-right');
+    revealRight.forEach(el => {
+      gsap.to(el, {
+        opacity: 1,
+        x: 0,
+        duration: 0.7,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: el,
+          start: 'top 88%',
+          toggleActions: 'play none none none'
+        }
+      });
+    });
+
+    // Hamburger / mobile menu
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobileMenu');
+
+    hamburger.addEventListener('click', () => {
+      const isOpen = hamburger.classList.toggle('active');
+      mobileMenu.classList.toggle('active');
+      hamburger.setAttribute('aria-expanded', isOpen);
+      document.body.style.overflow = isOpen ? 'hidden' : '';
+    });
+
+    mobileMenu.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        hamburger.classList.remove('active');
+        mobileMenu.classList.remove('active');
+        hamburger.setAttribute('aria-expanded', 'false');
+        document.body.style.overflow = '';
+      });
+    });
+
+    // FAQ accordion
+    document.querySelectorAll('.faq-question').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const item = btn.closest('.faq-item');
+        const isActive = item.classList.contains('active');
+
+        document.querySelectorAll('.faq-item.active').forEach(open => {
+          open.classList.remove('active');
+          open.querySelector('.faq-question').setAttribute('aria-expanded', 'false');
+        });
+
+        if (!isActive) {
+          item.classList.add('active');
+          btn.setAttribute('aria-expanded', 'true');
+        }
+      });
+    });
+
+    // Magnetic buttons
+    document.querySelectorAll('.magnetic-btn').forEach(btn => {
+      btn.addEventListener('mousemove', (e) => {
+        const rect = btn.getBoundingClientRect();
+        const x = e.clientX - rect.left - rect.width / 2;
+        const y = e.clientY - rect.top - rect.height / 2;
+        gsap.to(btn, { x: x * 0.18, y: y * 0.18, duration: 0.2, ease: 'power2.out' });
+      });
+      btn.addEventListener('mouseleave', () => {
+        gsap.to(btn, { x: 0, y: 0, duration: 0.4, ease: 'elastic.out(1, 0.4)' });
+      });
+    });
+
+    // Nav hide/show on scroll
+    let lastScroll = 0;
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      const current = window.scrollY;
+      if (current > lastScroll && current > 120) {
+        nav.style.transform = 'translateY(-100%)';
+      } else {
+        nav.style.transform = 'translateY(0)';
+      }
+      lastScroll = current;
+    }, { passive: true });
+  </script>
+
+</body>
+</html>
