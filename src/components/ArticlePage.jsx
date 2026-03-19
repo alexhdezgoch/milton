@@ -217,6 +217,45 @@ export default function ArticlePage({ slug, routeType, onGetStarted }) {
             />
           </article>
 
+          {/* Internal links for /for/ pages */}
+          {article.routeType === 'for' && (
+            <div className="mt-12 p-6 bg-bg-secondary rounded-2xl border border-border">
+              <h3 className="font-semibold text-text-primary mb-4 text-sm uppercase tracking-wide">Explore Milton</h3>
+              <ul className="space-y-3 text-sm">
+                <li>
+                  <a href="/youtube-note-taking-app" className="text-accent-green hover:underline font-medium">
+                    → Milton: The YouTube Note-Taking App
+                  </a>
+                  <span className="text-text-muted ml-2">— Full overview of features & pricing</span>
+                </li>
+                <li>
+                  <a href="/blog/best-youtube-note-taking-app" className="text-accent-green hover:underline font-medium">
+                    → Best YouTube Note-Taking Apps (2026 Comparison)
+                  </a>
+                  <span className="text-text-muted ml-2">— How Milton stacks up against the alternatives</span>
+                </li>
+                <li>
+                  <a href="/blog/active-recall-youtube" className="text-accent-green hover:underline font-medium">
+                    → Active Recall for YouTube Learning
+                  </a>
+                  <span className="text-text-muted ml-2">— The science of retaining what you watch</span>
+                </li>
+                <li>
+                  <a href="/blog/how-to-learn-youtube" className="text-accent-green hover:underline font-medium">
+                    → How to Learn Effectively from YouTube
+                  </a>
+                  <span className="text-text-muted ml-2">— Systems and strategies for serious learners</span>
+                </li>
+                <li>
+                  <a href="/for" className="text-accent-green hover:underline font-medium">
+                    → More use cases
+                  </a>
+                  <span className="text-text-muted ml-2">— See how different learners use Milton</span>
+                </li>
+              </ul>
+            </div>
+          )}
+
           {/* CTA */}
           <div className="mt-16 p-8 bg-bg-secondary rounded-2xl border border-border text-center">
             <div className="w-12 h-12 bg-accent-green rounded-xl flex items-center justify-center mx-auto mb-4">

@@ -25,6 +25,49 @@ function LandingPage({ onGetStarted }) {
   const heroRef = useRef(null)
   const heroTitleRef = useRef(null)
 
+  // Inject FAQPage schema for SEO
+  useState(() => {
+    const schema = {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What videos work with Milton?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Any YouTube video with captions/subtitles. That's most educational content, talks, interviews, and tutorials." }
+        },
+        {
+          "@type": "Question",
+          "name": "How is this different from YouTube's save feature?",
+          "acceptedAnswer": { "@type": "Answer", "text": "YouTube lets you save videos. Milton lets you save insights. Our AI captures specific moments, generates summaries, and lets you search and chat with your content." }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I try it before paying?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Absolutely. You get 7 days free with full access to everything. No credit card required to start." }
+        },
+        {
+          "@type": "Question",
+          "name": "What happens to my data if I cancel?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Your videos and snips stay in your account. You just won't be able to add new content until you resubscribe." }
+        },
+        {
+          "@type": "Question",
+          "name": "Is there a mobile app?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Not yet! Milton works great in mobile browsers. Native apps are on the roadmap." }
+        }
+      ]
+    }
+    let el = document.getElementById('faq-schema-home')
+    if (!el) {
+      el = document.createElement('script')
+      el.id = 'faq-schema-home'
+      el.type = 'application/ld+json'
+      document.head.appendChild(el)
+    }
+    el.textContent = JSON.stringify(schema)
+  })
+
   useLayoutEffect(() => {
     // ── Lenis smooth scroll ──────────────────────────────────────────────
     const lenis = new Lenis({
@@ -184,6 +227,7 @@ function LandingPage({ onGetStarted }) {
             <a href="#features" className="text-text-secondary hover:text-text-primary transition-colors">Features</a>
             <a href="#pricing" className="text-text-secondary hover:text-text-primary transition-colors">Pricing</a>
             <a href="#faq" className="text-text-secondary hover:text-text-primary transition-colors">FAQ</a>
+            <a href="/youtube-note-taking-app" className="text-text-secondary hover:text-text-primary transition-colors font-medium">Note-Taking App</a>
             <button onClick={onGetStarted} className="text-text-secondary hover:text-text-primary transition-colors font-medium">
               Log in
             </button>
@@ -200,8 +244,12 @@ function LandingPage({ onGetStarted }) {
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
       <section ref={heroRef} className="hero-section pt-32 pb-20 px-4">
         <div className="hero-content max-w-4xl mx-auto text-center">
-          <h1
+          {/* Hidden H1 for SEO crawlers — full readable text with spaces */}
+          <h1 className="sr-only">Never forget another YouTube insight.</h1>
+          {/* Visual animated version — kept for UX */}
+          <p
             ref={heroTitleRef}
+            aria-hidden="true"
             className="font-serif text-5xl md:text-6xl font-semibold text-text-primary mb-6 leading-tight tracking-tighter"
           >
             {['Never', 'forget', 'another', 'YouTube', 'insight.'].map((word, i, arr) => (
@@ -213,7 +261,7 @@ function LandingPage({ onGetStarted }) {
                 {word}
               </span>
             ))}
-          </h1>
+          </p>
           <p className="hero-sub text-xl text-text-secondary mb-8 max-w-2xl mx-auto" style={{ opacity: 0 }}>
             Save key moments with one tap. Get AI-powered notes. Actually remember what you learned.
           </p>
@@ -243,7 +291,7 @@ function LandingPage({ onGetStarted }) {
           <p className="text-lg text-text-secondary leading-relaxed mt-4">
             YouTube is a stream. Insights flow by and disappear.{' '}
             <span className="font-semibold text-text-primary">
-              Milton turns it into a library you can search, revisit, and actually remember.
+              Milton is the <a href="/youtube-note-taking-app" className="text-accent-green hover:underline">YouTube note-taking app</a> that turns it into a library you can search, revisit, and actually remember.
             </span>
           </p>
         </div>
@@ -252,9 +300,12 @@ function LandingPage({ onGetStarted }) {
       {/* ── How It Works ─────────────────────────────────────────────────── */}
       <section className="py-20 px-4">
         <div className="max-w-5xl mx-auto">
-          <h2 className="reveal-up font-serif text-3xl md:text-4xl font-semibold text-text-primary text-center mb-16 tracking-tight">
+          <h2 className="reveal-up font-serif text-3xl md:text-4xl font-semibold text-text-primary text-center mb-4 tracking-tight">
             From watching to knowing in 3 steps
           </h2>
+          <p className="reveal-up text-center text-text-secondary mb-16">
+            Milton is the <a href="/youtube-note-taking-app" className="text-accent-green hover:underline font-medium">YouTube note-taking app</a> built for how you actually learn — no extensions, no friction.
+          </p>
           <div className="stagger-group grid md:grid-cols-3 gap-8">
             <div className="text-center">
               <div className="w-16 h-16 bg-accent-green/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
@@ -576,6 +627,8 @@ function LandingPage({ onGetStarted }) {
               <span className="text-gray-400 ml-2">— Your nerdy friend for video learning.</span>
             </div>
             <div className="flex items-center gap-6 text-sm">
+              <a href="/youtube-note-taking-app" className="text-gray-400 hover:text-white transition-colors">YouTube Note-Taking App</a>
+              <a href="/blog" className="text-gray-400 hover:text-white transition-colors">Blog</a>
               <a href="/privacy" className="text-gray-400 hover:text-white transition-colors">Privacy Policy</a>
               <a href="mailto:hello@miltonapp.co" className="text-gray-400 hover:text-white transition-colors">Contact</a>
             </div>

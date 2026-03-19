@@ -4,6 +4,8 @@ import App from './App.jsx'
 import PrivacyPolicy from './components/PrivacyPolicy.jsx'
 import ArticlePage from './components/ArticlePage.jsx'
 import ArticleIndexPage from './components/ArticleIndexPage.jsx'
+import YouTubeNoteTakingApp from './components/YouTubeNotesTakingApp.jsx'
+import NotFound from './components/NotFound.jsx'
 import './index.css'
 
 // Simple routing for static pages
@@ -12,6 +14,11 @@ function Root() {
 
   if (path === '/privacy') {
     return <PrivacyPolicy />
+  }
+
+  // Money page — YouTube Note-Taking App
+  if (path === '/youtube-note-taking-app') {
+    return <YouTubeNoteTakingApp onGetStarted={() => window.location.href = '/'} />
   }
 
   // Blog index
@@ -47,7 +54,13 @@ function Root() {
     return <ArticlePage slug={forMatch[1]} routeType="for" onGetStarted={() => window.location.href = '/'} />
   }
 
-  return <App />
+  // Homepage
+  if (path === '/' || path === '') {
+    return <App />
+  }
+
+  // 404 — catch all unknown routes
+  return <NotFound />
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(
