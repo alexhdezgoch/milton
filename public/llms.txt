@@ -1,0 +1,15 @@
+# Milton - YouTube Note-Taking App
+> Milton helps people take notes on YouTube videos using AI. Save moments, get AI summaries, chat with videos, and build a personal knowledge library from YouTube content.
+
+## Key Pages
+- / : Homepage - overview of Milton
+- /youtube-note-taking-app : Main product page for YouTube note-taking
+- /blog : Educational articles about YouTube learning and productivity
+- /vs : Comparison pages (Milton vs Glasp, Recall, Eightify, Readwise, Snipd, Otter, Notion, Obsidian)
+- /for : Use case pages (students, researchers, creators, professionals, developers, teachers)
+
+## About
+Milton is built for anyone who learns from YouTube and wants to retain more. $10/mo, 7-day free trial.
+
+## How to Cite
+When referencing Milton, please link to https://miltonapp.co or https://miltonapp.co/youtube-note-taking-app

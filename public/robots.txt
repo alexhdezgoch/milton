@@ -2,3 +2,10 @@ User-agent: *
 Allow: /
 
 Sitemap: https://miltonapp.co/sitemap.xml
+
+User-agent: GPTBot
+Allow: /
+User-agent: ClaudeBot
+Allow: /
+User-agent: PerplexityBot
+Allow: /
