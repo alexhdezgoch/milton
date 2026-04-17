@@ -1,8 +1,10 @@
 import { useEffect } from 'react'
 import { Youtube, Check, Play, Scissors, MessageSquare, FileText, Sparkles, FolderOpen, Mail, ChevronDown } from 'lucide-react'
 import { useState } from 'react'
+import { analytics } from '../lib/analytics'
 
 export default function YouTubeNoteTakingApp({ onGetStarted }) {
+  const handleTrialStart = (source) => () => { analytics.trialStart(source); onGetStarted() }
   useEffect(() => {
     document.title = 'YouTube Note-Taking App — Milton'
     let meta = document.querySelector('meta[name="description"]')
@@ -94,7 +96,7 @@ export default function YouTubeNoteTakingApp({ onGetStarted }) {
             <a href="/#pricing" className="text-text-secondary hover:text-text-primary transition-colors">Pricing</a>
             <a href="/blog" className="text-text-secondary hover:text-text-primary transition-colors">Blog</a>
             <button
-              onClick={onGetStarted}
+              onClick={handleTrialStart('money_page_nav')}
               className="px-5 py-2.5 bg-accent-green text-white font-medium rounded-lg hover:bg-accent-green/90 transition-colors"
             >
               Try for free
@@ -117,7 +119,7 @@ export default function YouTubeNoteTakingApp({ onGetStarted }) {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
-              onClick={onGetStarted}
+              onClick={handleTrialStart('money_page_hero')}
               className="px-8 py-4 bg-accent-green text-white text-lg font-medium rounded-xl hover:bg-accent-green/90 transition-colors shadow-medium"
             >
               Try for free — 7 days
@@ -246,7 +248,7 @@ export default function YouTubeNoteTakingApp({ onGetStarted }) {
               ))}
             </div>
             <button
-              onClick={onGetStarted}
+              onClick={() => { analytics.pricingCtaClick('money_page_pricing'); onGetStarted() }}
               className="w-full py-4 bg-accent-green text-white text-lg font-medium rounded-xl hover:bg-accent-green/90 transition-colors"
             >
               Start free trial
@@ -319,7 +321,7 @@ export default function YouTubeNoteTakingApp({ onGetStarted }) {
             Seven days free. No credit card. Paste a URL and see what you've been missing.
           </p>
           <button
-            onClick={onGetStarted}
+            onClick={handleTrialStart('money_page_cta')}
             className="px-8 py-4 bg-white text-accent-green text-lg font-semibold rounded-xl hover:bg-white/90 transition-colors shadow-medium"
           >
             Try Milton free →

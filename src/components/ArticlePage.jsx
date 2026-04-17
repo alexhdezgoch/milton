@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { Youtube } from 'lucide-react'
 import { getArticleBySlug } from '../data/articles'
+import { analytics } from '../lib/analytics'
 
 // Simple markdown-to-HTML renderer (no dependencies needed)
 function renderMarkdown(md) {
@@ -181,7 +182,7 @@ export default function ArticlePage({ slug, routeType, onGetStarted }) {
             <a href="/#pricing" className="text-text-secondary hover:text-text-primary transition-colors">Pricing</a>
             <a href="/blog" className="text-text-secondary hover:text-text-primary transition-colors">Blog</a>
             <button
-              onClick={onGetStarted}
+              onClick={() => { analytics.trialStart('article_nav'); onGetStarted() }}
               className="px-5 py-2.5 bg-accent-green text-white font-medium rounded-lg hover:bg-accent-green/90 transition-colors"
             >
               Try for free
@@ -217,45 +218,6 @@ export default function ArticlePage({ slug, routeType, onGetStarted }) {
             />
           </article>
 
-          {/* Internal links for /for/ pages */}
-          {article.routeType === 'for' && (
-            <div className="mt-12 p-6 bg-bg-secondary rounded-2xl border border-border">
-              <h3 className="font-semibold text-text-primary mb-4 text-sm uppercase tracking-wide">Explore Milton</h3>
-              <ul className="space-y-3 text-sm">
-                <li>
-                  <a href="/youtube-note-taking-app" className="text-accent-green hover:underline font-medium">
-                    → Milton: The YouTube Note-Taking App
-                  </a>
-                  <span className="text-text-muted ml-2">— Full overview of features & pricing</span>
-                </li>
-                <li>
-                  <a href="/blog/best-youtube-note-taking-app" className="text-accent-green hover:underline font-medium">
-                    → Best YouTube Note-Taking Apps (2026 Comparison)
-                  </a>
-                  <span className="text-text-muted ml-2">— How Milton stacks up against the alternatives</span>
-                </li>
-                <li>
-                  <a href="/blog/active-recall-youtube" className="text-accent-green hover:underline font-medium">
-                    → Active Recall for YouTube Learning
-                  </a>
-                  <span className="text-text-muted ml-2">— The science of retaining what you watch</span>
-                </li>
-                <li>
-                  <a href="/blog/how-to-learn-youtube" className="text-accent-green hover:underline font-medium">
-                    → How to Learn Effectively from YouTube
-                  </a>
-                  <span className="text-text-muted ml-2">— Systems and strategies for serious learners</span>
-                </li>
-                <li>
-                  <a href="/for" className="text-accent-green hover:underline font-medium">
-                    → More use cases
-                  </a>
-                  <span className="text-text-muted ml-2">— See how different learners use Milton</span>
-                </li>
-              </ul>
-            </div>
-          )}
-
           {/* CTA */}
           <div className="mt-16 p-8 bg-bg-secondary rounded-2xl border border-border text-center">
             <div className="w-12 h-12 bg-accent-green rounded-xl flex items-center justify-center mx-auto mb-4">
@@ -268,13 +230,47 @@ export default function ArticlePage({ slug, routeType, onGetStarted }) {
               Milton captures key moments, generates AI-powered notes, and helps you actually remember what you watch.
             </p>
             <button
-              onClick={onGetStarted}
+              onClick={() => { analytics.trialStart('article_cta'); onGetStarted() }}
               className="px-8 py-4 bg-accent-green text-white text-lg font-medium rounded-xl hover:bg-accent-green/90 transition-colors shadow-medium"
             >
               Try Milton free for 7 days
             </button>
             <p className="text-sm text-text-muted mt-3">No credit card required · Cancel anytime</p>
           </div>
+
+          {/* Internal links — shown on comparison and use-case pages */}
+          {(article.routeType === 'vs' || article.routeType === 'for') && (
+            <div className="mt-8 p-6 bg-bg-secondary rounded-2xl border border-border">
+              <h3 className="font-semibold text-text-primary mb-4 text-sm uppercase tracking-wide">Explore Milton</h3>
+              <ul className="space-y-3 text-sm">
+                <li>
+                  <a href="/youtube-note-taking-app" className="text-accent-green hover:underline">
+                    → Milton: The YouTube Note-Taking App
+                  </a>
+                </li>
+                <li>
+                  <a href="/blog/best-youtube-note-taking-app" className="text-accent-green hover:underline">
+                    → Best YouTube Note-Taking Apps (2026 Comparison)
+                  </a>
+                </li>
+                <li>
+                  <a href="/vs" className="text-accent-green hover:underline">
+                    → See all comparisons
+                  </a>
+                </li>
+                <li>
+                  <a href="/for" className="text-accent-green hover:underline">
+                    → Who uses Milton
+                  </a>
+                </li>
+                <li>
+                  <a href="/blog" className="text-accent-green hover:underline">
+                    → YouTube learning guides
+                  </a>
+                </li>
+              </ul>
+            </div>
+          )}
         </div>
       </main>
 
